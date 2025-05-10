@@ -70,6 +70,7 @@ function SginUp() {
                     value={formData.first_name}
                     onChange={handleChange}
                     required
+                    className={styles.input}
                 />
             </div>
             <div>
@@ -81,6 +82,7 @@ function SginUp() {
                     value={formData.last_name}
                     onChange={handleChange}
                     required
+                    className={styles.input}
                 />
             </div>
             <div>
@@ -92,6 +94,7 @@ function SginUp() {
                     value={formData.username}
                     onChange={handleChange}
                     required
+                    className={styles.input}
                 />
             </div>
             <div>
@@ -103,6 +106,7 @@ function SginUp() {
                     value={formData.email}
                     onChange={handleChange}
                     required
+                    className={styles.input}
                 />
             </div>
             <div>
@@ -114,6 +118,7 @@ function SginUp() {
                     value={formData.password}
                     onChange={handleChange}
                     required
+                    className={styles.input}
                 />
             </div>
             <button type="submit" className={styles.submit}>Submit</button>
@@ -122,3 +127,4 @@ function SginUp() {
 }
 
 export default SginUp;
+
