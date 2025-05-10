@@ -42,3 +42,7 @@ a {
     color-scheme: dark;
   }
 }
+
+input {
+  border: black solid 1px;
+}
