@@ -10,7 +10,7 @@ export default function Hero() {
                 </h1>
                
              <p className="text-lg text-gray-600">موقع  مسار  يساعدك  على  إيجاد  الأماكن  التجارية  ونقاط الخدمات  المحلية  بسهولة  بعد  التواصل  مع  اصحابها  </p>
-                <Tab link='/' bgColor='blue'>ابدأ التسوق</Tab>
+                <Tab link='/' blue>ابدأ التسوق</Tab>
             </div>
         </section>
     )
