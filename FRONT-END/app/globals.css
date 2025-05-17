@@ -3,12 +3,14 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --main-blue: #2563EB;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: #ededed;
+    --foreground: #0a0a0a;
+    --main-blue: #2563EB;
   }
 }
 
@@ -53,4 +55,10 @@ a {
   color: #333;
   box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
   text-align: center;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
 }
