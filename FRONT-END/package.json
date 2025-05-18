@@ -25,6 +25,7 @@
     "react-hot-toast": "^2.5.2",
     "react-leaflet": "^5.0.0",
     "sweetalert2": "^11.21.0",
+    "tailwind-merge": "^3.3.0",
     "tailwindcss": "^4.1.7",
     "vite": "^6.3.5"
   },
