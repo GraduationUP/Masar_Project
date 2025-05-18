@@ -2,6 +2,8 @@ import Hero from "@/components/hero";
 import styles from "./page.module.css";
 import HowToUse from "@/components/howToUse";
 import MarketSection from "@/components/MarketSection";
+import FindService from "@/components/FindService";
+import ExploreMore from "@/components/ExploreMore";
 // import Link from "next/link";
 
 export default function Home() {
@@ -9,8 +11,10 @@ export default function Home() {
     <>
       <div className={styles.page}>
         <Hero />
-        <HowToUse />
+        <FindService />
         <MarketSection />
+        <HowToUse />
+        <ExploreMore />
       </div>
     </>
   );
