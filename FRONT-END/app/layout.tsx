@@ -1,6 +1,10 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import NavBar from "@/components/navBar";
+import Footer from "@/components/Footer";
+import NavBg from "@/components/ui/navBg";
+import { defaultMetadata } from "@/lib/defaultMetadata";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -12,10 +16,7 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-export const metadata: Metadata = {
-  title: "Masar",
-  description: "المنصة الفلسطينية الأولى لمساعدة المتضريين من الحرب",
-};
+export const metadata: Metadata = defaultMetadata;
 
 export default function RootLayout({
   children,
@@ -25,7 +26,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
+        <NavBar />
+        <NavBg />
         {children}
+        <Footer />
       </body>
     </html>
   );

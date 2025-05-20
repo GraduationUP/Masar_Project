@@ -62,7 +62,7 @@ function SginUp() {
     return (
         <form onSubmit={handleSubmit} className={styles.form}>
             <div>
-                <label htmlFor="first_name">First Name:</label>
+                <label htmlFor="first_name">الاسم الأول:</label>
                 <input
                     type="text"
                     id="first_name"
@@ -74,7 +74,7 @@ function SginUp() {
                 />
             </div>
             <div>
-                <label htmlFor="last_name">Last Name:</label>
+                <label htmlFor="last_name">اسم العائلة:</label>
                 <input
                     type="text"
                     id="last_name"
@@ -86,7 +86,7 @@ function SginUp() {
                 />
             </div>
             <div>
-                <label htmlFor="username">Username:</label>
+                <label htmlFor="username">اسم المستخدم:</label>
                 <input
                     type="text"
                     id="username"
@@ -98,7 +98,7 @@ function SginUp() {
                 />
             </div>
             <div>
-                <label htmlFor="email">Email:</label>
+                <label htmlFor="email">ايميل:</label>
                 <input
                     type="email"
                     id="email"
@@ -110,7 +110,7 @@ function SginUp() {
                 />
             </div>
             <div>
-                <label htmlFor="password">Password:</label>
+                <label htmlFor="password">كلمة المرور:</label>
                 <input
                     type="password"
                     id="password"
@@ -121,7 +121,7 @@ function SginUp() {
                     className={styles.input}
                 />
             </div>
-            <button type="submit" className={styles.submit}>Submit</button>
+            <button type="submit" className={styles.submit}>انشاء حساب</button>
         </form>
     );
 }

@@ -1,13 +1,20 @@
+import Hero from "@/components/hero";
 import styles from "./page.module.css";
-import Link from "next/link";
+import HowToUse from "@/components/howToUse";
+import MarketSection from "@/components/MarketSection";
+import CTA from "@/components/CTA";
+import ServiceCategories from "@/components/ServiceCategories";
+// import Link from "next/link";
 
 export default function Home() {
   return (
     <>
       <div className={styles.page}>
-        HELLO WORLD
-        <Link href="/sgin-up">Sgin Up</Link>
-        <Link href="/map">Map</Link>
+        <Hero />
+        <ServiceCategories />
+        <MarketSection />
+        <HowToUse />
+        <CTA />
       </div>
     </>
   );
