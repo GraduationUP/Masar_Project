@@ -4,6 +4,7 @@ import "./globals.css";
 import NavBar from "@/components/navBar";
 import Footer from "@/components/Footer";
 import NavBg from "@/components/ui/navBg";
+import { defaultMetadata } from "@/lib/defaultMetadata";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -15,10 +16,7 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-export const metadata: Metadata = {
-  title: "Masar | مسار",
-  description: "المنصة الفلسطينية الأولى لمساعدة المتضريين من الحرب",
-};
+export const metadata: Metadata = defaultMetadata;
 
 export default function RootLayout({
   children,

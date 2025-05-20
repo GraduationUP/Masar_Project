@@ -4,7 +4,7 @@ interface TabProps {
     link: string;
     white?: boolean;
     blue?: boolean;
-    children: string;
+    children: any;
 }
 
 export default function Tab({ link, white, blue, children }: TabProps) {
