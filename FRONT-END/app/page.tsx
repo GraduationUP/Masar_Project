@@ -3,7 +3,8 @@ import styles from "./page.module.css";
 import HowToUse from "@/components/howToUse";
 import MarketSection from "@/components/MarketSection";
 import FindService from "@/components/FindService";
-import ExploreMore from "@/components/ExploreMore";
+import CTA from "@/components/CTA";
+import ServiceCategories from "@/components/ServiceCategories";
 // import Link from "next/link";
 
 export default function Home() {
@@ -11,10 +12,11 @@ export default function Home() {
     <>
       <div className={styles.page}>
         <Hero />
+        <ServiceCategories />
         <FindService />
         <MarketSection />
         <HowToUse />
-        <ExploreMore />
+        <CTA />
       </div>
     </>
   );

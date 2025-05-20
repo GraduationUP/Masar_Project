@@ -9,21 +9,21 @@ export default function Footer() {
                     </div>
                     <div>
                         <h3 className="font-semibold text-gray-400 mb-3">المنصة</h3>
-                        <ul className="space-y-2 text-sm">
+                        <dl className="space-y-2 text-sm">
                             <li><a href="#" className="hover:text-white transition duration-300">خريطة الخدمات</a></li>
                             <li><a href="#" className="hover:text-white transition duration-300">السوق</a></li>
                             <li><a href="#" className="hover:text-white transition duration-300">الخدمات</a></li>
                             <li><a href="#" className="hover:text-white transition duration-300">المتاجر</a></li>
-                        </ul>
+                        </dl>
                     </div>
                     <div>
                         <h3 className="font-semibold text-gray-400 mb-3">الموارد</h3>
-                        <ul className="space-y-2 text-sm">
+                        <dl className="space-y-2 text-sm">
                             <li><a href="#" className="hover:text-white transition duration-300">مركز المساعدة</a></li>
                             <li><a href="#" className="hover:text-white transition duration-300">دليل البائع</a></li>
                             <li><a href="#" className="hover:text-white transition duration-300">المدونة</a></li>
                             <li><a href="#" className="hover:text-white transition duration-300">التعليمات</a></li>
-                        </ul>
+                        </dl>
                     </div>
                     <div>
                         <p className="text-white font-semibold mb-3">ابقَ على إطلاع</p>

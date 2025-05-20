@@ -7,17 +7,17 @@ export default function Hero() {
     return (
         <section className={styles.map}>
             <div className={styles.hero}>
-                <h1 className="text-4xl font-bold text-gray-800">
+                <h1 className="text-7xl font-bold text-gray-800">
                     مسارك الصحيح للمنتجات والخدمات المحلية المرغوبة
                 </h1>
 
                 <p className="text-lg text-gray-600">موقع  مسار  يساعدك  على  إيجاد  الأماكن  التجارية  ونقاط الخدمات  المحلية  بسهولة  بعد  التواصل  مع  اصحابها  </p>
                 <div className="flex">
-                    <Tab link='/' white>
+                    <Tab link='/market' white>
                         ابدأ التسوق
                         <LocalMallIcon />
                     </Tab>
-                    <Tab link='/' blue>
+                    <Tab link='/map' blue>
                         تصفح الخريطة
                         <LocationOnIcon />
                     </Tab>
