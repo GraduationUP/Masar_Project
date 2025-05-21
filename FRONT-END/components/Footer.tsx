@@ -1,49 +1,145 @@
+import Link from "next/link"
+import { Facebook, Instagram, Twitter, MapPin, Mail, Phone } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+
 export default function Footer() {
-    return (
-        <footer className="bg-gray-900 text-gray-300 py-16">
-            <div className="container mx-auto px-4">
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-4 gap-8 mb-10">
-                    <div>
-                        <h2 className="text-xl font-bold text-white mb-4">مسار</h2>
-                        <p className="text-sm">ربطك مع البائعين المحليين والخدمات الأساسية في حيك.</p>
-                    </div>
-                    <div>
-                        <h3 className="font-semibold text-gray-400 mb-3">المنصة</h3>
-                        <dl className="space-y-2 text-sm">
-                            <li><a href="#" className="hover:text-white transition duration-300">خريطة الخدمات</a></li>
-                            <li><a href="#" className="hover:text-white transition duration-300">السوق</a></li>
-                            <li><a href="#" className="hover:text-white transition duration-300">الخدمات</a></li>
-                            <li><a href="#" className="hover:text-white transition duration-300">المتاجر</a></li>
-                        </dl>
-                    </div>
-                    <div>
-                        <h3 className="font-semibold text-gray-400 mb-3">الموارد</h3>
-                        <dl className="space-y-2 text-sm">
-                            <li><a href="#" className="hover:text-white transition duration-300">مركز المساعدة</a></li>
-                            <li><a href="#" className="hover:text-white transition duration-300">دليل البائع</a></li>
-                            <li><a href="#" className="hover:text-white transition duration-300">المدونة</a></li>
-                            <li><a href="#" className="hover:text-white transition duration-300">التعليمات</a></li>
-                        </dl>
-                    </div>
-                    <div>
-                        <p className="text-white font-semibold mb-3">ابقَ على إطلاع</p>
-                        <p className="text-sm mb-3">اشترك في نشرتنا الإخبارية للحصول على آخر التحديثات والعروض.</p>
-                    </div>
-                </div>
-                <div className="border-t border-gray-800 pt-8 text-sm flex justify-between aling-center">
-                    <div>
-                        <p className="mb-3">غزة، فلسطين</p>
-                        <p className="mb-3">contact@masar.com</p>
-                        <p className="mb-3">00970123456789</p>
-                        <p className="mb-4">© {new Date().getFullYear()} مسار. جميع الحقوق محفوظة.</p>
-                    </div>
-                    <div className="flex gap-4 space-x-6 mt-2">
-                        <a href="#" className="hover:text-white transition duration-300">الخصوصية</a>
-                        <a href="#" className="hover:text-white transition duration-300">الشروط</a>
-                        <a href="#" className="hover:text-white transition duration-300">ملفات تعريف الارتباط</a>
-                    </div>
-                </div>
+  return (
+    <footer className="border-t bg-background">
+      <div className="container px-4 md:px-6 py-12 md:py-16">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 lg:gap-12">
+          <div className="space-y-4 md:col-span-4 lg:col-span-1">
+            <Link href="/" className="flex items-center space-x-2">
+              <span className="inline-block font-bold text-2xl gradient-heading">مسار</span>
+            </Link>
+            <p className="text-muted-foreground">
+              اكتشف البائعين المحليين والخدمات الاساسية في محيطك.
+            </p>
+            <div className="flex space-x-4">
+              <Link href="#" className="text-muted-foreground hover:text-primary transition-colors">
+                <Facebook className="h-5 w-5" />
+                <span className="sr-only">Facebook</span>
+              </Link>
+              <Link href="#" className="text-muted-foreground hover:text-primary transition-colors">
+                <Twitter className="h-5 w-5" />
+                <span className="sr-only">Twitter</span>
+              </Link>
+              <Link href="#" className="text-muted-foreground hover:text-primary transition-colors">
+                <Instagram className="h-5 w-5" />
+                <span className="sr-only">Instagram</span>
+              </Link>
             </div>
-        </footer>
-    );
+          </div>
+
+          <div className="md:col-span-2 lg:col-span-1">
+            <h3 className="text-sm font-medium mb-4 uppercase tracking-wider">المنصة</h3>
+            <ul className="space-y-3 text-sm">
+              <li>
+                <Link
+                  href="/map"
+                  className="text-muted-foreground hover:text-primary transition-colors flex items-center gap-2"
+                >
+                  <span className="h-1 w-1 rounded-full bg-primary/70"></span>
+                  الخريطة
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/marketplace"
+                  className="text-muted-foreground hover:text-primary transition-colors flex items-center gap-2"
+                >
+                  <span className="h-1 w-1 rounded-full bg-primary/70"></span>
+                  السوق
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/services"
+                  className="text-muted-foreground hover:text-primary transition-colors flex items-center gap-2"
+                >
+                  <span className="h-1 w-1 rounded-full bg-primary/70"></span>
+                  الخدمات
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          <div className="md:col-span-2 lg:col-span-1">
+            <h3 className="text-sm font-medium mb-4 uppercase tracking-wider">المراجع</h3>
+            <ul className="space-y-3 text-sm">
+              <li>
+                <Link
+                  href="/help"
+                  className="text-muted-foreground hover:text-primary transition-colors flex items-center gap-2"
+                >
+                  <span className="h-1 w-1 rounded-full bg-primary/70"></span>
+                  مركز المساعدة
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/seller-guide"
+                  className="text-muted-foreground hover:text-primary transition-colors flex items-center gap-2"
+                >
+                  <span className="h-1 w-1 rounded-full bg-primary/70"></span>
+                  دليل البائع
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/faq"
+                  className="text-muted-foreground hover:text-primary transition-colors flex items-center gap-2"
+                >
+                  <span className="h-1 w-1 rounded-full bg-primary/70"></span>
+                  FAQ
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          <div className="md:col-span-4 lg:col-span-1">
+            <h3 className="text-sm font-medium mb-4 uppercase tracking-wider">ابقى على اتصال</h3>
+            <p className="text-sm text-muted-foreground mb-4">
+              اشترك لتصلك احدث العروض والأخبار.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-2">
+              <Input type="email" placeholder="email" className="rounded-full" />
+              <Button className="rounded-full bg-gradient-to-r from-[#4bbae6] to-[#4682B4]">
+                اشترك
+              </Button>
+            </div>
+            <div className="mt-6 space-y-2">
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <MapPin className="h-4 w-4" />
+                <span>غزة، فلسطين</span>
+              </div>
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Mail className="h-4 w-4" />
+                <span>contact@masar.com</span>
+              </div>
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Phone className="h-4 w-4" />
+                <span>00970 123456789</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="border-t mt-12 pt-8 flex flex-col md:flex-row justify-between items-center">
+          <p className="text-xs text-muted-foreground">© {new Date().getFullYear()}مسار، جميع الحقوق محفوظة</p>
+          <div className="flex space-x-6 mt-4 md:mt-0">
+            <Link href="/privacy" className="text-xs text-muted-foreground hover:text-primary transition-colors">
+              Privacy
+            </Link>
+            <Link href="/terms" className="text-xs text-muted-foreground hover:text-primary transition-colors">
+              Terms
+            </Link>
+            <Link href="/cookies" className="text-xs text-muted-foreground hover:text-primary transition-colors">
+              Cookies
+            </Link>
+          </div>
+        </div>
+      </div>
+    </footer>
+  )
 }
