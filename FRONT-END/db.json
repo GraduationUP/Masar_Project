@@ -1,0 +1,44 @@
+{
+  "users": [
+    {
+      "id": 1,
+      "first_name": "Ahmed",
+      "last_name": "Salem",
+      "username": "ahmed_s",
+      "email": "ahmed@example.com",
+      "password": "123456"
+    },
+    {
+      "id": 2,
+      "first_name": "Lina",
+      "last_name": "Khaled",
+      "username": "lina.k",
+      "email": "lina@example.com",
+      "password": "mypassword"
+    },
+    {
+      "id": 3,
+      "first_name": "Tariq",
+      "last_name": "Omar",
+      "username": "tariq_o",
+      "email": "tariq@example.com",
+      "password": "pass123"
+    },
+    {
+      "id": 4,
+      "first_name": "Maya",
+      "last_name": "Nasser",
+      "username": "maya.n",
+      "email": "maya@example.com",
+      "password": "secret"
+    },
+    {
+      "id": 5,
+      "first_name": "Youssef",
+      "last_name": "Ali",
+      "username": "youssef_ali",
+      "email": "youssef@example.com",
+      "password": "admin"
+    }
+  ]
+}
