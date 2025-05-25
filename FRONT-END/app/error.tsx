@@ -24,8 +24,8 @@ export default function Error({
           <AlertTriangle className="h-8 w-8 text-red-600 dark:text-red-400" />
         </div>
 
-        <h1 className="text-3xl font-bold tracking-tight">Something went wrong</h1>
-        <p className="text-muted-foreground">We apologize for the inconvenience. An unexpected error has occurred.</p>
+        <h1 className="text-3xl font-bold tracking-tight">حدث خطأ ما!</h1>
+        <p className="text-muted-foreground">نعتذر عن أي إزعاج. حدث خطأ غير متوقع.</p>
 
         <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
           <Button variant="outline" className="rounded-full" onClick={() => reset()}>
@@ -34,9 +34,9 @@ export default function Error({
           </Button>
           <Button
             asChild
-            className="rounded-full bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700"
+            className="rounded-full bg-gradient-to-r from-[#3a5f8a] to-[#699ecb] hover:from-[#2f4d6d] hover:to-[#5a8ec0]"
           >
-            <Link href="/">Go back home</Link>
+            <Link href="/">الرجوع للصفحة الرئيسية</Link>
           </Button>
         </div>
 
