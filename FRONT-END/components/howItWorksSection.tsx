@@ -1,8 +1,12 @@
+'use client';
+
 import { MapPinIcon, ShoppingBag, Zap } from "lucide-react"
 import Link from "next/link"
 import { Button } from "./ui/button"
+import { useAuth } from "@/lib/auth-context";
 
 export default function HowItWorksSection() {
+    const { user } = useAuth();
     return (
         <section className="container px-4 md:px-6 section-padding">
             <div className="flex flex-col gap-8 items-center text-center">
@@ -46,13 +50,15 @@ export default function HowItWorksSection() {
                         </p>
                     </div>
                 </div>
-                <Button
-                    asChild
-                    size="lg"
-                    className="mt-8 rounded-full bg-gradient-to-r from-[#4bbae6] to-[#4682B4]"
-                >
-                    <Link href="/register">انضم إلى مسار الان</Link>
-                </Button>
+                {!user &&
+                    <Button
+                        asChild
+                        size="lg"
+                        className="mt-8 rounded-full bg-gradient-to-r from-[#4bbae6] to-[#4682B4]"
+                    >
+                        <Link href="/register">انضم إلى مسار الان</Link>
+                    </Button>
+                }
             </div>
         </section>
     )

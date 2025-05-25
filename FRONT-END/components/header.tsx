@@ -17,14 +17,15 @@ import {
 import { Bell, Menu, Moon, Search, Sun } from "lucide-react"
 import { useTheme } from "next-themes"
 import { useAuth } from "@/lib/auth-context"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import Image from "next/image"
+import { Avatar, AvatarImage } from "@/components/ui/avatar"
+import { logoutAction } from "@/lib/actions"
 
 export default function Header() {
   const { theme, setTheme } = useTheme()
   const pathname = usePathname()
-  const { user, logout } = useAuth()
+  const { user } = useAuth()
   const [isMounted, setIsMounted] = useState(false)
   const [isScrolled, setIsScrolled] = useState(false)
 
@@ -48,11 +49,10 @@ export default function Header() {
 
   return (
     <header
-      className={`sticky top-0 z-50 w-full transition-all duration-300 ${
-        isScrolled
-          ? "bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b shadow-sm"
-          : "bg-background/0 border-transparent"
-      }`}
+      className={`sticky top-0 z-50 w-full transition-all duration-300 ${isScrolled
+        ? "bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b shadow-sm"
+        : "bg-background/0 border-transparent"
+        }`}
     >
       <div className="container flex h-16 items-center justify-between px-4 md:px-6">
         <div className="flex gap-6 md:gap-10">
@@ -64,15 +64,13 @@ export default function Header() {
               <Link
                 key={item.name}
                 href={item.href}
-                className={`text-sm font-medium transition-colors hover:text-primary relative group ${
-                  pathname === item.href ? "text-primary" : "text-muted-foreground"
-                }`}
+                className={`text-sm font-medium transition-colors hover:text-primary relative group ${pathname === item.href ? "text-primary" : "text-muted-foreground"
+                  }`}
               >
                 {item.name}
                 <span
-                  className={`absolute -bottom-1 left-0 h-0.5 bg-primary transition-all duration-300 ${
-                    pathname === item.href ? "w-full" : "w-0 group-hover:w-full"
-                  }`}
+                  className={`absolute -bottom-1 left-0 h-0.5 bg-primary transition-all duration-300 ${pathname === item.href ? "w-full" : "w-0 group-hover:w-full"
+                    }`}
                 ></span>
               </Link>
             ))}
@@ -121,21 +119,20 @@ export default function Header() {
                     className="relative h-8 w-8 rounded-full overflow-hidden ring-2 ring-background"
                   >
                     <Avatar className="h-8 w-8">
-                      <AvatarImage src={user.avatar || "/placeholder.svg"} alt={user.name} />
-                      <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
+                      <AvatarImage src={"/ProfilePlaceholder.jpg"} alt={'profile placeholder'} />
                     </Avatar>
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className="w-56 mt-1" align="end" forceMount>
                   <DropdownMenuLabel className="font-normal">
                     <div className="flex flex-col space-y-1">
-                      <p className="text-sm font-medium leading-none">{user.name}</p>
+                      <p className="text-sm font-medium leading-none">{user.first_name}</p>
                       <p className="text-xs leading-none text-muted-foreground">{user.email}</p>
                     </div>
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem asChild>
-                    <Link href={`/${user.role}/dashboard`} className="cursor-pointer flex items-center">
+                    <Link href={`/${user.id}/dashboard`} className="cursor-pointer flex items-center">
                       <span className="h-4 w-4 mr-2 rounded-full bg-primary/20 flex items-center justify-center">
                         <span className="h-1.5 w-1.5 rounded-full bg-primary"></span>
                       </span>
@@ -153,9 +150,11 @@ export default function Header() {
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={logout} className="cursor-pointer text-destructive focus:text-destructive">
-                    تسجيل الخروج
-                  </DropdownMenuItem>
+                  <form action={logoutAction}>
+                    <Button type="submit" className="cursor-pointer text-white">
+                      تسجيل الخروج
+                    </Button>
+                  </form>
                 </DropdownMenuContent>
               </DropdownMenu>
             </>
@@ -189,9 +188,8 @@ export default function Header() {
                       <Link
                         key={item.name}
                         href={item.href}
-                        className={`text-sm font-medium transition-colors hover:text-primary ${
-                          pathname === item.href ? "text-primary" : "text-muted-foreground"
-                        }`}
+                        className={`text-sm font-medium transition-colors hover:text-primary ${pathname === item.href ? "text-primary" : "text-muted-foreground"
+                          }`}
                       >
                         {item.name}
                       </Link>
@@ -204,7 +202,7 @@ export default function Header() {
                     {user ? (
                       <>
                         <Link
-                          href={`/${user.role}/dashboard`}
+                          href={`/${user.id}/dashboard`}
                           className="text-sm font-medium transition-colors hover:text-primary"
                         >
                           لوحة التحكم
@@ -212,12 +210,14 @@ export default function Header() {
                         <Link href="/profile" className="text-sm font-medium transition-colors hover:text-primary">
                           الملف الشخصي
                         </Link>
-                        <button
-                          onClick={logout}
-                          className="text-sm font-medium transition-colors hover:text-primary text-left"
-                        >
-                          تسجيل الخروج
-                        </button>
+                        <form action={logoutAction}>
+                          <button
+                            type="submit"
+                            className="text-sm font-medium transition-colors hover:text-primary text-left"
+                          >
+                            تسجيل الخروج
+                          </button>
+                        </form>
                       </>
                     ) : (
                       <>
