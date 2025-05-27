@@ -131,10 +131,10 @@ export default function Footer() {
             <Link href="/privacy" className="text-xs text-muted-foreground hover:text-primary transition-colors">
               Privacy
             </Link>
-            <Link href="/terms" className="text-xs text-muted-foreground hover:text-primary transition-colors">
+            <Link href="#" className="text-xs text-muted-foreground hover:text-primary transition-colors">
               Terms
             </Link>
-            <Link href="/cookies" className="text-xs text-muted-foreground hover:text-primary transition-colors">
+            <Link href="#" className="text-xs text-muted-foreground hover:text-primary transition-colors">
               Cookies
             </Link>
           </div>
