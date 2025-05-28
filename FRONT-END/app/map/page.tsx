@@ -11,7 +11,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Fuel, ShoppingBag, Utensils, AmbulanceIcon as FirstAid, MapPin, Search, Filter, Loader2 } from "lucide-react"
 
 // Dynamically import the map component to avoid SSR issues
-const MapWithNoSSR = dynamic(() => import("@/components/map"), {
+const GazaMap = dynamic(() => import("@/components/map"), {
   ssr: false,
   loading: () => (
     <div className="h-full w-full bg-muted/30 animate-pulse flex items-center justify-center">
@@ -85,6 +85,10 @@ export default function MapPage() {
   const [userLocation, setUserLocation] = useState<[number, number] | null>(null)
   const [mapCenter, setMapCenter] = useState<[number, number]>([31.9539, 35.9106])
   const [isLoading, setIsLoading] = useState(true)
+  const [data, setData] = useState(null);
+  const [viewOption, setViewOption] = useState('all');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [zoomLocation, setZoomLocation] = useState('31.5069,34.4560'); // Default to Gaza
 
   useEffect(() => {
     // Initialize mock data
@@ -98,10 +102,7 @@ export default function MapPage() {
         const userCoords: [number, number] = [position.coords.latitude, position.coords.longitude]
         setUserLocation(userCoords)
         setMapCenter(userCoords)
-      },
-      (error) => {
-        console.error("Error getting user location:", error)
-      },
+      }
     )
   }, [])
 
@@ -176,7 +177,7 @@ export default function MapPage() {
         <p className="text-muted-foreground text-lg">استكشف الخدمات والمتاجر في محيطك</p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      {/* <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="md:col-span-1 space-y-6">
           <Card className="border-border/50 shadow-sm">
             <CardHeader className="pb-3">
@@ -215,7 +216,6 @@ export default function MapPage() {
                   </SelectContent>
                 </Select>
               </div>
-
               <div className="pt-2">
                 <Button
                   variant="outline"
@@ -324,12 +324,12 @@ export default function MapPage() {
                   <p className="text-muted-foreground">جار تحميل الخريطة...</p>
                 </div>
               </div>
-            ) : (
-              <MapWithNoSSR center={mapCenter} zoom={13} markers={getMarkers()} showUserLocation={true} />
-            )}
+            ) : ( */}
+              <GazaMap center={mapCenter} zoom={13} markers={getMarkers()} showUserLocation={true} />
+            {/* )}
           </div>
         </div>
-      </div>
+      </div> */}
     </div>
   )
 }
