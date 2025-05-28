@@ -8,7 +8,6 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from './ui/
 import { Input } from './ui/input';
 import { Search } from 'lucide-react';
 import { Label } from './ui/label';
-import { Select, SelectItem, SelectTrigger, SelectValue, SelectContent } from './ui/select';
 
 // Fix for default marker icons in Leaflet
 delete L.Icon.Default.prototype._getIconUrl;
