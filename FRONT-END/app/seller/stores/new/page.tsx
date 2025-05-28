@@ -157,8 +157,8 @@ export default function NewStorePage() {
             </Link>
           </Button>
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">Create New Store</h1>
-            <p className="text-muted-foreground">Set up your store on Masar</p>
+            <h1 className="text-3xl font-bold tracking-tight">انئ متجراً جديداً</h1>
+            <p className="text-muted-foreground">قم بانشاء متجرك على مسار</p>
           </div>
         </div>
 
@@ -167,15 +167,15 @@ export default function NewStorePage() {
             <div className="lg:col-span-2 space-y-6">
               <Card>
                 <CardHeader>
-                  <CardTitle>Store Information</CardTitle>
-                  <CardDescription>Basic details about your store</CardDescription>
+                  <CardTitle>معلومات المتجر</CardTitle>
+                  <CardDescription>المعلومات الاساسية عن متجرك</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="name">Store Name *</Label>
+                    <Label htmlFor="name">اسم المتجر *</Label>
                     <Input
                       id="name"
-                      placeholder="Enter your store name"
+                      placeholder="ادخل اسم المتجر"
                       value={storeData.name}
                       onChange={(e) => setStoreData({ ...storeData, name: e.target.value })}
                       required
@@ -183,10 +183,10 @@ export default function NewStorePage() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="description">Store Description *</Label>
+                    <Label htmlFor="description">وصف المتجر *</Label>
                     <Textarea
                       id="description"
-                      placeholder="Describe your store and what you sell"
+                      placeholder="قم بوصف متجرك"
                       value={storeData.description}
                       onChange={(e) => setStoreData({ ...storeData, description: e.target.value })}
                       required
@@ -194,7 +194,7 @@ export default function NewStorePage() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label>Store Categories *</Label>
+                    <Label>اقسام المتجر *</Label>
                     <div className="flex flex-wrap gap-2">
                       {categories.map((category) => (
                         <Button
@@ -210,20 +210,20 @@ export default function NewStorePage() {
                         </Button>
                       ))}
                     </div>
-                    <p className="text-xs text-muted-foreground mt-1">Select up to 5 categories</p>
+                    <p className="text-xs text-muted-foreground mt-1">اختر 5 اقسام كحد اقصى</p>
                   </div>
                 </CardContent>
               </Card>
 
               <Card>
                 <CardHeader>
-                  <CardTitle>Contact Information</CardTitle>
-                  <CardDescription>How customers can reach you</CardDescription>
+                  <CardTitle>معلومات الاتصال</CardTitle>
+                  <CardDescription>كيف يمكن للعملاء الاتصال بك</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="phone">Phone Number *</Label>
+                      <Label htmlFor="phone">رقم الهاتف *</Label>
                       <Input
                         id="phone"
                         placeholder="+962 7 1234 5678"
@@ -234,7 +234,7 @@ export default function NewStorePage() {
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="email">Email Address *</Label>
+                      <Label htmlFor="email">عنوان البريد الالكتروني *</Label>
                       <Input
                         id="email"
                         type="email"
@@ -247,7 +247,7 @@ export default function NewStorePage() {
                     </div>
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="website">Website (Optional)</Label>
+                    <Label htmlFor="website">موقع الويب (اختياري)</Label>
                     <Input
                       id="website"
                       placeholder="www.yourstore.com"
@@ -257,10 +257,10 @@ export default function NewStorePage() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="address">Store Address *</Label>
+                    <Label htmlFor="address">عنوان المحل *</Label>
                     <Input
                       id="address"
-                      placeholder="123 Main St, Amman, Jordan"
+                      placeholder="123 شارع الرئيسي، عمان، الاردن"
                       value={storeData.address}
                       onChange={(e) => setStoreData({ ...storeData, address: e.target.value })}
                       required
@@ -274,12 +274,12 @@ export default function NewStorePage() {
             <div className="space-y-6">
               <Card>
                 <CardHeader>
-                  <CardTitle>Store Images</CardTitle>
-                  <CardDescription>Upload images for your store</CardDescription>
+                  <CardTitle>صور المحل</CardTitle>
+                  <CardDescription>حمل صور لمحلك</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="space-y-2">
-                    <Label>Store Logo</Label>
+                    <Label>شعار المحل</Label>
                     <div className="border-2 border-dashed rounded-lg p-4 text-center">
                       <div className="flex flex-col items-center gap-2">
                         <div className="h-20 w-20 rounded-full bg-muted/50 flex items-center justify-center">
@@ -295,14 +295,14 @@ export default function NewStorePage() {
                         </div>
                         <Button type="button" variant="outline" size="sm" className="rounded-full">
                           <Upload className="h-4 w-4 mr-2" />
-                          Upload Logo
+                          حمل الشعار
                         </Button>
-                        <p className="text-xs text-muted-foreground">Recommended: 200x200px</p>
+                        <p className="text-xs text-muted-foreground">مطلوب: 200x200px</p>
                       </div>
                     </div>
                   </div>
                   <div className="space-y-2">
-                    <Label>Cover Image</Label>
+                    <Label>صورة الغلاف</Label>
                     <div className="border-2 border-dashed rounded-lg p-4 text-center">
                       <div className="flex flex-col items-center gap-2">
                         <div className="h-32 w-full bg-muted/50 rounded-lg flex items-center justify-center overflow-hidden">
@@ -318,9 +318,9 @@ export default function NewStorePage() {
                         </div>
                         <Button type="button" variant="outline" size="sm" className="rounded-full">
                           <Upload className="h-4 w-4 mr-2" />
-                          Upload Cover
+                          حمل صورة الغلاف
                         </Button>
-                        <p className="text-xs text-muted-foreground">Recommended: 1200x400px</p>
+                        <p className="text-xs text-muted-foreground">مطلوب: 1200x400px</p>
                       </div>
                     </div>
                   </div>
@@ -329,8 +329,8 @@ export default function NewStorePage() {
 
               <Card>
                 <CardHeader>
-                  <CardTitle>Store Preview</CardTitle>
-                  <CardDescription>How your store will appear</CardDescription>
+                  <CardTitle>عرض المحل</CardTitle>
+                  <CardDescription>كيف سيظهر محلك</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="rounded-lg border overflow-hidden">
@@ -343,7 +343,7 @@ export default function NewStorePage() {
                         />
                       ) : (
                         <div className="h-full w-full flex items-center justify-center">
-                          <p className="text-sm text-muted-foreground">Cover Image</p>
+                          <p className="text-sm text-muted-foreground">صورة الغلاف</p>
                         </div>
                       )}
                       <div className="absolute bottom-4 left-4 bg-background rounded-full p-1">
@@ -351,7 +351,7 @@ export default function NewStorePage() {
                           {storeData.logo ? (
                             <img
                               src={storeData.logo || "/placeholder.svg"}
-                              alt="Logo preview"
+                              alt=" معاينة الشعار"
                               className="h-full w-full object-cover"
                             />
                           ) : (
@@ -361,9 +361,9 @@ export default function NewStorePage() {
                       </div>
                     </div>
                     <div className="p-4">
-                      <h3 className="font-bold">{storeData.name || "Your Store Name"}</h3>
+                      <h3 className="font-bold">{storeData.name || "اسم متجرك"}</h3>
                       <p className="text-sm text-muted-foreground line-clamp-2 mt-1">
-                        {storeData.description || "Your store description will appear here"}
+                        {storeData.description || "سيظهر وصف متجرك هنا"}
                       </p>
                       <div className="flex flex-wrap gap-1 mt-2">
                         {selectedCategories.length > 0 ? (
@@ -373,7 +373,7 @@ export default function NewStorePage() {
                             </span>
                           ))
                         ) : (
-                          <span className="text-xs text-muted-foreground">No categories selected</span>
+                          <span className="text-xs text-muted-foreground">لا يوجد تصنيفات محددة</span>
                         )}
                       </div>
                     </div>
@@ -385,22 +385,22 @@ export default function NewStorePage() {
 
           <div className="mt-8 flex justify-between">
             <Button type="button" variant="outline" asChild className="rounded-full">
-              <Link href="/seller/dashboard">Cancel</Link>
+              <Link href="/seller/dashboard">إلغاء</Link>
             </Button>
             <Button
               type="submit"
-              className="rounded-full bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700"
+              className="rounded-full bg-gradient-to-r from-blue-400 to-blue-600 hover:from-blue-500 hover:to-blue-700"
               disabled={isLoading}
             >
               {isLoading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Creating Store...
+                  جاري إنشاء المتجر...
                 </>
               ) : (
                 <>
                   <StoreIcon className="mr-2 h-4 w-4" />
-                  Create Store
+                  إنشاء متجر
                 </>
               )}
             </Button>
@@ -410,3 +410,4 @@ export default function NewStorePage() {
     </div>
   )
 }
+
