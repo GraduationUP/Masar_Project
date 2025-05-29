@@ -8,18 +8,24 @@ use Illuminate\Support\Facades\Password;
 
 class PasswordResetLinkController extends Controller
 {
-    public function store(Request $request)
-    {
-        $request->validate(['email' => ['required', 'email']]);
+   public function store(Request $request)
+{
+    $request->validate(['email' => ['required', 'email']]);
 
-        $status = Password::sendResetLink(
-            $request->only('email')
-        );
+    $status = Password::sendResetLink(
+        $request->only('email')
+    );
 
-        if ($status !== Password::RESET_LINK_SENT) {
-            return response()->json(['message' => __($status)], 422);
-        }
+    // أضف هذا السطر للتصحيح
+    \Log::info("Password reset link status: ".$status);
 
-        return response()->noContent();
+    if ($status !== Password::RESET_LINK_SENT) {
+        return response()->json(['message' => __($status)], 422);
     }
+
+    return response()->json([
+        'message' => __($status),
+        'status' => 'success'
+    ]);
+}
 }
