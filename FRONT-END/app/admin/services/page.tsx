@@ -55,13 +55,13 @@ export default function AdminServicesPage() {
       <Card>
         <CardHeader className="flex flex-col sm:flex-row justify-between sm:items-center space-y-2 sm:space-y-0">
           <div>
-            <CardTitle className="text-2xl">Services Management</CardTitle>
-            <CardDescription>Manage all services in the Masar platform</CardDescription>
+            <CardTitle className="text-2xl">إدارة الخدمات</CardTitle>
+            <CardDescription>إدارة جميع الخدمات على منصة مسار</CardDescription>
           </div>
           <Link href="/admin/services/new">
             <Button>
               <Plus className="mr-2 h-4 w-4" />
-              Add New Service
+              إضافة خدمة جديدة
             </Button>
           </Link>
         </CardHeader>
@@ -69,7 +69,7 @@ export default function AdminServicesPage() {
           <div className="relative mb-6">
             <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
-              placeholder="Search services..."
+              placeholder="بحث عن الخدمات..."
               className="pl-8"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
@@ -80,12 +80,12 @@ export default function AdminServicesPage() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Category</TableHead>
-                  <TableHead className="hidden md:table-cell">Location</TableHead>
-                  <TableHead className="hidden md:table-cell">Status</TableHead>
-                  <TableHead className="hidden md:table-cell">Emergency</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
+                  <TableHead>الاسم</TableHead>
+                  <TableHead>الفئة</TableHead>
+                  <TableHead className="hidden md:table-cell">الموقع</TableHead>
+                  <TableHead className="hidden md:table-cell">الحالة</TableHead>
+                  <TableHead className="hidden md:table-cell">طوارئ</TableHead>
+                  <TableHead className="text-right">الإجراءات</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -105,11 +105,11 @@ export default function AdminServicesPage() {
                       <TableCell className="hidden md:table-cell">
                         {service.isOpen ? (
                           <Badge variant="outline" className="bg-green-100 text-green-800 border-green-300">
-                            Open
+                            مفتوح
                           </Badge>
                         ) : (
                           <Badge variant="outline" className="bg-red-100 text-red-800 border-red-300">
-                            Closed
+                            مغلق
                           </Badge>
                         )}
                       </TableCell>
@@ -117,10 +117,10 @@ export default function AdminServicesPage() {
                         {service.isEmergency ? (
                           <div className="flex items-center">
                             <AlertTriangle className="h-3.5 w-3.5 mr-1 text-red-500" />
-                            <span className="text-red-500">Yes</span>
+                            <span className="text-red-500">نعم</span>
                           </div>
                         ) : (
-                          <span>No</span>
+                          <span>لا</span>
                         )}
                       </TableCell>
                       <TableCell className="text-right">
@@ -128,7 +128,7 @@ export default function AdminServicesPage() {
                           <Link href={`/admin/services/${service.id}/edit`}>
                             <Button variant="outline" size="sm">
                               <Edit className="h-3.5 w-3.5" />
-                              <span className="sr-only">Edit</span>
+                              <span className="sr-only">تعديل</span>
                             </Button>
                           </Link>
                           <AlertDialog>
@@ -140,24 +140,23 @@ export default function AdminServicesPage() {
                                 onClick={() => setServiceToDelete(service.id)}
                               >
                                 <Trash2 className="h-3.5 w-3.5" />
-                                <span className="sr-only">Delete</span>
+                                <span className="sr-only">حذف</span>
                               </Button>
                             </AlertDialogTrigger>
                             <AlertDialogContent>
                               <AlertDialogHeader>
-                                <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                                <AlertDialogTitle>هل أنت متأكد؟</AlertDialogTitle>
                                 <AlertDialogDescription>
-                                  This will permanently delete the service "{service.name}". This action cannot be
-                                  undone.
+                                  سيتم حذف الخدمة "{service.name}" نهائيًا. لا يمكن التراجع عن هذا الإجراء.
                                 </AlertDialogDescription>
                               </AlertDialogHeader>
                               <AlertDialogFooter>
-                                <AlertDialogCancel onClick={() => setServiceToDelete(null)}>Cancel</AlertDialogCancel>
+                                <AlertDialogCancel onClick={() => setServiceToDelete(null)}>إلغاء</AlertDialogCancel>
                                 <AlertDialogAction
                                   onClick={handleDeleteService}
                                   className="bg-red-500 hover:bg-red-600"
                                 >
-                                  Delete
+                                  حذف
                                 </AlertDialogAction>
                               </AlertDialogFooter>
                             </AlertDialogContent>
@@ -169,7 +168,7 @@ export default function AdminServicesPage() {
                 ) : (
                   <TableRow>
                     <TableCell colSpan={6} className="h-24 text-center">
-                      No services found.
+                      لا توجد خدمات.
                     </TableCell>
                   </TableRow>
                 )}
@@ -181,3 +180,4 @@ export default function AdminServicesPage() {
     </div>
   )
 }
+

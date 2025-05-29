@@ -1,159 +1,161 @@
-"use client"
+"use client";
 
-import { useEffect, useState } from "react"
-import { MapContainer, TileLayer, Marker, Popup, useMap, Circle } from "react-leaflet"
-import L from "leaflet"
-import "leaflet/dist/leaflet.css"
-import { Store, ShoppingBag, Fuel, AmbulanceIcon as FirstAid, AlertTriangle } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import Link from "next/link"
+import React, { useEffect, useState } from 'react';
+import { MapContainer, TileLayer, Marker, Popup, Polyline, useMap } from 'react-leaflet';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from './ui/card';
+import { Input } from './ui/input';
+import { Search } from 'lucide-react';
+import { Label } from './ui/label';
 
-// Fix Leaflet icon issues
-const createIcon = (color: string, Icon: any) => {
-  return L.divIcon({
-    className: "custom-icon",
-    html: `<div style="background-color: ${color}; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; box-shadow: 0 3px 10px rgba(0,0,0,0.2); border: 2px solid white; transition: all 0.3s ease;">
-      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">${
-        Icon === Store
-          ? '<path d="M2 3h19v11h-19z"></path><path d="M11 3v11"></path><path d="M2 8h19"></path><path d="M19 21l-7-5-7 5V3h14v18z"></path>'
-          : Icon === ShoppingBag
-            ? '<path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path>'
-            : Icon === Fuel
-              ? '<path d="M3 22V8a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v14"></path><path d="M3 10h18"></path><path d="M12 2v8"></path><path d="M8 4h8"></path>'
-              : Icon === FirstAid
-                ? '<path d="M9 12h6"></path><path d="M12 9v6"></path><path d="M5.5 8.5 9 12l-3.5 3.5"></path><path d="M18.5 8.5 15 12l3.5 3.5"></path>'
-                : '<path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line>'
-      }</svg>
-    </div>`,
-    iconSize: [40, 40],
-    iconAnchor: [20, 20],
-    popupAnchor: [0, -20],
-  })
-}
+// Fix for default marker icons in Leaflet
+delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: '/images/marker-icon-2x.png',
+  iconUrl: '/images/marker-icon.png',
+  shadowUrl: '/images/marker-shadow.png',
+});
 
-// Map marker types
-const markerIcons = {
-  store: createIcon("#4f46e5", Store),
-  shop: createIcon("#4f46e5", ShoppingBag),
-  gas: createIcon("#f59e0b", Fuel),
-  medical: createIcon("#10b981", FirstAid),
-  emergency: createIcon("#ef4444", AlertTriangle),
-  default: createIcon("#6b7280", Store),
-}
+// Create custom icon for gas stations
+const GasIcon = new L.Icon({
+  iconUrl: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23FF9800"><path d="M12.8324 21.8013C15.9583 21.1747 20 18.926 20 13.1112C20 7.8196 16.1267 4.29593 13.3415 2.67685C12.7235 2.31757 12 2.79006 12 3.50492V5.3334C12 6.77526 11.3938 9.40711 9.70932 10.5018C8.84932 11.0607 7.92052 10.2242 7.816 9.20388L7.73017 8.36604C7.6304 7.39203 6.63841 6.80075 5.85996 7.3946C4.46147 8.46144 3 10.3296 3 13.1112C3 20.2223 8.28889 22.0001 10.9333 22.0001C11.0871 22.0001 11.2488 21.9955 11.4171 21.9858C10.1113 21.8742 8 21.064 8 18.4442C8 16.3949 9.49507 15.0085 10.631 14.3346C10.9365 14.1533 11.2941 14.3887 11.2941 14.7439V15.3331C11.2941 15.784 11.4685 16.4889 11.8836 16.9714C12.3534 17.5174 13.0429 16.9454 13.0985 16.2273C13.1161 16.0008 13.3439 15.8564 13.5401 15.9711C14.1814 16.3459 15 17.1465 15 18.4442C15 20.4922 13.871 21.4343 12.8324 21.8013Z"/></svg>',
+  iconSize: [40, 80],
+  iconAnchor: [20, 80],
+  popupAnchor: [1, -40],
+  shadowSize: [80, 80],
+  className: 'gas-station-icon'
+});
 
-type MarkerType = "store" | "shop" | "gas" | "medical" | "emergency" | "default"
+const GazaMap = () => {
+  const [data, setData] = useState(null);
+  const [viewOption, setViewOption] = useState('all');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [zoomLocation, setZoomLocation] = useState('31.5069,34.4560'); // Default to Gaza
 
-interface MapMarker {
-  position: [number, number]
-  title: string
-  type: MarkerType
-  id?: string
-}
-
-interface MapProps {
-  center: [number, number]
-  zoom: number
-  markers?: MapMarker[]
-  interactive?: boolean
-  showUserLocation?: boolean
-}
-
-// Component to recenter map when center prop changes
-function ChangeView({ center, zoom }: { center: [number, number]; zoom: number }) {
-  const map = useMap()
-  map.setView(center, zoom)
-  return null
-}
-
-export default function Map({ center, zoom, markers = [], interactive = true, showUserLocation = false }: MapProps) {
-  const [userLocation, setUserLocation] = useState<[number, number] | null>(null)
-
+  // Load JSON data
   useEffect(() => {
-    if (showUserLocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          setUserLocation([position.coords.latitude, position.coords.longitude])
-        },
-        (error) => {
-          console.error("Error getting user location:", error)
-        },
-      )
-    }
-  }, [showUserLocation])
+    fetch('/mapData.json')
+      .then((response) => response.json())
+      .then((data) => {
+        setData(data);
+      })
+  }, []);
+
+  if (!data) {
+    return <div>Loading...</div>;
+  }
+
+  // Filtered data based on search term, ignoring case
+  const filteredStores = data.stores.filter(store => store.name.toLowerCase().includes(searchTerm.toLowerCase()));
+  const filteredMarkets = data.markets.filter(market => market.name.toLowerCase().includes(searchTerm.toLowerCase()));
+  const filteredGasStations = data.GasStations.filter(station => station.name.toLowerCase().includes(searchTerm.toLowerCase()));
 
   return (
-    <MapContainer
-      center={center}
-      zoom={zoom}
-      scrollWheelZoom={interactive}
-      zoomControl={interactive}
-      dragging={interactive}
-      touchZoom={interactive}
-      doubleClickZoom={interactive}
-      className="h-full w-full rounded-lg shadow-md"
-    >
-      <ChangeView center={center} zoom={zoom} />
-      <TileLayer
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-      />
-
-      {markers.map((marker, index) => (
-        <Marker key={index} position={marker.position} icon={markerIcons[marker.type] || markerIcons.default}>
-          <Popup className="rounded-lg overflow-hidden shadow-lg">
-            <div className="p-2">
-              <h3 className="font-medium text-lg">{marker.title}</h3>
-              {/* <Badge className="mt-1 mb-2" variant={marker.type === "emergency" ? "destructive" : "default"}>
-                {marker.type.charAt(0).toUpperCase() + marker.type.slice(1)}
-              </Badge> */}
-              {marker.id && (
-                <Button asChild size="sm" className="w-full mt-2 rounded-md">
-                  <Link href={`/stores/${marker.id}`}>View Details</Link>
-                </Button>
-              )}
+    <div>
+      <Card className="border-border/50 shadow-sm">
+        <CardHeader className="pb-3">
+          <CardTitle>اعثر على الخدمة التي تحتاجها</CardTitle>
+          <CardDescription>استكشف المتاجر والخدمات بالقرب منك</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="relative">
+            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Input
+              type="text"
+              placeholder="بحث..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+          <div className="flex flex-wrap w-full">
+            <div className="w-full sm:w-1/2 p-2">
+              <Label htmlFor="category">القسم</Label>
+              <select id='category' value={viewOption} onChange={(e) => setViewOption(e.target.value)} className="w-full border border-border/50 rounded-md p-2">
+                <option value="all">الكل</option>
+                <option value="stores">مخازن</option>
+                <option value="markets">اسواق</option>
+                <option value="GasStations">نقط غاز</option>
+              </select>
             </div>
-          </Popup>
-        </Marker>
-      ))}
 
-      {userLocation && (
-        <>
+            <div className="w-full sm:w-1/2 p-2">
+              <Label htmlFor="location">الموقع</Label>
+              <select id='location' value={zoomLocation} onChange={(e) => setZoomLocation(e.target.value)} className="w-full border border-border/50 rounded-md p-2">
+                <option value="31.5069,34.4560">غزة</option>
+                <option value="31.2725,34.2586">رفح</option>
+                <option value="31.3444,34.3031">خانيونس</option>
+                <option value="31.5281,34.4831">جباليا</option>
+                <option value="31.5500,34.5000">بيت لاهيا</option>
+                <option value="31.4189,34.3517">دير البلح</option>
+              </select>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+      <MapContainer center={[31.5017, 34.4669]} zoom={13} style={{ height: '500px', width: '100%' }}>
+        <TileLayer
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        />
+        <ZoomToLocation zoomLocation={zoomLocation} />
+
+        {(viewOption === 'all' || viewOption === 'stores') && filteredStores.map((store, index) => (
+          <Marker key={`store-${index}`} position={store.coordinates}>
+            <Popup>
+              <b>{store.name}</b>
+            </Popup>
+          </Marker>
+        ))}
+
+        {(viewOption === 'all' || viewOption === 'markets') && filteredMarkets.map((market, index) => (
+          <React.Fragment key={`market-${index}`}>
+            <Polyline positions={market.coordinates} color="blue" weight={3} opacity={0.7} />
+            <Marker
+              position={getCenter(market.coordinates)}
+              icon={L.divIcon({
+                className: 'custom-label',
+                html: `<div>${market.name}</div>`,
+                iconSize: [100, 20],
+              })}
+            />
+          </React.Fragment>
+        ))}
+
+        {(viewOption === 'all' || viewOption === 'GasStations') && filteredGasStations.map((station, index) => (
           <Marker
-            position={userLocation}
-            icon={L.divIcon({
-              className: "user-location-icon",
-              html: `<div style="background-color: #3b82f6; width: 20px; height: 20px; border-radius: 50%; border: 3px solid white; box-shadow: 0 0 0 2px #3b82f6, 0 0 10px rgba(59, 130, 246, 0.5); animation: pulse 1.5s infinite;"></div>
-              <style>
-                @keyframes pulse {
-                  0% { transform: scale(1); opacity: 1; }
-                  50% { transform: scale(1.2); opacity: 0.8; }
-                  100% { transform: scale(1); opacity: 1; }
-                }
-              </style>`,
-              iconSize: [20, 20],
-              iconAnchor: [10, 10],
-            })}
+            key={`gas-${index}`}
+            position={station.coordinates}
+            icon={GasIcon}
           >
             <Popup>
-              <div className="p-2">
-                <h3 className="font-medium">Your Location</h3>
+              <div style={{ textAlign: 'right' }}>
+                <h3 style={{ margin: 0 }}>{station.name}</h3>
               </div>
             </Popup>
           </Marker>
-          <Circle
-            center={userLocation}
-            radius={500}
-            pathOptions={{
-              color: "#3b82f6",
-              fillColor: "#3b82f6",
-              fillOpacity: 0.1,
-              weight: 2,
-              dashArray: "5, 5",
-            }}
-          />
-        </>
-      )}
-    </MapContainer>
-  )
-}
+        ))}
+      </MapContainer>
+    </div>
+  );
+};
+
+const ZoomToLocation = ({ zoomLocation }) => {
+  const map = useMap();
+  useEffect(() => {
+    const [latitude, longitude] = zoomLocation.split(',').map(Number);
+    const locationLatLng = L.latLng(latitude, longitude);
+    map.setView(locationLatLng, 13);
+  }, [zoomLocation, map]);
+
+  return null;
+};
+
+// Function to calculate the center of a set of coordinates
+const getCenter = (coordinates) => {
+  const latSum = coordinates.reduce((sum, coord) => sum + coord[0], 0);
+  const lngSum = coordinates.reduce((sum, coord) => sum + coord[1], 0);
+  return [latSum / coordinates.length, lngSum / coordinates.length];
+};
+
+export default GazaMap;
