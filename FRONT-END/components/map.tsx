@@ -8,6 +8,7 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from './ui/
 import { Input } from './ui/input';
 import { Search } from 'lucide-react';
 import { Label } from './ui/label';
+import classes from './map.module.css';
 
 // Fix for default marker icons in Leaflet
 delete L.Icon.Default.prototype._getIconUrl;
@@ -47,7 +48,7 @@ const GazaMap = () => {
   }
 
   // Filtered data based on search term, ignoring case
-  const filteredStores = data.stores.filter(store => store.name.toLowerCase().includes(searchTerm.toLowerCase()));
+  const filteredAids = data.aids.filter(store => store.name.toLowerCase().includes(searchTerm.toLowerCase()));
   const filteredMarkets = data.markets.filter(market => market.name.toLowerCase().includes(searchTerm.toLowerCase()));
   const filteredGasStations = data.GasStations.filter(station => station.name.toLowerCase().includes(searchTerm.toLowerCase()));
 
@@ -73,7 +74,7 @@ const GazaMap = () => {
               <Label htmlFor="category">القسم</Label>
               <select id='category' value={viewOption} onChange={(e) => setViewOption(e.target.value)} className="w-full border border-border/50 rounded-md p-2">
                 <option value="all">الكل</option>
-                <option value="stores">مخازن</option>
+                <option value="aids">مخازن</option>
                 <option value="markets">اسواق</option>
                 <option value="GasStations">نقط غاز</option>
               </select>
@@ -100,7 +101,7 @@ const GazaMap = () => {
         />
         <ZoomToLocation zoomLocation={zoomLocation} />
 
-        {(viewOption === 'all' || viewOption === 'stores') && filteredStores.map((store, index) => (
+        {(viewOption === 'all' || viewOption === 'aids') && filteredAids.map((store, index) => (
           <Marker key={`store-${index}`} position={store.coordinates}>
             <Popup>
               <b>{store.name}</b>
@@ -114,7 +115,7 @@ const GazaMap = () => {
             <Marker
               position={getCenter(market.coordinates)}
               icon={L.divIcon({
-                className: 'custom-label',
+                className: classes.custom_label,
                 html: `<div>${market.name}</div>`,
                 iconSize: [100, 20],
               })}
