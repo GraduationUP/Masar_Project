@@ -71,7 +71,7 @@ const mockStores: Store[] = [
   {
     id: "1",
     name: "بنز اند بنز",
-    description: "Your one-stop shop for the latest fashion trends and accessories.",
+    description: "محل حلو تعال جربه.",
     categories: ["Clothing", "Accessories", "Footwear"],
     logo: "/store-logos/fashion-haven.png",
     coverImage: "/store-covers/fashion-haven.jpg",
@@ -262,9 +262,9 @@ export default function StorePage() {
             <MessageSquare className="h-4 w-4" />
             <span>Contact</span>
           </Button>
-          <Button className="gap-2 ml-auto rounded-full bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700">
+          <Button className="gap-2 ml-auto rounded-full bg-gradient-to-r from-blue-400 to-blue-500 hover:from-blue-500 hover:to-blue-600">
             <ShoppingBag className="h-4 w-4" />
-            <span>Browse Products</span>
+            <span>تصفح البضائع</span>
           </Button>
         </div>
 
@@ -274,23 +274,23 @@ export default function StorePage() {
             <Tabs defaultValue="about" className="w-full">
               <TabsList className="grid w-full grid-cols-3 rounded-lg mb-6">
                 <TabsTrigger value="about" className="rounded-md">
-                  About
+                  نبذة
                 </TabsTrigger>
                 <TabsTrigger value="products" className="rounded-md">
-                  Products
+                  البضائع
                 </TabsTrigger>
                 <TabsTrigger value="reviews" className="rounded-md">
-                  Reviews
+                  التقييمات
                 </TabsTrigger>
               </TabsList>
               <TabsContent value="about" className="space-y-6 animate-fade-in">
                 <div>
-                  <h2 className="text-xl font-bold mb-2">About {store.name}</h2>
+                  <h2 className="text-xl font-bold mb-2">نبذة عن {store.name}</h2>
                   <p className="text-muted-foreground">{store.description}</p>
                 </div>
 
                 <div>
-                  <h3 className="text-lg font-bold mb-2">Categories</h3>
+                  <h3 className="text-lg font-bold mb-2">الأقسام</h3>
                   <div className="flex flex-wrap gap-2">
                     {store.categories.map((category) => (
                       <Badge key={category} variant="secondary" className="rounded-full">
@@ -301,7 +301,7 @@ export default function StorePage() {
                 </div>
 
                 <div>
-                  <h3 className="text-lg font-bold mb-2">Contact Information</h3>
+                  <h3 className="text-lg font-bold mb-2">معلومات التواصل</h3>
                   <div className="space-y-2">
                     <div className="flex items-center gap-2">
                       <Phone className="h-4 w-4 text-muted-foreground" />
@@ -328,34 +328,34 @@ export default function StorePage() {
                 </div>
 
                 <div>
-                  <h3 className="text-lg font-bold mb-2">Opening Hours</h3>
+                  <h3 className="text-lg font-bold mb-2">ساعات العمل</h3>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     <div className="flex justify-between">
-                      <span className="font-medium">Monday</span>
+                      <span className="font-medium">الاثنين</span>
                       <span className="text-muted-foreground">{store.openingHours.monday}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="font-medium">Tuesday</span>
+                      <span className="font-medium">الثلاثاء</span>
                       <span className="text-muted-foreground">{store.openingHours.tuesday}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="font-medium">Wednesday</span>
+                      <span className="font-medium">الأربعاء</span>
                       <span className="text-muted-foreground">{store.openingHours.wednesday}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="font-medium">Thursday</span>
+                      <span className="font-medium">الخميس</span>
                       <span className="text-muted-foreground">{store.openingHours.thursday}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="font-medium">Friday</span>
+                      <span className="font-medium">الجمعة</span>
                       <span className="text-muted-foreground">{store.openingHours.friday}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="font-medium">Saturday</span>
+                      <span className="font-medium">السبت</span>
                       <span className="text-muted-foreground">{store.openingHours.saturday}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="font-medium">Sunday</span>
+                      <span className="font-medium">الأحد</span>
                       <span className="text-muted-foreground">{store.openingHours.sunday}</span>
                     </div>
                   </div>
@@ -363,13 +363,13 @@ export default function StorePage() {
               </TabsContent>
               <TabsContent value="products" className="space-y-6 animate-fade-in">
                 <div>
-                  <h2 className="text-xl font-bold mb-4">Products</h2>
+                  <h2 className="text-xl font-bold mb-4">البضائع</h2>
                   {products.length === 0 ? (
                     <div className="flex flex-col items-center justify-center py-12 text-center">
                       <ShoppingBag className="h-12 w-12 text-muted-foreground mb-4" />
-                      <h3 className="text-lg font-medium">No products available</h3>
+                      <h3 className="text-lg font-medium">لا يوجد بضائع</h3>
                       <p className="text-sm text-muted-foreground mt-1">
-                        This store doesn't have any products listed yet.
+                        هذا المتجر لا يحتوي على بضائع بعد.
                       </p>
                     </div>
                   ) : (
@@ -410,15 +410,15 @@ export default function StorePage() {
               <TabsContent value="reviews" className="space-y-6 animate-fade-in">
                 <div>
                   <div className="flex items-center justify-between mb-4">
-                    <h2 className="text-xl font-bold">Reviews</h2>
-                    {user && <Button className="rounded-full">Write a Review</Button>}
+                    <h2 className="text-xl font-bold">التقييمات</h2>
+                    {user && <Button className="rounded-full">اكتب تقييم</Button>}
                   </div>
 
                   {reviews.length === 0 ? (
                     <div className="flex flex-col items-center justify-center py-12 text-center">
                       <MessageSquare className="h-12 w-12 text-muted-foreground mb-4" />
-                      <h3 className="text-lg font-medium">No reviews yet</h3>
-                      <p className="text-sm text-muted-foreground mt-1">Be the first to review this store.</p>
+                      <h3 className="text-lg font-medium">لا تقييمات بعد</h3>
+                      <p className="text-sm text-muted-foreground mt-1">كن اول من يقيم المتجر.</p>
                     </div>
                   ) : (
                     <div className="space-y-4">
@@ -467,7 +467,7 @@ export default function StorePage() {
           <div className="space-y-6">
             <Card className="card-hover">
               <CardContent className="p-4">
-                <h3 className="font-bold mb-2">Store Location</h3>
+                <h3 className="font-bold mb-2">موقع المتجر</h3>
                 <div className="h-64 rounded-lg overflow-hidden mb-4">
                   <MapWithNoSSR
                     center={[store.location.lat, store.location.lng]}
@@ -490,7 +490,7 @@ export default function StorePage() {
 
             <Card className="card-hover">
               <CardContent className="p-4">
-                <h3 className="font-bold mb-2">Opening Hours Today</h3>
+                <h3 className="font-bold mb-2">ساعات العمل اليوم</h3>
                 <div className="flex items-center gap-2">
                   <Clock className="h-5 w-5 text-muted-foreground" />
                   <span>
@@ -508,21 +508,21 @@ export default function StorePage() {
 
             <Card className="card-hover">
               <CardContent className="p-4">
-                <h3 className="font-bold mb-2">Contact Store</h3>
+                <h3 className="font-bold mb-2">تواصل مع المتجر</h3>
                 <div className="space-y-2">
                   <Button variant="outline" className="w-full justify-start gap-2 rounded-lg">
                     <Phone className="h-4 w-4" />
-                    <span>Call</span>
+                    <span>اتصل</span>
                   </Button>
                   <Button variant="outline" className="w-full justify-start gap-2 rounded-lg">
                     <Mail className="h-4 w-4" />
-                    <span>Email</span>
+                    <span>بريد إلكتروني</span>
                   </Button>
                   {store.contactInfo.website && (
                     <Button variant="outline" className="w-full justify-start gap-2 rounded-lg" asChild>
                       <a href={`https://${store.contactInfo.website}`} target="_blank" rel="noopener noreferrer">
                         <Info className="h-4 w-4" />
-                        <span>Website</span>
+                        <span>الموقع الإلكتروني</span>
                       </a>
                     </Button>
                   )}
