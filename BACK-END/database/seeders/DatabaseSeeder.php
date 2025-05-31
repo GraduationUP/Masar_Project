@@ -18,7 +18,8 @@ class DatabaseSeeder extends Seeder
 Role::firstOrCreate(['name' => 'user']);
 Role::firstOrCreate(['name' => 'seller']);
 Role::firstOrCreate(['name' => 'admin']);
+    $this->call(CategorySeeder::class);
 
-      
+
     }
 }
