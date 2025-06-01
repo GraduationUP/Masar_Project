@@ -10,6 +10,9 @@ use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\EmailVerificationNotificationController;
+use App\Http\Controllers\StoreController;
+use App\Http\Controllers\Guest\StoreController as GuestStoreController;
+use App\Http\Controllers\Guest\ProductController;
 
 Route::post('/register', [RegisteredUserController::class, 'store']);
 Route::post('/login', [AuthenticatedSessionController::class, 'store']);
@@ -33,13 +36,19 @@ Route::middleware(['auth:sanctum'])->prefix('seller')->group(function () {
     Route::put('/store', [StoreController::class, 'update']);
     Route::delete('/store', [StoreController::class, 'destroy']);
 
- Route::post('/products', [ProductController::class, 'store']);
-           Route::get('/products', [ProductController::class, 'index']);
-     Route::put('/products/{product}', [ProductController::class, 'update']);
-    Route::delete('/products/{product}', [ProductController::class, 'destroy']);
-
-    Route::get('/dashboard', [DashboardController::class, 'index']);
-
+Route::get('/ping', function () {
+    return response()->json(['status' => 'ok']);
 });
 
 
+Route::get('/guest/stores', [GuestStoreController::class, 'index']);
+Route::get('/guest/products', [ProductController::class, 'index']);
+
+Route::post('/products', [ProductController::class, 'store']);
+Route::get('/products', [ProductController::class, 'index']);
+Route::put('/products/{product}', [ProductController::class, 'update']);
+Route::delete('/products/{product}', [ProductController::class, 'destroy']);
+
+Route::get('/dashboard', [DashboardController::class, 'index']);
+
+});
