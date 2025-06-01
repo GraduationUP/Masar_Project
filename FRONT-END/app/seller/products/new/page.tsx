@@ -137,8 +137,8 @@ export default function NewProductPage() {
             </Link>
           </Button>
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">Add New Product</h1>
-            <p className="text-muted-foreground">Add a product to your store</p>
+            <h1 className="text-3xl font-bold tracking-tight">إضافة منتج جديد</h1>
+            <p className="text-muted-foreground">أضف منتجًا إلى متجرك</p>
           </div>
         </div>
 
@@ -146,12 +146,12 @@ export default function NewProductPage() {
           <Card>
             <CardContent className="flex flex-col items-center justify-center py-12 text-center">
               <Package className="h-16 w-16 text-muted-foreground mb-4" />
-              <h3 className="text-lg font-medium">No stores available</h3>
+              <h3 className="text-lg font-medium">لا توجد متاجر متاحة</h3>
               <p className="text-sm text-muted-foreground mt-1 max-w-md">
-                You need to create a store before you can add products.
+                تحتاج إلى إنشاء متجر قبل أن تتمكن من إضافة منتجات.
               </p>
               <Button asChild className="mt-6 rounded-full">
-                <Link href="/seller/stores/new">Create Store</Link>
+                <Link href="/seller/stores/new">إنشاء متجر</Link>
               </Button>
             </CardContent>
           </Card>
@@ -161,15 +161,15 @@ export default function NewProductPage() {
               <div className="lg:col-span-2 space-y-6">
                 <Card>
                   <CardHeader>
-                    <CardTitle>Product Information</CardTitle>
-                    <CardDescription>Basic details about your product</CardDescription>
+                    <CardTitle>معلومات المنتج</CardTitle>
+                    <CardDescription>تفاصيل أساسية عن منتجك</CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div className="space-y-2">
-                      <Label htmlFor="name">Product Name *</Label>
+                      <Label htmlFor="name">اسم المنتج *</Label>
                       <Input
                         id="name"
-                        placeholder="Enter your product name"
+                        placeholder="أدخل اسم منتجك"
                         value={productData.name}
                         onChange={(e) => setProductData({ ...productData, name: e.target.value })}
                         required
@@ -177,10 +177,10 @@ export default function NewProductPage() {
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="description">Product Description *</Label>
+                      <Label htmlFor="description">وصف المنتج *</Label>
                       <Textarea
                         id="description"
-                        placeholder="Describe your product in detail"
+                        placeholder="وصف منتجك بالتفصيل"
                         value={productData.description}
                         onChange={(e) => setProductData({ ...productData, description: e.target.value })}
                         required
@@ -189,7 +189,7 @@ export default function NewProductPage() {
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="space-y-2">
-                        <Label htmlFor="price">Price (USD) *</Label>
+                        <Label htmlFor="price">السعر (بالدولار) *</Label>
                         <Input
                           id="price"
                           type="number"
@@ -203,14 +203,14 @@ export default function NewProductPage() {
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="category">Category *</Label>
+                        <Label htmlFor="category">الفئة *</Label>
                         <Select
                           value={productData.category}
                           onValueChange={(value) => setProductData({ ...productData, category: value })}
                           required
                         >
                           <SelectTrigger id="category" className="rounded-lg">
-                            <SelectValue placeholder="Select a category" />
+                            <SelectValue placeholder="اختر فئة" />
                           </SelectTrigger>
                           <SelectContent>
                             {storeCategories.map((category) => (
@@ -223,14 +223,14 @@ export default function NewProductPage() {
                       </div>
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="store">Store *</Label>
+                      <Label htmlFor="store">المتجر *</Label>
                       <Select
                         value={productData.storeId}
                         onValueChange={(value) => setProductData({ ...productData, storeId: value })}
                         required
                       >
                         <SelectTrigger id="store" className="rounded-lg">
-                          <SelectValue placeholder="Select a store" />
+                          <SelectValue placeholder="اختر متجر" />
                         </SelectTrigger>
                         <SelectContent>
                           {stores.map((store) => (
@@ -247,7 +247,7 @@ export default function NewProductPage() {
                         checked={productData.inStock}
                         onCheckedChange={(checked) => setProductData({ ...productData, inStock: checked })}
                       />
-                      <Label htmlFor="in-stock">In Stock</Label>
+                      <Label htmlFor="in-stock">متوفر</Label>
                     </div>
                   </CardContent>
                 </Card>

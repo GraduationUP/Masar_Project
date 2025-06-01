@@ -68,7 +68,7 @@ export default function StoreManagementPage() {
 
   // Redirect if not logged in or not a seller
   useEffect(() => {
-    if (user && user.role !== "seller") {
+    if (!user) {
       router.push("/")
     }
   }, [user, router])
@@ -79,27 +79,27 @@ export default function StoreManagementPage() {
       const { initializeStorage } = await import("@/lib/storage-utils")
       initializeStorage()
 
-      if (typeof id === "string") {
-        // Get store details
-        const storeData = getStoreById(id)
-        if (storeData) {
-          // Check if user is the owner of this store
-          if (user && storeData.ownerId !== user.id) {
-            router.push("/seller/dashboard")
-            return
-          }
+      // if (typeof id === "string") {
+      //   // Get store details
+      //   const storeData = getStoreById(id)
+      //   if (storeData) {
+      //     // Check if user is the owner of this store
+      //     if (user && storeData.ownerId !== user.id) {
+      //       router.push("/seller/dashboard")
+      //       return
+      //     }
 
-          setStore(storeData)
-          setEditedStore(storeData)
+      //     setStore(storeData)
+      //     setEditedStore(storeData)
 
-          // Get store products
-          const storeProducts = getProductsByStore(id)
-          setProducts(storeProducts)
-        } else {
-          // Store not found, redirect to 404
-          router.push("/not-found")
-        }
-      }
+      //     // Get store products
+      //     const storeProducts = getProductsByStore(id)
+      //     setProducts(storeProducts)
+      //   } else {
+      //     // Store not found, redirect to 404
+      //     router.push("/not-found")
+      //   }
+      // }
 
       setLoading(false)
     }
@@ -151,7 +151,6 @@ export default function StoreManagementPage() {
             storeId: store.id,
             inStock: true,
             rating: undefined,
-            reviews: [],
             location: store.location,
           })
           setProducts([...products, newProduct])
@@ -207,11 +206,11 @@ export default function StoreManagementPage() {
         {/* Breadcrumb */}
         <nav className="flex items-center text-sm text-muted-foreground">
           <Link href="/seller/dashboard" className="hover:text-primary transition-colors">
-            Dashboard
+            لوحة التحكم
           </Link>
           <ChevronRight className="h-4 w-4 mx-2" />
           <Link href="/seller/stores" className="hover:text-primary transition-colors">
-            My Stores
+            متاجرك
           </Link>
           <ChevronRight className="h-4 w-4 mx-2" />
           <span className="text-foreground font-medium truncate">{store.name}</span>
@@ -233,12 +232,12 @@ export default function StoreManagementPage() {
                 <div className="flex items-center gap-2">
                   <h1 className="text-2xl font-bold">{store.name}</h1>
                   <Badge variant={store.rating && store.rating > 4.5 ? "default" : "secondary"} className="ml-2">
-                    {store.rating ? `${store.rating.toFixed(1)} ★` : "New"}
+                    {store.rating ? `${store.rating.toFixed(1)} ★` : "جديد"}
                   </Badge>
                 </div>
                 <div className="flex items-center gap-2 mt-1">
                   <Badge variant="outline" className="text-xs">
-                    Seller Dashboard
+                    لوحة تحكم البائع
                   </Badge>
                   <span className="text-sm text-muted-foreground">•</span>
                   <span className="text-sm text-muted-foreground">{store.location.address}</span>
@@ -248,12 +247,12 @@ export default function StoreManagementPage() {
                 <Button asChild variant="outline" size="sm" className="rounded-full">
                   <Link href={`/stores/${store.id}`} target="_blank">
                     <Eye className="mr-2 h-4 w-4" />
-                    Preview
+                    معاينة
                   </Link>
                 </Button>
                 <Button size="sm" className="rounded-full">
                   <Edit className="mr-2 h-4 w-4" />
-                  Edit Store
+                  تعديل المتجر
                 </Button>
               </div>
             </div>
@@ -264,16 +263,16 @@ export default function StoreManagementPage() {
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-4 rounded-lg mb-6">
             <TabsTrigger value="overview" className="rounded-md">
-              Overview
+              نظرة عامة
             </TabsTrigger>
             <TabsTrigger value="products" className="rounded-md">
-              Products
+              المنتجات
             </TabsTrigger>
             <TabsTrigger value="orders" className="rounded-md">
-              Orders
+              الطلبات
             </TabsTrigger>
             <TabsTrigger value="settings" className="rounded-md">
-              Settings
+              الإعدادات
             </TabsTrigger>
           </TabsList>
 
@@ -283,34 +282,33 @@ export default function StoreManagementPage() {
               <div className="md:col-span-2 space-y-6">
                 <Card>
                   <CardHeader>
-                    <CardTitle>Store Performance</CardTitle>
-                    <CardDescription>View your store's performance metrics</CardDescription>
+                    <CardTitle>أداء المتجر</CardTitle>
+                    <CardDescription>عرض أداء متجرك</CardDescription>
                   </CardHeader>
                   <CardContent>
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                       <div className="flex flex-col p-4 bg-muted/30 rounded-lg">
-                        <span className="text-sm text-muted-foreground">Total Products</span>
+                        <span className="text-sm text-muted-foreground">إجمالي المنتجات</span>
                         <span className="text-2xl font-bold">{products.length}</span>
-                        <span className="text-xs text-green-500 mt-1">+2 this week</span>
+                        <span className="text-xs text-green-500 mt-1">+2 هذا الأسبوع</span>
                       </div>
                       <div className="flex flex-col p-4 bg-muted/30 rounded-lg">
-                        <span className="text-sm text-muted-foreground">Store Views</span>
+                        <span className="text-sm text-muted-foreground">مشاهدات المتجر</span>
                         <span className="text-2xl font-bold">324</span>
-                        <span className="text-xs text-green-500 mt-1">+18% this month</span>
+                        <span className="text-xs text-green-500 mt-1">+18% هذا الشهر</span>
                       </div>
                       <div className="flex flex-col p-4 bg-muted/30 rounded-lg">
-                        <span className="text-sm text-muted-foreground">Total Orders</span>
+                        <span className="text-sm text-muted-foreground">إجمالي الطلبات</span>
                         <span className="text-2xl font-bold">28</span>
-                        <span className="text-xs text-green-500 mt-1">+5 this week</span>
+                        <span className="text-xs text-green-500 mt-1">+5 هذا الأسبوع</span>
                       </div>
                     </div>
                     <div className="mt-6 h-64 flex items-center justify-center border rounded-lg">
                       <div className="flex flex-col items-center text-center p-6">
                         <BarChart3 className="h-12 w-12 text-muted-foreground mb-4" />
-                        <h3 className="text-lg font-medium">Performance Analytics</h3>
+                        <h3 className="text-lg font-medium">تحليل الأداء</h3>
                         <p className="text-sm text-muted-foreground mt-1 max-w-md">
-                          Detailed analytics showing your store's performance over time, including views, orders, and
-                          revenue.
+                          تحليلات مفصلة تظهر أداء متجرك بمرور الوقت، بما في ذلك المشاهدات والطلبات والإيرادات.
                         </p>
                       </div>
                     </div>
@@ -319,16 +317,16 @@ export default function StoreManagementPage() {
 
                 <Card>
                   <CardHeader>
-                    <CardTitle>Recent Products</CardTitle>
-                    <CardDescription>Your most recently added products</CardDescription>
+                    <CardTitle>المنتجات الأخيرة</CardTitle>
+                    <CardDescription>أحدث منتجاتك المضافة</CardDescription>
                   </CardHeader>
                   <CardContent>
                     {products.length === 0 ? (
                       <div className="flex flex-col items-center justify-center py-6 text-center">
                         <Package className="h-12 w-12 text-muted-foreground mb-4" />
-                        <h3 className="text-lg font-medium">No products yet</h3>
+                        <h3 className="text-lg font-medium">لا توجد منتجات حتى الآن</h3>
                         <p className="text-sm text-muted-foreground mt-1">
-                          Add your first product to start selling on Masar.
+                          أضف منتجك الأول لبدء البيع على مسار.
                         </p>
                         <Button
                           className="mt-4 rounded-full"
@@ -338,7 +336,7 @@ export default function StoreManagementPage() {
                           }}
                         >
                           <Plus className="mr-2 h-4 w-4" />
-                          Add Product
+                          أضف منتج
                         </Button>
                       </div>
                     ) : (
@@ -388,7 +386,7 @@ export default function StoreManagementPage() {
                         className="w-full rounded-full"
                         onClick={() => setActiveTab("products")}
                       >
-                        View All Products
+                        عرض جميع المنتجات
                       </Button>
                     </CardFooter>
                   )}
@@ -398,7 +396,7 @@ export default function StoreManagementPage() {
               <div className="space-y-6">
                 <Card>
                   <CardHeader>
-                    <CardTitle>Quick Actions</CardTitle>
+                    <CardTitle>إجراءات سريعة</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-2">
                     <Button
@@ -409,7 +407,7 @@ export default function StoreManagementPage() {
                       }}
                     >
                       <Plus className="mr-2 h-4 w-4" />
-                      Add New Product
+                      إضافة منتج جديد
                     </Button>
                     <Button
                       variant="outline"
@@ -417,12 +415,12 @@ export default function StoreManagementPage() {
                       onClick={() => setIsEditing(true)}
                     >
                       <Edit className="mr-2 h-4 w-4" />
-                      Edit Store Details
+                      تعديل تفاصيل المتجر
                     </Button>
                     <Button variant="outline" className="w-full justify-start rounded-lg" asChild>
                       <Link href={`/stores/${store.id}`} target="_blank">
                         <ExternalLink className="mr-2 h-4 w-4" />
-                        View Public Store
+                        عرض المتجر للجمهور
                       </Link>
                     </Button>
                   </CardContent>
@@ -430,19 +428,19 @@ export default function StoreManagementPage() {
 
                 <Card>
                   <CardHeader>
-                    <CardTitle>Store Status</CardTitle>
+                    <CardTitle>حالة المتجر</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <div className="h-2 w-2 rounded-full bg-green-500"></div>
-                        <span className="text-sm font-medium">Store is active</span>
+                        <span className="text-sm font-medium">المتجر نشط</span>
                       </div>
                       <Switch checked={true} />
                     </div>
                     <Separator />
                     <div className="space-y-2">
-                      <h4 className="text-sm font-medium">Today's Hours</h4>
+                      <h4 className="text-sm font-medium">ساعات العمل اليوم</h4>
                       <div className="flex items-center gap-2 text-sm">
                         <Clock className="h-4 w-4 text-muted-foreground" />
                         <span>
@@ -458,7 +456,7 @@ export default function StoreManagementPage() {
                     </div>
                     <Separator />
                     <div className="space-y-2">
-                      <h4 className="text-sm font-medium">Store Address</h4>
+                      <h4 className="text-sm font-medium">عنوان المتجر</h4>
                       <div className="flex items-center gap-2 text-sm">
                         <MapPin className="h-4 w-4 text-muted-foreground" />
                         <span>{store.location.address}</span>
@@ -475,8 +473,8 @@ export default function StoreManagementPage() {
             <Card>
               <CardHeader className="flex flex-row items-center justify-between">
                 <div>
-                  <CardTitle>Products Management</CardTitle>
-                  <CardDescription>Manage your store's products</CardDescription>
+                  <CardTitle>إدارة المنتجات</CardTitle>
+                  <CardDescription>إدارة منتجات متجرك</CardDescription>
                 </div>
                 <Button
                   className="rounded-full"
@@ -486,16 +484,16 @@ export default function StoreManagementPage() {
                   }}
                 >
                   <Plus className="mr-2 h-4 w-4" />
-                  Add Product
+                  إضافة منتج
                 </Button>
               </CardHeader>
               <CardContent>
                 {products.length === 0 ? (
                   <div className="flex flex-col items-center justify-center py-12 text-center">
                     <Package className="h-16 w-16 text-muted-foreground mb-4" />
-                    <h3 className="text-lg font-medium">No products yet</h3>
+                    <h3 className="text-lg font-medium">لا توجد منتجات حتى الآن</h3>
                     <p className="text-sm text-muted-foreground mt-1 max-w-md">
-                      Start adding products to your store to begin selling on Masar.
+                      ابدأ بإضافة المنتجات إلى متجرك لتبدأ البيع على مسار.
                     </p>
                     <Button
                       className="mt-6 rounded-full"
@@ -505,7 +503,7 @@ export default function StoreManagementPage() {
                       }}
                     >
                       <Plus className="mr-2 h-4 w-4" />
-                      Add Your First Product
+                      أضف أول منتج لك
                     </Button>
                   </div>
                 ) : (
@@ -517,7 +515,7 @@ export default function StoreManagementPage() {
                           <SelectValue placeholder="Category" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="all">All Categories</SelectItem>
+                          <SelectItem value="all">جميع الفئات</SelectItem>
                           {Array.from(new Set(products.map((p) => p.category))).map((category) => (
                             <SelectItem key={category} value={category.toLowerCase()}>
                               {category}
@@ -529,11 +527,11 @@ export default function StoreManagementPage() {
 
                     <div className="border rounded-lg overflow-hidden">
                       <div className="grid grid-cols-12 gap-4 p-4 bg-muted/50 font-medium text-sm">
-                        <div className="col-span-5">Product</div>
-                        <div className="col-span-2">Price</div>
-                        <div className="col-span-2">Category</div>
-                        <div className="col-span-2">Status</div>
-                        <div className="col-span-1">Actions</div>
+                        <div className="col-span-5">المنتج</div>
+                        <div className="col-span-2">السعر</div>
+                        <div className="col-span-2">الفئة</div>
+                        <div className="col-span-2">الحالة</div>
+                        <div className="col-span-1">الإجراءات</div>
                       </div>
                       <div className="divide-y">
                         {products.map((product) => (
@@ -560,7 +558,7 @@ export default function StoreManagementPage() {
                             </div>
                             <div className="col-span-2">
                               <Badge variant={product.inStock ? "default" : "destructive"}>
-                                {product.inStock ? "In Stock" : "Out of Stock"}
+                                {product.inStock ? "متوفر" : "غير متوفر"}
                               </Badge>
                             </div>
                             <div className="col-span-1 flex items-center gap-1">
@@ -601,15 +599,15 @@ export default function StoreManagementPage() {
           <TabsContent value="orders" className="animate-fade-in">
             <Card>
               <CardHeader>
-                <CardTitle>Orders Management</CardTitle>
-                <CardDescription>View and manage customer orders</CardDescription>
+                <CardTitle>إدارة الطلبات</CardTitle>
+                <CardDescription>عرض و إدارة طلبات العملاء</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="flex flex-col items-center justify-center py-12 text-center">
                   <ShoppingBag className="h-16 w-16 text-muted-foreground mb-4" />
-                  <h3 className="text-lg font-medium">No orders yet</h3>
+                  <h3 className="text-lg font-medium">لا يوجد طلبات بعد</h3>
                   <p className="text-sm text-muted-foreground mt-1 max-w-md">
-                    When customers place orders from your store, they will appear here.
+                    عندما يطلب العملاء من متجرك، سوف تظهر هنا.
                   </p>
                 </div>
               </CardContent>
@@ -622,14 +620,14 @@ export default function StoreManagementPage() {
               <div className="md:col-span-2">
                 <Card>
                   <CardHeader>
-                    <CardTitle>Store Information</CardTitle>
-                    <CardDescription>Manage your store details</CardDescription>
+                    <CardTitle>بيانات المتجر</CardTitle>
+                    <CardDescription>إدارة بيانات متجرك</CardDescription>
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-4">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="space-y-2">
-                          <Label htmlFor="store-name">Store Name</Label>
+                          <Label htmlFor="store-name">اسم المتجر</Label>
                           <Input
                             id="store-name"
                             value={editedStore.name || ""}
@@ -639,7 +637,7 @@ export default function StoreManagementPage() {
                           />
                         </div>
                         <div className="space-y-2">
-                          <Label htmlFor="store-email">Contact Email</Label>
+                          <Label htmlFor="store-email">البريد الإلكتروني للاتصال</Label>
                           <Input
                             id="store-email"
                             value={editedStore.contactInfo?.email || ""}
@@ -656,7 +654,7 @@ export default function StoreManagementPage() {
                       </div>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="space-y-2">
-                          <Label htmlFor="store-phone">Contact Phone</Label>
+                          <Label htmlFor="store-phone">رقم الهاتف للاتصال</Label>
                           <Input
                             id="store-phone"
                             value={editedStore.contactInfo?.phone || ""}
@@ -671,7 +669,7 @@ export default function StoreManagementPage() {
                           />
                         </div>
                         <div className="space-y-2">
-                          <Label htmlFor="store-website">Website (Optional)</Label>
+                          <Label htmlFor="store-website">الموقع الإلكتروني (اختياري)</Label>
                           <Input
                             id="store-website"
                             value={editedStore.contactInfo?.website || ""}
@@ -687,7 +685,7 @@ export default function StoreManagementPage() {
                         </div>
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="store-address">Store Address</Label>
+                        <Label htmlFor="store-address">عنوان المتجر</Label>
                         <Input
                           id="store-address"
                           value={editedStore.location?.address || ""}
@@ -702,7 +700,7 @@ export default function StoreManagementPage() {
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="store-description">Store Description</Label>
+                        <Label htmlFor="store-description">وصف المتجر</Label>
                         <Textarea
                           id="store-description"
                           value={editedStore.description || ""}
@@ -724,18 +722,18 @@ export default function StoreManagementPage() {
                             setIsEditing(false)
                           }}
                         >
-                          Cancel
+                          إلغاء
                         </Button>
                         <Button className="rounded-full" onClick={handleStoreUpdate} disabled={isProcessing}>
                           {isProcessing ? (
                             <>
                               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                              Saving...
+                              حفظ التغييرات...
                             </>
                           ) : (
                             <>
                               <Check className="mr-2 h-4 w-4" />
-                              Save Changes
+                              حفظ التغييرات
                             </>
                           )}
                         </Button>
@@ -743,7 +741,7 @@ export default function StoreManagementPage() {
                     ) : (
                       <Button className="ml-auto rounded-full" onClick={() => setIsEditing(true)}>
                         <Edit className="mr-2 h-4 w-4" />
-                        Edit Information
+                        تعديل المعلومات
                       </Button>
                     )}
                   </CardFooter>
@@ -753,28 +751,28 @@ export default function StoreManagementPage() {
               <div className="space-y-6">
                 <Card>
                   <CardHeader>
-                    <CardTitle>Store Assets</CardTitle>
-                    <CardDescription>Manage your store images</CardDescription>
+                    <CardTitle>ملف المتجر</CardTitle>
+                    <CardDescription>ادارة صور متجرك</CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div className="space-y-2">
-                      <Label>Store Logo</Label>
+                      <Label>شعار المتجر</Label>
                       <div className="flex items-center gap-4">
                         <div className="h-16 w-16 rounded-full overflow-hidden border">
                           <img
                             src={store.logo || "/placeholder.svg"}
-                            alt="Store logo"
+                            alt="شعار المتجر"
                             className="h-full w-full object-cover"
                           />
                         </div>
                         <Button variant="outline" size="sm" className="rounded-full" disabled={!isEditing}>
                           <ImageIcon className="mr-2 h-4 w-4" />
-                          Change Logo
+                          تغيير الشعار
                         </Button>
                       </div>
                     </div>
                     <div className="space-y-2">
-                      <Label>Cover Image</Label>
+                      <Label>صورة الغلاف</Label>
                       <div className="rounded-lg overflow-hidden border h-32">
                         <img
                           src={store.coverImage || "/placeholder.svg"}
@@ -784,7 +782,7 @@ export default function StoreManagementPage() {
                       </div>
                       <Button variant="outline" size="sm" className="rounded-full mt-2" disabled={!isEditing}>
                         <ImageIcon className="mr-2 h-4 w-4" />
-                        Change Cover
+                        غيّر الغلاف
                       </Button>
                     </div>
                   </CardContent>
@@ -792,36 +790,36 @@ export default function StoreManagementPage() {
 
                 <Card>
                   <CardHeader>
-                    <CardTitle>Danger Zone</CardTitle>
-                    <CardDescription>Irreversible actions</CardDescription>
+                    <CardTitle>منطقة الخطر</CardTitle>
+                    <CardDescription>أفعال لا رجعة فيها</CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div className="p-4 border border-destructive/20 rounded-lg">
                       <div className="flex items-center justify-between">
                         <div>
-                          <h4 className="font-medium">Deactivate Store</h4>
+                          <h4 className="font-medium">إيقاف المتجر مؤقتاً</h4>
                           <p className="text-sm text-muted-foreground">
-                            Temporarily hide your store from the marketplace
+                            إخفاء المتجر مؤقتاً من السوق
                           </p>
                         </div>
                         <Button
                           variant="outline"
                           className="text-destructive border-destructive/50 hover:bg-destructive/10 rounded-full"
                         >
-                          Deactivate
+                          إيقاف مؤقتاً
                         </Button>
                       </div>
                     </div>
                     <div className="p-4 border border-destructive/20 rounded-lg">
                       <div className="flex items-center justify-between">
                         <div>
-                          <h4 className="font-medium">Delete Store</h4>
+                          <h4 className="font-medium">حذف المتجر نهائياً</h4>
                           <p className="text-sm text-muted-foreground">
-                            Permanently delete your store and all its data
+                            حذف المتجر نهائياً مع كل بياناته
                           </p>
                         </div>
                         <Button variant="destructive" className="rounded-full">
-                          Delete Store
+                          حذف المتجر نهائياً
                         </Button>
                       </div>
                     </div>
@@ -837,21 +835,21 @@ export default function StoreManagementPage() {
       <Dialog open={isProductDialogOpen} onOpenChange={setIsProductDialogOpen}>
         <DialogContent className="sm:max-w-[600px]">
           <DialogHeader>
-            <DialogTitle>{selectedProduct ? "Edit Product" : "Add New Product"}</DialogTitle>
+            <DialogTitle>{selectedProduct ? "تحرير المنتج" : "إضافة منتج جديد"}</DialogTitle>
             <DialogDescription>
               {selectedProduct
-                ? "Update your product information below"
-                : "Fill in the details to add a new product to your store"}
+                ? "قم بتحديث معلومات منتجك أدناه"
+                : "املأ التفاصيل أدناه لإضافة منتج جديد إلى متجرك"}
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="product-name">Product Name</Label>
+                <Label htmlFor="product-name">اسم المنتج</Label>
                 <Input id="product-name" defaultValue={selectedProduct?.name || ""} className="rounded-lg" />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="product-price">Price ($)</Label>
+                <Label htmlFor="product-price">السعر (دولار)</Label>
                 <Input
                   id="product-price"
                   type="number"
@@ -862,10 +860,10 @@ export default function StoreManagementPage() {
               </div>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="product-category">Category</Label>
+              <Label htmlFor="product-category">الفئة</Label>
               <Select defaultValue={selectedProduct?.category || ""}>
                 <SelectTrigger id="product-category" className="rounded-lg">
-                  <SelectValue placeholder="Select a category" />
+                  <SelectValue placeholder="اختر فئة" />
                 </SelectTrigger>
                 <SelectContent>
                   {store.categories.map((category) => (
@@ -877,7 +875,7 @@ export default function StoreManagementPage() {
               </Select>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="product-description">Description</Label>
+              <Label htmlFor="product-description">الوصف</Label>
               <Textarea
                 id="product-description"
                 defaultValue={selectedProduct?.description || ""}
@@ -885,7 +883,7 @@ export default function StoreManagementPage() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="product-image">Product Image</Label>
+              <Label htmlFor="product-image">صورة المنتج</Label>
               <div className="flex items-center gap-4">
                 <div className="h-20 w-20 rounded-md overflow-hidden border bg-muted/50">
                   <img
@@ -896,20 +894,20 @@ export default function StoreManagementPage() {
                 </div>
                 <Button variant="outline" className="rounded-full">
                   <ImageIcon className="mr-2 h-4 w-4" />
-                  Upload Image
+                  تحميل الصورة
                 </Button>
               </div>
             </div>
             <div className="flex items-center gap-2">
               <Label htmlFor="product-stock" className="flex-1">
-                In Stock
+                في المخزن
               </Label>
               <Switch id="product-stock" defaultChecked={selectedProduct?.inStock ?? true} />
             </div>
           </div>
           <DialogFooter>
             <Button variant="outline" className="rounded-full" onClick={() => setIsProductDialogOpen(false)}>
-              Cancel
+              إلغاء
             </Button>
             <Button
               className="rounded-full"
@@ -932,12 +930,12 @@ export default function StoreManagementPage() {
               {isProcessing ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  {selectedProduct ? "Updating..." : "Adding..."}
+                  {selectedProduct ? "جاري التحديث..." : "جاري الإضافة..."}
                 </>
               ) : (
                 <>
                   <Check className="mr-2 h-4 w-4" />
-                  {selectedProduct ? "Update Product" : "Add Product"}
+                  {selectedProduct ? "تحديث المنتج" : "إضافة المنتج"}
                 </>
               )}
             </Button>
@@ -945,13 +943,13 @@ export default function StoreManagementPage() {
         </DialogContent>
       </Dialog>
 
-      {/* Delete Confirmation Dialog */}
+      {/* حوار تأكيد الحذف */}
       <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
-            <DialogTitle>Delete Product</DialogTitle>
+            <DialogTitle>حذف المنتج</DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete this product? This action cannot be undone.
+              هل أنت متأكد أنك تريد حذف هذا المنتج؟ لا يمكن التراجع عن هذا الإجراء.
             </DialogDescription>
           </DialogHeader>
           <div className="flex items-center gap-4 py-4">
@@ -969,7 +967,7 @@ export default function StoreManagementPage() {
           </div>
           <DialogFooter>
             <Button variant="outline" className="rounded-full" onClick={() => setIsDeleteDialogOpen(false)}>
-              Cancel
+              إلغاء
             </Button>
             <Button
               variant="destructive"
@@ -980,12 +978,12 @@ export default function StoreManagementPage() {
               {isProcessing ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Deleting...
+                  جاري الحذف...
                 </>
               ) : (
                 <>
                   <Trash2 className="mr-2 h-4 w-4" />
-                  Delete Product
+                  حذف المنتج
                 </>
               )}
             </Button>

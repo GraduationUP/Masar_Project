@@ -1,5 +1,4 @@
 import Image from "next/image"
-import HeroMap from "./hero-map"
 import { Button } from "./ui/button"
 import { MapPinIcon, ShoppingBag } from "lucide-react"
 import Link from "next/link"
@@ -8,7 +7,7 @@ export default function HeroSection() {
     return (
         <section className="relative min-h-[600px] md:min-h-[700px] flex items-center">
             <div className="absolute inset-0 w-full h-full">
-                <HeroMap />
+                <Image src={'/images/mapBG.png'} alt="Background" fill className="object-cover" />
             </div>
             <div className="absolute inset-0 bg-gradient-to-l from-background/95 via-background/80 to-background/30 flex items-center">
                 <div className="container px-4 md:px-6">

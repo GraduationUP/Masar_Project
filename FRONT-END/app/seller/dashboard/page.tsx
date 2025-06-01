@@ -27,9 +27,9 @@ export default function SellerDashboard() {
     redirect("/login")
   }
 
-  if (user.role !== "seller") {
-    redirect(`/${user.role}/dashboard`)
-  }
+  // if (user.role !== "seller") {
+  //   redirect(`/${user.role}/dashboard`)
+  // }
 
   useEffect(() => {
     // Initialize storage with mock data
@@ -69,20 +69,20 @@ export default function SellerDashboard() {
       <div className="flex flex-col gap-8">
         <div className="flex flex-col md:flex-row gap-4 md:items-center md:justify-between">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">Seller Dashboard</h1>
-            <p className="text-muted-foreground">Manage your stores and products</p>
+            <h1 className="text-3xl font-bold tracking-tight">لوحة التحكم للبائع</h1>
+            <p className="text-muted-foreground">إدارة متاجرك و منتجاتك</p>
           </div>
           <div className="flex gap-2">
             <Button asChild variant="outline">
               <Link href="/seller/products/new">
                 <Package className="mr-2 h-4 w-4" />
-                Add Product
+                إضافة منتج
               </Link>
             </Button>
             <Button asChild>
               <Link href="/seller/stores/new">
                 <StoreIcon className="mr-2 h-4 w-4" />
-                Create Store
+                إنشاء متجر
               </Link>
             </Button>
           </div>
@@ -91,59 +91,59 @@ export default function SellerDashboard() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Stores</CardTitle>
+              <CardTitle className="text-sm font-medium">إجمالي المتاجر</CardTitle>
               <StoreIcon className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{stats.totalStores}</div>
-              <p className="text-xs text-muted-foreground">Active stores</p>
+              <p className="text-xs text-muted-foreground">متاجر نشطة</p>
             </CardContent>
           </Card>
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Products</CardTitle>
+              <CardTitle className="text-sm font-medium">إجمالي المنتجات</CardTitle>
               <Package className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{stats.totalProducts}</div>
-              <p className="text-xs text-muted-foreground">Products listed</p>
+              <p className="text-xs text-muted-foreground">المنتجات المدرجة</p>
             </CardContent>
           </Card>
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Store Views</CardTitle>
+              <CardTitle className="text-sm font-medium">مشاهدات المتجر</CardTitle>
               <Users className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{stats.totalViews}</div>
-              <p className="text-xs text-muted-foreground">Views this month</p>
+              <p className="text-xs text-muted-foreground">مشاهدات هذا الشهر</p>
             </CardContent>
           </Card>
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Revenue</CardTitle>
+              <CardTitle className="text-sm font-medium">الإيرادات</CardTitle>
               <CircleDollarSign className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">${stats.totalRevenue.toFixed(2)}</div>
-              <p className="text-xs text-muted-foreground">Total revenue</p>
+              <div className="text-2xl font-bold">{stats.totalRevenue.toFixed(2)}</div>
+              <p className="text-xs text-muted-foreground">الإيرادات الكلية</p>
             </CardContent>
           </Card>
         </div>
 
         <Tabs defaultValue="stores">
           <TabsList>
-            <TabsTrigger value="stores">My Stores</TabsTrigger>
-            <TabsTrigger value="products">My Products</TabsTrigger>
-            <TabsTrigger value="analytics">Analytics</TabsTrigger>
+            <TabsTrigger value="stores">متاجري</TabsTrigger>
+            <TabsTrigger value="products">منتجاتي</TabsTrigger>
+            <TabsTrigger value="analytics">الإحصاءات</TabsTrigger>
           </TabsList>
           <TabsContent value="stores" className="space-y-4">
             <div className="flex items-center justify-between">
-              <h2 className="text-xl font-bold tracking-tight">My Stores</h2>
+              <h2 className="text-xl font-bold tracking-tight">متاجري</h2>
               <Button asChild size="sm">
                 <Link href="/seller/stores/new">
                   <Plus className="mr-2 h-4 w-4" />
-                  New Store
+                  متجر جديد
                 </Link>
               </Button>
             </div>
@@ -152,12 +152,12 @@ export default function SellerDashboard() {
               <Card>
                 <CardContent className="flex flex-col items-center justify-center py-6 text-center">
                   <StoreIcon className="h-8 w-8 text-muted-foreground mb-2" />
-                  <h3 className="font-medium">No stores yet</h3>
+                  <h3 className="font-medium">لا يوجد متاجر بعد</h3>
                   <p className="text-sm text-muted-foreground mt-1">
-                    Create your first store to start selling products.
+                    أنشئ متجرك الأول لبدء بيع المنتجات.
                   </p>
                   <Button asChild className="mt-4">
-                    <Link href="/seller/stores/new">Create Store</Link>
+                    <Link href="/seller/stores/new">أنشئ متجر</Link>
                   </Button>
                 </CardContent>
               </Card>
@@ -200,14 +200,14 @@ export default function SellerDashboard() {
                     </CardContent>
                     <CardFooter className="p-4 pt-0 flex justify-between">
                       <span className="text-xs text-muted-foreground">
-                        {getProductsByStore(store.id).length} products
+                        منتجات ({getProductsByStore(store.id).length})
                       </span>
                       <div className="flex gap-2">
                         <Button asChild size="sm" variant="outline">
-                          <Link href={`/seller/stores/${store.id}`}>Manage</Link>
+                          <Link href={`/seller/stores/${store.id}`}>إدارة</Link>
                         </Button>
                         <Button asChild size="sm">
-                          <Link href={`/stores/${store.id}`}>View</Link>
+                          <Link href={`/stores/${store.id}`}>عرض</Link>
                         </Button>
                       </div>
                     </CardFooter>
@@ -218,11 +218,11 @@ export default function SellerDashboard() {
           </TabsContent>
           <TabsContent value="products" className="space-y-4">
             <div className="flex items-center justify-between">
-              <h2 className="text-xl font-bold tracking-tight">My Products</h2>
+              <h2 className="text-xl font-bold tracking-tight">منتجاتي</h2>
               <Button asChild size="sm">
                 <Link href="/seller/products/new">
                   <Plus className="mr-2 h-4 w-4" />
-                  Add Product
+                  إضافة منتج
                 </Link>
               </Button>
             </div>
@@ -231,10 +231,10 @@ export default function SellerDashboard() {
               <Card>
                 <CardContent className="flex flex-col items-center justify-center py-6 text-center">
                   <Package className="h-8 w-8 text-muted-foreground mb-2" />
-                  <h3 className="font-medium">No products yet</h3>
-                  <p className="text-sm text-muted-foreground mt-1">Add products to your stores to start selling.</p>
+                  <h3 className="font-medium">لا يوجد منتجات بعد</h3>
+                  <p className="text-sm text-muted-foreground mt-1">أضف منتجات إلى متجرك لبدء البيع.</p>
                   <Button asChild className="mt-4">
-                    <Link href="/seller/products/new">Add Product</Link>
+                    <Link href="/seller/products/new">إضافة منتج</Link>
                   </Button>
                 </CardContent>
               </Card>
@@ -257,18 +257,18 @@ export default function SellerDashboard() {
                     <CardContent className="p-4">
                       <h3 className="font-bold line-clamp-1">{product.name}</h3>
                       <div className="flex items-center justify-between mt-2">
-                        <span className="font-bold">${product.price.toFixed(2)}</span>
+                        <span className="font-bold">{product.price.toFixed(2)} جنيه</span>
                         <Badge variant={product.inStock ? "default" : "destructive"}>
-                          {product.inStock ? "In Stock" : "Out of Stock"}
+                          {product.inStock ? "متوفر" : "غير متوفر"}
                         </Badge>
                       </div>
                     </CardContent>
                     <CardFooter className="p-4 pt-0 flex justify-between">
                       <Button asChild size="sm" variant="outline">
-                        <Link href={`/seller/products/${product.id}/edit`}>Edit</Link>
+                        <Link href={`/seller/products/${product.id}/edit`}>تعديل</Link>
                       </Button>
                       <Button asChild size="sm">
-                        <Link href={`/products/${product.id}`}>View</Link>
+                        <Link href={`/products/${product.id}`}>عرض</Link>
                       </Button>
                     </CardFooter>
                   </Card>
@@ -277,19 +277,19 @@ export default function SellerDashboard() {
             )}
           </TabsContent>
           <TabsContent value="analytics" className="space-y-4">
-            <h2 className="text-xl font-bold tracking-tight">Analytics</h2>
+            <h2 className="text-xl font-bold tracking-tight">الإحصاءات</h2>
             <Card>
               <CardHeader>
-                <CardTitle>Store Performance</CardTitle>
-                <CardDescription>View your store performance metrics</CardDescription>
+                <CardTitle>أداء المتجر</CardTitle>
+                <CardDescription>عرض مؤشرات أداء متجرك</CardDescription>
               </CardHeader>
               <CardContent className="h-80 flex items-center justify-center">
                 <div className="flex flex-col items-center text-center">
                   <BarChart3 className="h-16 w-16 text-muted-foreground mb-4" />
-                  <h3 className="text-lg font-medium">Analytics Dashboard</h3>
+                  <h3 className="text-lg font-medium">لوحة تحكم الإحصاءات</h3>
                   <p className="text-sm text-muted-foreground mt-1 max-w-md">
-                    Track your store performance, customer engagement, and sales metrics. Detailed analytics help you
-                    make data-driven decisions to grow your business.
+                    تتبع أداء متجرك، ومشاركة العملاء، وبيانات المبيعات. الإحصاءات التفصيلية تساعدك على اتخاذ قرارات
+                    مدروسة لتنمية عملك.
                   </p>
                 </div>
               </CardContent>
@@ -300,3 +300,4 @@ export default function SellerDashboard() {
     </div>
   )
 }
+
