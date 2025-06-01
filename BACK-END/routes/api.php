@@ -2,8 +2,10 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Seller\StoreController;
+use App\Http\Controllers\Seller\ProductController;
 use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\VerifyEmailController;
+use App\Http\Controllers\Seller\DashboardController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
@@ -31,16 +33,13 @@ Route::middleware(['auth:sanctum'])->prefix('seller')->group(function () {
     Route::put('/store', [StoreController::class, 'update']);
     Route::delete('/store', [StoreController::class, 'destroy']);
 
-});    // Route::post('/store', [StoreController::class, 'store']);
-    // Route::put('/store', [StoreController::class, 'update']);
+ Route::post('/products', [ProductController::class, 'store']);
+           Route::get('/products', [ProductController::class, 'index']);
+     Route::put('/products/{product}', [ProductController::class, 'update']);
+    Route::delete('/products/{product}', [ProductController::class, 'destroy']);
 
-//     // المنتجات
-//     Route::get('/products', [ProductController::class, 'index']);
-//     Route::post('/products', [ProductController::class, 'store']);
-//     Route::put('/products/{id}', [ProductController::class, 'update']);
-//     Route::delete('/products/{id}', [ProductController::class, 'destroy']);
-// });
+    Route::get('/dashboard', [DashboardController::class, 'index']);
 
-
+});
 
 
