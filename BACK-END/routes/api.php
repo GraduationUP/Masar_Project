@@ -8,6 +8,8 @@ use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\EmailVerificationNotificationController;
 use App\Http\Controllers\StoreController;
+use App\Http\Controllers\Guest\StoreController as GuestStoreController;
+use App\Http\Controllers\Guest\ProductController;
 
 Route::post('/register', [RegisteredUserController::class, 'store']);
 Route::post('/login', [AuthenticatedSessionController::class, 'store']);
@@ -23,9 +25,10 @@ Route::get('/verify-email/{id}/{hash}', VerifyEmailController::class)
 
 
 
-
-
 Route::get('/ping', function () {
     return response()->json(['status' => 'ok']);
 });
 
+
+Route::get('/guest/stores', [GuestStoreController::class, 'index']);
+Route::get('/guest/products', [ProductController::class, 'index']);

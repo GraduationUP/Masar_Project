@@ -36,7 +36,7 @@ class AuthenticatedSessionController extends Controller
                 'message'       => 'Login successful',
                 'user_info'     => [
                     'id'    => $user->id,
-                    'name'  => $user->name,
+                    'name'  => $user->first_name . ' ' . $user->last_name,
                     'email' => $user->email,
                 ],
                 'token'       => $token,
