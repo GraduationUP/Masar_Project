@@ -71,10 +71,8 @@ public function update(StoreRequest $request): JsonResponse
         return response()->json(['message' => 'No store found.'], 404);
     }
 
-    // فقط الحقول المسموح بها
     $data = $request->only(['store_name', 'phone', 'location_address']);
 
-    // التعامل مع صورة البطاقة إذا أُرسلت
     if ($request->hasFile('id_card_photo')) {
         $data['id_card_photo'] = $request->file('id_card_photo')->store('id_cards', 'public');
     }

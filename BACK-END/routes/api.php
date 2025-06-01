@@ -30,25 +30,20 @@ Route::get('/verify-email/{id}/{hash}', VerifyEmailController::class)
 
 Route::middleware(['auth:sanctum'])->prefix('seller')->group(function () {
 
-    // المتجر
-    Route::post('/store', [StoreController::class, 'store']); // إنشاء المتجر
-    Route::get('/store', [StoreController::class, 'show']);   // عرض المتجر
+    Route::post('/store', [StoreController::class, 'store']);
+    Route::get('/store', [StoreController::class, 'show']);
     Route::put('/store', [StoreController::class, 'update']);
     Route::delete('/store', [StoreController::class, 'destroy']);
 
-Route::get('/ping', function () {
-    return response()->json(['status' => 'ok']);
-});
 
-
-Route::get('/guest/stores', [GuestStoreController::class, 'index']);
-Route::get('/guest/products', [ProductController::class, 'index']);
 
 Route::post('/products', [ProductController::class, 'store']);
 Route::get('/products', [ProductController::class, 'index']);
 Route::put('/products/{product}', [ProductController::class, 'update']);
 Route::delete('/products/{product}', [ProductController::class, 'destroy']);
-
 Route::get('/dashboard', [DashboardController::class, 'index']);
 
 });
+
+Route::get('/guest/stores', [GuestStoreController::class, 'index']);
+Route::get('/guest/products', [ProductController::class, 'index']);
