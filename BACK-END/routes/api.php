@@ -10,9 +10,9 @@ use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\EmailVerificationNotificationController;
-use App\Http\Controllers\StoreController;
 use App\Http\Controllers\Guest\StoreController as GuestStoreController;
-use App\Http\Controllers\Guest\ProductController;
+use App\Http\Controllers\Seller\StoreController as SellerStoreController;
+use App\Http\Controllers\Guest\ProductController as GuestProductController;
 
 Route::post('/register', [RegisteredUserController::class, 'store']);
 Route::post('/login', [AuthenticatedSessionController::class, 'store']);
