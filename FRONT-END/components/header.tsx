@@ -44,7 +44,7 @@ export default function Header() {
     { name: "الرئيسية", href: "/" },
     { name: "الخريطة", href: "/map" },
     { name: "السوق", href: "/marketplace" },
-    { name: "الخدمات", href: "/services" },
+    { name: "خدمات الطوارئ", href: "/services/emergency" },
   ]
 
   return (
@@ -132,7 +132,7 @@ export default function Header() {
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem asChild>
-                    <Link href={`/${user.id}/dashboard`} className="cursor-pointer flex items-center">
+                    <Link href={`/seller/dashboard`} className="cursor-pointer flex items-center">
                       <span className="h-4 w-4 mr-2 rounded-full bg-primary/20 flex items-center justify-center">
                         <span className="h-1.5 w-1.5 rounded-full bg-primary"></span>
                       </span>
@@ -142,11 +142,6 @@ export default function Header() {
                   <DropdownMenuItem asChild>
                     <Link href="/profile" className="cursor-pointer">
                       الملف الشخصي
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <Link href="/favorites" className="cursor-pointer">
-                      المفضلة
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />

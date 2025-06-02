@@ -70,6 +70,7 @@ export default function ProfilePage() {
               {/* Sidebar */}
               <Card className="lg:col-span-1 h-fit">
                 <CardContent className="p-6">
+                  <Badge>صاحب متجر</Badge>
                   <div className="flex flex-col items-center text-center">
                     <div className="relative mb-4">
                       <Avatar className="h-24 w-24 border-4 border-background">

@@ -17,7 +17,7 @@ export async function signInAction(formData: FormData) {
   }
 
   await setSession(user)
-  redirect("/dashboard")
+  redirect("/");
 }
 
 export async function signUpAction(formData: FormData) {
