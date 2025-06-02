@@ -3,12 +3,12 @@
 import { useEffect, useState } from 'react';
 
 function Stores() {
-  const [stores, setStores] = useState([]);
+  const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    fetch('http://127.0.0.1:8000/api/guest/stores')
+    fetch('https://jsonplaceholder.typicode.com/todos/1')
       .then(response => {
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
@@ -16,7 +16,7 @@ function Stores() {
         return response.json();
       })
       .then(data => {
-        setStores(data);
+        setData(data);
         setLoading(false);
       })
       .catch(error => {
@@ -26,23 +26,17 @@ function Stores() {
   }, []);
 
   if (loading) {
-    return <p>Loading stores...</p>;
+    return <p>Loading data...</p>;
   }
 
   if (error) {
-    return <p>Error loading stores: {error.message}</p>;
+    return <p>Error loading data: {error.message}</p>;
   }
 
   return (
     <div>
-      <h1>Stores</h1>
-      <ul>
-        {stores.map(store => (
-          <li key={store.id}>
-            {store.name} - {store.address}
-          </li>
-        ))}
-      </ul>
+      <h1>Data</h1>
+      <pre>{JSON.stringify(data, null, 2)}</pre>
     </div>
   );
 }
