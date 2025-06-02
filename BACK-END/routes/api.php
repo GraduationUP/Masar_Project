@@ -46,4 +46,4 @@ Route::get('/dashboard', [DashboardController::class, 'index']);
 });
 
 Route::get('/guest/stores', [GuestStoreController::class, 'index']);
-Route::get('/guest/products', [ProductController::class, 'index']);
+Route::get('/guest/products', [GuestProductController::class, 'index']);
