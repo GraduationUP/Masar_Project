@@ -88,17 +88,7 @@ export default function SellerDashboard() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">إجمالي المتاجر</CardTitle>
-              <StoreIcon className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{stats.totalStores}</div>
-              <p className="text-xs text-muted-foreground">متاجر نشطة</p>
-            </CardContent>
-          </Card>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">إجمالي المنتجات</CardTitle>
@@ -119,42 +109,26 @@ export default function SellerDashboard() {
               <p className="text-xs text-muted-foreground">مشاهدات هذا الشهر</p>
             </CardContent>
           </Card>
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">الإيرادات</CardTitle>
-              <CircleDollarSign className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{stats.totalRevenue.toFixed(2)}</div>
-              <p className="text-xs text-muted-foreground">الإيرادات الكلية</p>
-            </CardContent>
-          </Card>
         </div>
 
         <Tabs defaultValue="stores">
           <TabsList>
-            <TabsTrigger value="stores">متاجري</TabsTrigger>
+            <TabsTrigger value="stores">متجري</TabsTrigger>
             <TabsTrigger value="products">منتجاتي</TabsTrigger>
             <TabsTrigger value="analytics">الإحصاءات</TabsTrigger>
           </TabsList>
           <TabsContent value="stores" className="space-y-4">
             <div className="flex items-center justify-between">
-              <h2 className="text-xl font-bold tracking-tight">متاجري</h2>
-              <Button asChild size="sm">
-                <Link href="/seller/stores/new">
-                  <Plus className="mr-2 h-4 w-4" />
-                  متجر جديد
-                </Link>
-              </Button>
+              <h2 className="text-xl font-bold tracking-tight">متجري</h2>
             </div>
 
             {stores.length === 0 ? (
               <Card>
                 <CardContent className="flex flex-col items-center justify-center py-6 text-center">
                   <StoreIcon className="h-8 w-8 text-muted-foreground mb-2" />
-                  <h3 className="font-medium">لا يوجد متاجر بعد</h3>
+                  <h3 className="font-medium">لا يوجد متجر بعد</h3>
                   <p className="text-sm text-muted-foreground mt-1">
-                    أنشئ متجرك الأول لبدء بيع المنتجات.
+                    أنشئ متجرك لبدء بيع المنتجات.
                   </p>
                   <Button asChild className="mt-4">
                     <Link href="/seller/stores/new">أنشئ متجر</Link>

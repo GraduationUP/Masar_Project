@@ -189,7 +189,7 @@ export default function NewProductPage() {
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="space-y-2">
-                        <Label htmlFor="price">السعر (بالدولار) *</Label>
+                        <Label htmlFor="price">السعر (بالشيكل) *</Label>
                         <Input
                           id="price"
                           type="number"

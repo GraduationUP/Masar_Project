@@ -8,11 +8,10 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Clock, Info, Mail, MapPin, MessageSquare, Phone, ShoppingBag, Star } from "lucide-react"
+import { Info, Mail, MapPin, MessageSquare, Phone, ShoppingBag, Star } from "lucide-react"
 import { useAuth } from "@/lib/auth-context"
 import dynamic from "next/dynamic"
 import { useRouter } from "next/navigation"
-import FavoriteButton from "@/components/favorite-button"
 
 // Define your types
 type Product = {
@@ -257,7 +256,6 @@ export default function StorePage() {
 
         {/* Action Buttons */}
         <div className="flex flex-wrap gap-4">
-          <FavoriteButton itemId={store.id} itemType="store" />
           <Button variant="outline" className="gap-2 rounded-full">
             <MessageSquare className="h-4 w-4" />
             <span>Contact</span>
@@ -310,53 +308,6 @@ export default function StorePage() {
                     <div className="flex items-center gap-2">
                       <Mail className="h-4 w-4 text-muted-foreground" />
                       <span>{store.contactInfo.email}</span>
-                    </div>
-                    {store.contactInfo.website && (
-                      <div className="flex items-center gap-2">
-                        <Info className="h-4 w-4 text-muted-foreground" />
-                        <a
-                          href={`https://${store.contactInfo.website}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-primary hover:underline"
-                        >
-                          {store.contactInfo.website}
-                        </a>
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                <div>
-                  <h3 className="text-lg font-bold mb-2">ساعات العمل</h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                    <div className="flex justify-between">
-                      <span className="font-medium">الاثنين</span>
-                      <span className="text-muted-foreground">{store.openingHours.monday}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="font-medium">الثلاثاء</span>
-                      <span className="text-muted-foreground">{store.openingHours.tuesday}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="font-medium">الأربعاء</span>
-                      <span className="text-muted-foreground">{store.openingHours.wednesday}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="font-medium">الخميس</span>
-                      <span className="text-muted-foreground">{store.openingHours.thursday}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="font-medium">الجمعة</span>
-                      <span className="text-muted-foreground">{store.openingHours.friday}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="font-medium">السبت</span>
-                      <span className="text-muted-foreground">{store.openingHours.saturday}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="font-medium">الأحد</span>
-                      <span className="text-muted-foreground">{store.openingHours.sunday}</span>
                     </div>
                   </div>
                 </div>
@@ -484,48 +435,6 @@ export default function StorePage() {
                 <div className="flex items-start gap-2">
                   <MapPin className="h-5 w-5 text-muted-foreground shrink-0 mt-0.5" />
                   <span>{store.location.address}</span>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="card-hover">
-              <CardContent className="p-4">
-                <h3 className="font-bold mb-2">ساعات العمل اليوم</h3>
-                <div className="flex items-center gap-2">
-                  <Clock className="h-5 w-5 text-muted-foreground" />
-                  <span>
-                    {
-                      store.openingHours[
-                        ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"][
-                          new Date().getDay()
-                        ] as keyof typeof store.openingHours
-                      ]
-                    }
-                  </span>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="card-hover">
-              <CardContent className="p-4">
-                <h3 className="font-bold mb-2">تواصل مع المتجر</h3>
-                <div className="space-y-2">
-                  <Button variant="outline" className="w-full justify-start gap-2 rounded-lg">
-                    <Phone className="h-4 w-4" />
-                    <span>اتصل</span>
-                  </Button>
-                  <Button variant="outline" className="w-full justify-start gap-2 rounded-lg">
-                    <Mail className="h-4 w-4" />
-                    <span>بريد إلكتروني</span>
-                  </Button>
-                  {store.contactInfo.website && (
-                    <Button variant="outline" className="w-full justify-start gap-2 rounded-lg" asChild>
-                      <a href={`https://${store.contactInfo.website}`} target="_blank" rel="noopener noreferrer">
-                        <Info className="h-4 w-4" />
-                        <span>الموقع الإلكتروني</span>
-                      </a>
-                    </Button>
-                  )}
                 </div>
               </CardContent>
             </Card>
