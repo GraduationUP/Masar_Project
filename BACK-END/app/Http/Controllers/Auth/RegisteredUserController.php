@@ -23,7 +23,7 @@ class RegisteredUserController extends Controller
             'username' => ['required', 'string', 'max:255', 'unique:users'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'password' => ['required', 'string', Rules\Password::defaults()],
-            'account_type' => ['required', 'in:user,seller,admin'],
+            'account_type' => ['required', Rule::in(['user', 'seller','admin'])],
         ]);
 
         if ($validator->fails()) {
