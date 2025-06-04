@@ -41,4 +41,4 @@ function Stores() {
   );
 }
 
-export default Stores;
+export default Stores;
