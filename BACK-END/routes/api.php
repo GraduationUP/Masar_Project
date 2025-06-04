@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\MapController;
 use App\Http\Controllers\Seller\StoreController;
 use App\Http\Controllers\Seller\ProductController;
 use App\Http\Controllers\Auth\NewPasswordController;
@@ -13,6 +14,8 @@ use App\Http\Controllers\Auth\EmailVerificationNotificationController;
 use App\Http\Controllers\Guest\StoreController as GuestStoreController;
 use App\Http\Controllers\Seller\StoreController as SellerStoreController;
 use App\Http\Controllers\Guest\ProductController as GuestProductController;
+use App\Http\Controllers\User\UserController;
+
 
 Route::post('/register', [RegisteredUserController::class, 'store']);
 Route::post('/login', [AuthenticatedSessionController::class, 'store']);
@@ -46,4 +49,12 @@ Route::get('/dashboard', [DashboardController::class, 'index']);
 });
 
 Route::get('/guest/stores', [GuestStoreController::class, 'index']);
+Route::get('/guest/stores/{id}', [GuestStoreController::class, 'show']);
+
 Route::get('/guest/products', [GuestProductController::class, 'index']);
+
+Route::get('/map-data', [MapController::class, 'getMapData']);
+
+Route::get('/stores/{id}', [GuestStoreController::class, 'show']);
+
+Route::middleware('auth:sanctum')->get('/users/{id}', [UserController::class, 'show']);
