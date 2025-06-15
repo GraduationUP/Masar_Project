@@ -9,18 +9,18 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
 import { AlertTriangle, BarChart3, Bell, MapPin, Package, Settings, StoreIcon, Users } from "lucide-react"
 import { useAuth } from "@/lib/auth-context"
-import { type Product, type Service, type Store, getProducts, getServices, getStores } from "@/lib/storage-utils"
+// import { type Product, type Service, type Store, getProducts, getServices, getStores } from "@/lib/storage-utils"
 
 export default function AdminDashboard() {
   const { user } = useAuth()
   const [stores, setStores] = useState<Store[]>([])
   const [products, setProducts] = useState<Product[]>([])
-  const [services, setServices] = useState<Service[]>([])
+  // const [services, setServices] = useState<Service[]>([])
   const [stats, setStats] = useState({
     totalUsers: 0,
     totalStores: 0,
     totalProducts: 0,
-    totalServices: 0,
+    // totalServices: 0,
   })
 
   // Redirect if not logged in or not an admin
@@ -35,24 +35,24 @@ export default function AdminDashboard() {
   useEffect(() => {
     // Initialize storage with mock data
     const initStorage = async () => {
-      const { initializeStorage } = await import("@/lib/storage-utils")
-      initializeStorage()
+      // const { initializeStorage } = await import("@/lib/storage-utils")
+      // initializeStorage()
 
       // Get all stores, products, and services
-      const allStores = getStores()
-      const allProducts = getProducts()
-      const allServices = getServices()
+      const allStores = ["s1",'s2']
+      const allProducts = ['p1','p2']
+      // const allServices = getServices()
 
       setStores(allStores)
       setProducts(allProducts)
-      setServices(allServices)
+      // setServices(allServices)
 
       // Calculate stats
       setStats({
         totalUsers: 25, // Mock user count
         totalStores: allStores.length,
         totalProducts: allProducts.length,
-        totalServices: allServices.length,
+        // totalServices: allServices.length,
       })
     }
 
@@ -120,7 +120,7 @@ export default function AdminDashboard() {
               <Bell className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{stats.totalServices}</div>
+              {/* <div className="text-2xl font-bold">{stats.totalServices}</div> */}
               <p className="text-xs text-muted-foreground">الخدمات المتاحة</p>
             </CardContent>
           </Card>
@@ -223,7 +223,7 @@ export default function AdminDashboard() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {services.slice(0, 3).map((service) => (
+              {/* {services.slice(0, 3).map((service) => (
                 <Card key={service.id} className="overflow-hidden">
                   <div className="relative h-32 w-full">
                     <img
@@ -260,7 +260,7 @@ export default function AdminDashboard() {
                     </Button>
                   </CardFooter>
                 </Card>
-              ))}
+              ))} */}
             </div>
           </TabsContent>
           <TabsContent value="analytics" className="space-y-4">

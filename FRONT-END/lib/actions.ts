@@ -1,7 +1,7 @@
 "use server"
 
 import { redirect } from "next/navigation"
-import { validateCredentials, createUser, setSession, clearSession, findUserByEmail, findUserByUsername } from "./auth"
+import { validateCredentials, createUser, setSession, clearSession, findUserByEmail} from "./auth"
 
 export async function signInAction(formData: FormData) {
   const email = formData.get("email") as string
@@ -26,6 +26,7 @@ export async function signUpAction(formData: FormData) {
   const username = formData.get("username") as string
   const email = formData.get("email") as string
   const password = formData.get("password") as string
+  const role = formData.get("role") as string
 
   if (!firstName || !lastName || !username || !email || !password) {
     return { error: "All fields are required" }
@@ -37,17 +38,13 @@ export async function signUpAction(formData: FormData) {
     return { error: "User with this email already exists" }
   }
 
-  const existingUserByUsername = await findUserByUsername(username)
-  if (existingUserByUsername) {
-    return { error: "Username already taken" }
-  }
-
   const newUser = await createUser({
     first_name: firstName,
     last_name: lastName,
     username,
     email,
     password,
+    account_type: ""
   })
 
   const authUser = {
@@ -56,10 +53,11 @@ export async function signUpAction(formData: FormData) {
     last_name: newUser.last_name,
     username: newUser.username,
     email: newUser.email,
+    role: newUser.account_type
   }
 
   await setSession(authUser)
-  redirect("/dashboard")
+  redirect("/")
 }
 
 export async function logoutAction() {

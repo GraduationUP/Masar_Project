@@ -9,10 +9,80 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { signUpAction } from "@/lib/actions"
+import { RegistrationResponse } from "@/lib/types" // Import the type
 
 export default function RegisterPage() {
   const [role, setRole] = useState<"user" | "seller">("user")
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [registrationMessage, setRegistrationMessage] = useState('');
+  const [registrationError, setRegistrationError] = useState('');
+
+  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = event.target;
+    switch (name) {
+      case 'firstName':
+        setFirstName(value);
+        break;
+      case 'lastName':
+        setLastName(value);
+        break;
+      case 'username':
+        setUsername(value);
+        break;
+      case 'email':
+        setEmail(value);
+        break;
+      case 'password':
+        setPassword(value);
+        break;
+      default:
+        break;
+    }
+  };
+
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    setRegistrationMessage('');
+    setRegistrationError('');
+
+    const registrationData = {
+      first_name: firstName,
+      last_name: lastName,
+      username: username,
+      email: email,
+      password: password,
+      account_type: role,
+    };
+
+    try {
+      const response = await fetch('http://127.0.0.1:8000/api/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: JSON.stringify(registrationData),
+      });
+
+      if (response.ok) {
+        const data: RegistrationResponse = await response.json();
+        setRegistrationMessage(data.message);
+        console.log('Registration successful:', data);
+        // Optionally redirect the user or clear the form
+      } else {
+        const errorData = await response.json();
+        setRegistrationError(errorData.message || 'Registration failed');
+        console.error('Registration failed:', errorData);
+      }
+    } catch (error) {
+      setRegistrationError('An unexpected error occurred');
+      console.error('Error during registration:', error);
+    }
+  };
 
   return (
     <div className="container flex items-center justify-center min-h-[calc(100vh-8rem)] py-12">
@@ -21,32 +91,60 @@ export default function RegisterPage() {
           <CardTitle className="text-2xl font-bold">انشئ حساب جديد</CardTitle>
           <CardDescription>ادخل بياناتك لتنشئ حساب في مسار</CardDescription>
         </CardHeader>
-        <form action={signUpAction}>
+        <form onSubmit={handleSubmit}> {/* Removed action={signUpAction} and added onSubmit */}
           <CardContent className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="firstName">الاسم الأول</Label>
               <Input
-                id="firstName" name="firstName" placeholder="الاسم الأول" required
+                id="firstName"
+                name="firstName"
+                placeholder="الاسم الأول"
+                required
+                value={firstName} // Added value prop
+                onChange={handleInputChange} // Added onChange prop
               />
               <Label htmlFor="lastName">اسم العائلة</Label>
               <Input
-                id="lastName" name="lastName" placeholder="اسم العائلة" required
+                id="lastName"
+                name="lastName"
+                placeholder="اسم العائلة"
+                required
+                value={lastName} // Added value prop
+                onChange={handleInputChange} // Added onChange prop
               />
             </div>
             <div className="space-y-2">
               <Label htmlFor="username">اسم المستخدم</Label>
-              <Input id="username" name="username" placeholder="اسم المستخدم" required />
+              <Input
+                id="username"
+                name="username"
+                placeholder="اسم المستخدم"
+                required
+                value={username} // Added value prop
+                onChange={handleInputChange} // Added onChange prop
+              />
             </div>
             <div className="space-y-2">
               <Label htmlFor="email">ايميل</Label>
               <Input
-                id="email" name="email" type="email" placeholder="name@gmail.com" required
+                id="email"
+                name="email"
+                type="email"
+                placeholder="name@gmail.com"
+                required
+                value={email} // Added value prop
+                onChange={handleInputChange} // Added onChange prop
               />
             </div>
             <div className="space-y-2">
               <Label htmlFor="password">كلمة المرور</Label>
               <Input
-                id="password" name="password" type="password" required
+                id="password"
+                name="password"
+                type="password"
+                required
+                value={password} // Added value prop
+                onChange={handleInputChange} // Added onChange prop
               />
             </div>
             <div className="space-y-2">
@@ -84,6 +182,8 @@ export default function RegisterPage() {
             </p>
           </CardFooter>
         </form>
+        {registrationMessage && <p className="mt-4 text-green-500">{registrationMessage}</p>}
+        {registrationError && <p className="mt-4 text-red-500">{registrationError}</p>}
       </Card>
     </div>
   )

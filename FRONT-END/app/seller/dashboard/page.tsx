@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
-import { BarChart3, CircleDollarSign, Package, Plus, Star, StoreIcon, Users } from "lucide-react"
+import { BarChart3, Package, Plus, Star, StoreIcon, Users } from "lucide-react"
 import { useAuth } from "@/lib/auth-context"
 import { type Product, type Store, getProductsByStore, getStoresByOwner } from "@/lib/storage-utils"
 

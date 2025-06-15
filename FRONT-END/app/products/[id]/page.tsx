@@ -22,18 +22,7 @@ import {
 } from "lucide-react"
 import { useAuth } from "@/lib/auth-context"
 import { useToast } from "@/components/ui/use-toast"
-import dynamic from "next/dynamic"
 import FavoriteButton from "@/components/favorite-button"
-
-// Dynamically import the map component to avoid SSR issues
-// const MapWithNoSSR = dynamic(() => import("@/components/map"), {
-//   ssr: false,
-//   loading: () => (
-//     <div className="h-full w-full bg-muted/30 animate-pulse flex items-center justify-center">
-//       <p className="text-muted-foreground">جار تحميل الخريطة...</p>
-//     </div>
-//   ),
-// })
 
 // Sample mock data arrays
 const products = [
@@ -57,7 +46,6 @@ const products = [
     imageUrl: "/products/earbuds.jpg",
     createdAt: "2023-06-15T10:30:00Z",
   },
-  // ... add more products
 ]
 
 const stores = [
@@ -68,7 +56,6 @@ const stores = [
     imageUrl: "/stores/tech-store.jpg",
     coordinates: { lat: 31.899, lng: 35.204 },
   },
-  // ... add more stores
 ]
 
 const reviews = [
@@ -86,7 +73,6 @@ const reviews = [
     rating: 5,
     comment: "أنصح بها بشدة",
   },
-  // ... add more reviews
 ]
 
 export default function ProductPage() {
@@ -406,7 +392,7 @@ export default function ProductPage() {
                         <div key={review.id} className="pb-6 border-b last:border-0">
                           <div className="flex items-start gap-4">
                             <Avatar>
-                              <AvatarImage src={review.userAvatar || "/placeholder.svg"} alt={review.userName} />
+                              <AvatarImage src={"/ProfilePlaceholder.png"} alt={review.userName} />
                               <AvatarFallback>{review.userName.charAt(0)}</AvatarFallback>
                             </Avatar>
                             <div className="flex-1">
