@@ -32,6 +32,7 @@ class StoreController extends Controller
             'location_address' => $request->location_address,
             'id_card_photo' => $idCardPath,
             'status' => false, // بانتظار موافقة المشرف
+
         ]);
 
         return response()->json([
@@ -71,7 +72,7 @@ public function update(StoreRequest $request): JsonResponse
         return response()->json(['message' => 'No store found.'], 404);
     }
 
-    $data = $request->only(['store_name', 'phone', 'location_address']);
+$data = $request->only(['store_name', 'phone', 'location_address', 'latitude', 'longitude']);
 
     if ($request->hasFile('id_card_photo')) {
         $data['id_card_photo'] = $request->file('id_card_photo')->store('id_cards', 'public');
