@@ -15,7 +15,7 @@ import {
 import { LogIn } from "lucide-react";
 import React, { useState } from "react";
 import { useRouter } from 'next/navigation'; // Updated import
-import { LoginSuccessResponse, LoginErrorResponse } from "@/lib/types"; // Adjust path if needed
+import { LoginSuccessResponse, LoginErrorResponse } from "@/lib/types";
 
 const LoginPage: React.FC = () => {
   const router = useRouter();

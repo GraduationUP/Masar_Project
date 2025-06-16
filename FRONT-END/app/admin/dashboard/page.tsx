@@ -9,18 +9,15 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
 import { AlertTriangle, BarChart3, Bell, MapPin, Package, Settings, StoreIcon, Users } from "lucide-react"
 import { useAuth } from "@/lib/auth-context"
-// import { type Product, type Service, type Store, getProducts, getServices, getStores } from "@/lib/storage-utils"
 
 export default function AdminDashboard() {
   const { user } = useAuth()
   const [stores, setStores] = useState<Store[]>([])
   const [products, setProducts] = useState<Product[]>([])
-  // const [services, setServices] = useState<Service[]>([])
   const [stats, setStats] = useState({
     totalUsers: 0,
     totalStores: 0,
     totalProducts: 0,
-    // totalServices: 0,
   })
 
   // Redirect if not logged in or not an admin

@@ -1,11 +1,11 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import Link from "next/link"
-import { usePathname } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import { redirect, usePathname } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,46 +13,87 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { Bell, Menu, Moon, Search, Sun } from "lucide-react"
-import { useTheme } from "next-themes"
-import { useAuth } from "@/lib/auth-context"
-import { Badge } from "@/components/ui/badge"
-import Image from "next/image"
-import { Avatar, AvatarImage } from "@/components/ui/avatar"
-import { logoutAction } from "@/lib/actions"
+} from "@/components/ui/dropdown-menu";
+import { Bell, Menu, Moon, Search, Sun } from "lucide-react";
+import { useTheme } from "next-themes";
+import { Badge } from "@/components/ui/badge";
+import Image from "next/image";
+import { Avatar, AvatarImage } from "@/components/ui/avatar";
+import { logoutAction } from "@/lib/actions";
+import { UserInfo } from "@/lib/types";
+const SESSION_COOKIE = "auth-session"
+import { cookies } from "next/headers"
 
 export default function Header() {
-  const { theme, setTheme } = useTheme()
-  const pathname = usePathname()
-  const { user } = useAuth()
-  const [isMounted, setIsMounted] = useState(false)
-  const [isScrolled, setIsScrolled] = useState(false)
+  const { theme, setTheme } = useTheme();
+  const pathname = usePathname();
+  const [isMounted, setIsMounted] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
 
   useEffect(() => {
-    setIsMounted(true)
+    // Check for authToken in localStorage on component mount
+    const token = localStorage.getItem("authToken");
+    if (token) {
+      setIsLoggedIn(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    const userInfoString = localStorage.getItem("userInfo");
+    if (userInfoString) {
+      try {
+        setUserInfo(JSON.parse(userInfoString));
+      } catch (error) {
+        console.error("Error parsing userInfo from localStorage:", error);
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    setIsMounted(true);
 
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 10)
-    }
+      setIsScrolled(window.scrollY > 10);
+    };
 
-    window.addEventListener("scroll", handleScroll)
-    return () => window.removeEventListener("scroll", handleScroll)
-  }, [])
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   const navigation = [
     { name: "الرئيسية", href: "/" },
     { name: "الخريطة", href: "/map" },
     { name: "السوق", href: "/marketplace" },
     { name: "خدمات الطوارئ", href: "/services/emergency" },
-  ]
+  ];
+
+  const handleLogout = async () => {
+    // Clear local storage immediately
+    localStorage.removeItem("tokenType");
+    localStorage.removeItem("userInfo");
+
+    // Call the server action
+    await fetch('http://127.0.0.1:8000/api/logout', { // Create an API route to trigger your server action
+      method: 'POST',
+    });
+
+    // Optionally clear cookie on the client-side (though the server action should handle this)
+    const cookieStore = await cookies();
+    cookieStore.delete(SESSION_COOKIE);
+
+    // Redirect the user
+    redirect('/');
+  };
 
   return (
     <header
-      className={`sticky top-0 z-50 w-full transition-all duration-300 ${isScrolled
-        ? "bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b shadow-sm"
-        : "bg-background/0 border-transparent"
-        }`}
+      className={`sticky top-0 z-50 w-full transition-all duration-300 ${
+        isScrolled
+          ? "bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b shadow-sm"
+          : "bg-background/0 border-transparent"
+      }`}
     >
       <div className="container flex h-16 items-center justify-between px-4 md:px-6">
         <div className="flex gap-6 md:gap-10">
@@ -64,13 +105,17 @@ export default function Header() {
               <Link
                 key={item.name}
                 href={item.href}
-                className={`text-sm font-medium transition-colors hover:text-primary relative group ${pathname === item.href ? "text-primary" : "text-muted-foreground"
-                  }`}
+                className={`text-sm font-medium transition-colors hover:text-primary relative group ${
+                  pathname === item.href
+                    ? "text-primary"
+                    : "text-muted-foreground"
+                }`}
               >
                 {item.name}
                 <span
-                  className={`absolute -bottom-1 left-0 h-0.5 bg-primary transition-all duration-300 ${pathname === item.href ? "w-full" : "w-0 group-hover:w-full"
-                    }`}
+                  className={`absolute -bottom-1 left-0 h-0.5 bg-primary transition-all duration-300 ${
+                    pathname === item.href ? "w-full" : "w-0 group-hover:w-full"
+                  }`}
                 ></span>
               </Link>
             ))}
@@ -103,9 +148,14 @@ export default function Header() {
             </Button>
           )}
 
-          {user ? (
+          {isLoggedIn ? (
             <>
-              <Button variant="ghost" size="icon" aria-label="Notifications" className="relative rounded-full">
+              <Button
+                variant="ghost"
+                size="icon"
+                aria-label="Notifications"
+                className="relative rounded-full"
+              >
                 <Bell className="h-5 w-5" />
                 <Badge className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 flex items-center justify-center">
                   3
@@ -119,20 +169,34 @@ export default function Header() {
                     className="relative h-8 w-8 rounded-full overflow-hidden ring-2 ring-background"
                   >
                     <Avatar className="h-8 w-8">
-                      <AvatarImage src={"/ProfilePlaceholder.jpg"} alt={'profile placeholder'} />
+                      <AvatarImage
+                        src={"/ProfilePlaceholder.jpg"}
+                        alt={"profile placeholder"}
+                      />
                     </Avatar>
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-56 mt-1" align="end" forceMount>
+                <DropdownMenuContent
+                  className="w-56 mt-1"
+                  align="end"
+                  forceMount
+                >
                   <DropdownMenuLabel className="font-normal">
                     <div className="flex flex-col space-y-1">
-                      <p className="text-sm font-medium leading-none">{user.first_name}</p>
-                      <p className="text-xs leading-none text-muted-foreground">{user.email}</p>
+                      <p className="text-sm font-medium leading-none">
+                        {userInfo.name}
+                      </p>
+                      <p className="text-xs leading-none text-muted-foreground">
+                        {userInfo.email}
+                      </p>
                     </div>
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem asChild>
-                    <Link href={`/seller/dashboard`} className="cursor-pointer flex items-center">
+                    <Link
+                      href={`/seller/dashboard`}
+                      className="cursor-pointer flex items-center"
+                    >
                       <span className="h-4 w-4 mr-2 rounded-full bg-primary/20 flex items-center justify-center">
                         <span className="h-1.5 w-1.5 rounded-full bg-primary"></span>
                       </span>
@@ -145,10 +209,11 @@ export default function Header() {
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
-                  <form action={logoutAction}>
+                  <form onSubmit={handleLogout}>
                     <Button type="submit" className="cursor-pointer text-white">
+                      {/* TODO: Make it work by adding handel logout in this file */}
                       تسجيل الخروج
-                    </Button>
+                    </Button> 
                   </form>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -169,7 +234,11 @@ export default function Header() {
 
           <Sheet>
             <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" className="md:hidden rounded-full">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="md:hidden rounded-full"
+              >
                 <Menu className="h-5 w-5" />
                 <span className="sr-only">قائمة التنقل</span>
               </Button>
@@ -183,8 +252,11 @@ export default function Header() {
                       <Link
                         key={item.name}
                         href={item.href}
-                        className={`text-sm font-medium transition-colors hover:text-primary ${pathname === item.href ? "text-primary" : "text-muted-foreground"
-                          }`}
+                        className={`text-sm font-medium transition-colors hover:text-primary ${
+                          pathname === item.href
+                            ? "text-primary"
+                            : "text-muted-foreground"
+                        }`}
                       >
                         {item.name}
                       </Link>
@@ -194,15 +266,18 @@ export default function Header() {
                 <div className="space-y-3">
                   <h4 className="font-medium">الحساب</h4>
                   <div className="grid gap-3">
-                    {user ? (
+                    {isLoggedIn ? (
                       <>
                         <Link
-                          href={`/${user.id}/dashboard`}
+                          href={`/${userInfo.id}/dashboard`}
                           className="text-sm font-medium transition-colors hover:text-primary"
                         >
                           لوحة التحكم
                         </Link>
-                        <Link href="/profile" className="text-sm font-medium transition-colors hover:text-primary">
+                        <Link
+                          href="/profile"
+                          className="text-sm font-medium transition-colors hover:text-primary"
+                        >
                           الملف الشخصي
                         </Link>
                         <form action={logoutAction}>
@@ -216,10 +291,16 @@ export default function Header() {
                       </>
                     ) : (
                       <>
-                        <Link href="/login" className="text-sm font-medium transition-colors hover:text-primary">
+                        <Link
+                          href="/login"
+                          className="text-sm font-medium transition-colors hover:text-primary"
+                        >
                           تسجيل الدخول
                         </Link>
-                        <Link href="/register" className="text-sm font-medium transition-colors hover:text-primary">
+                        <Link
+                          href="/register"
+                          className="text-sm font-medium transition-colors hover:text-primary"
+                        >
                           انشاء حساب
                         </Link>
                       </>
@@ -232,5 +313,5 @@ export default function Header() {
         </div>
       </div>
     </header>
-  )
+  );
 }

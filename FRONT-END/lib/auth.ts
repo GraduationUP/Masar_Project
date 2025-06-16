@@ -56,8 +56,13 @@ export async function getSession(): Promise<AuthUser | null> {
 }
 
 export async function clearSession() {
-  const cookieStore = await cookies()
-  cookieStore.delete(SESSION_COOKIE)
+  const cookieStore = await cookies();
+  cookieStore.delete(SESSION_COOKIE);
+
+  if (typeof window !== 'undefined') {
+    localStorage.removeItem("tokenType");
+    localStorage.removeItem("userInfo");
+  }
 }
 
 export async function requireAuth() {
