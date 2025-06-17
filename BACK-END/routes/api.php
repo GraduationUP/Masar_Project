@@ -2,6 +2,8 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\MapController;
+use App\Http\Controllers\User\UserController;
+use App\Http\Controllers\User\RatingController;
 use App\Http\Controllers\Seller\StoreController;
 use App\Http\Controllers\Seller\ProductController;
 use App\Http\Controllers\Auth\NewPasswordController;
@@ -14,7 +16,6 @@ use App\Http\Controllers\Auth\EmailVerificationNotificationController;
 use App\Http\Controllers\Guest\StoreController as GuestStoreController;
 use App\Http\Controllers\Seller\StoreController as SellerStoreController;
 use App\Http\Controllers\Guest\ProductController as GuestProductController;
-use App\Http\Controllers\User\UserController;
 
 
 Route::post('/register', [RegisteredUserController::class, 'store']);
@@ -24,11 +25,11 @@ Route::middleware('auth:sanctum')->post('/logout', [AuthenticatedSessionControll
 Route::post('/forgot-password', [PasswordResetLinkController::class, 'store']);
 Route::get('/reset-password/{token}', [NewPasswordController::class, 'create'])
     ->name('password.reset');
-    Route::post('/reset-password', [NewPasswordController::class, 'store']);
+Route::post('/reset-password', [NewPasswordController::class, 'store']);
 
 Route::post('/email/verification-notification', [EmailVerificationNotificationController::class, 'store'])->middleware('auth:sanctum');
 Route::get('/verify-email/{id}/{hash}', VerifyEmailController::class)
-->middleware(['auth:sanctum', 'signed', 'throttle:6,1'])
+    ->middleware(['auth:sanctum', 'signed', 'throttle:6,1'])
     ->name('verification.verify');
 
 Route::middleware(['auth:sanctum'])->prefix('seller')->group(function () {
@@ -40,12 +41,11 @@ Route::middleware(['auth:sanctum'])->prefix('seller')->group(function () {
 
 
 
-Route::post('/products', [ProductController::class, 'store']);
-Route::get('/products', [ProductController::class, 'index']);
-Route::put('/products/{product}', [ProductController::class, 'update']);
-Route::delete('/products/{product}', [ProductController::class, 'destroy']);
-Route::get('/dashboard', [DashboardController::class, 'index']);
-
+    Route::post('/products', [ProductController::class, 'store']);
+    Route::get('/products', [ProductController::class, 'index']);
+    Route::put('/products/{product}', [ProductController::class, 'update']);
+    Route::delete('/products/{product}', [ProductController::class, 'destroy']);
+    Route::get('/dashboard', [DashboardController::class, 'index']);
 });
 
 Route::get('/guest/stores', [GuestStoreController::class, 'index']);
@@ -58,3 +58,9 @@ Route::get('/map-data', [MapController::class, 'getMapData']);
 Route::get('/stores/{id}', [GuestStoreController::class, 'show']);
 
 Route::middleware('auth:sanctum')->get('/users/{id}', [UserController::class, 'show']);
+
+Route::middleware(['auth:sanctum'])->group(function () {
+    Route::post('/stores/{store}/ratings', [RatingController::class, 'store']);
+    Route::put('/ratings/{rating}', [RatingController::class, 'update']);
+    Route::delete('/ratings/{rating}', [RatingController::class, 'destroy']);
+});
