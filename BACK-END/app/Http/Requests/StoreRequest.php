@@ -1,10 +1,12 @@
 <?php
+
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreRequest extends FormRequest
-{public function authorize(): bool
+{
+    public function authorize(): bool
     {
         return true; // تأكد أنه مسموح لأي مستخدم مصادق يرسل الطلب
     }
@@ -16,6 +18,8 @@ class StoreRequest extends FormRequest
             'id_card_photo' => 'required|image|mimes:jpg,jpeg,png|max:2048',
             'phone' => 'required|string|max:20',
             'location_address' => 'required|string|max:255',
+            'latitude' => 'nullable|numeric',
+            'longitude' => 'nullable|numeric',
         ];
 
         if ($this->isMethod('PUT') || $this->isMethod('PATCH')) {

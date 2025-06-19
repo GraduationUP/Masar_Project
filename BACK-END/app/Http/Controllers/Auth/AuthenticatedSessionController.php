@@ -38,6 +38,7 @@ class AuthenticatedSessionController extends Controller
                     'id'    => $user->id,
                     'name'  => $user->first_name . ' ' . $user->last_name,
                     'email' => $user->email,
+                    'role' => $user->getRoleNames()->first()
                 ],
                 'token'       => $token,
                 'token_type'  => 'Bearer',
