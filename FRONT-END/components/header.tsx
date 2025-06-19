@@ -19,10 +19,7 @@ import { useTheme } from "next-themes";
 import { Badge } from "@/components/ui/badge";
 import Image from "next/image";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
-import { logoutAction } from "@/lib/actions";
 import { UserInfo } from "@/lib/types";
-const SESSION_COOKIE = "auth-session"
-import { cookies } from "next/headers"
 
 export default function Header() {
   const { theme, setTheme } = useTheme();
@@ -69,23 +66,12 @@ export default function Header() {
     { name: "خدمات الطوارئ", href: "/services/emergency" },
   ];
 
-  const handleLogout = async () => {
-    // Clear local storage immediately
+  function HandelLogout() {
     localStorage.removeItem("tokenType");
     localStorage.removeItem("userInfo");
-
-    // Call the server action
-    await fetch('http://127.0.0.1:8000/api/logout', { // Create an API route to trigger your server action
-      method: 'POST',
-    });
-
-    // Optionally clear cookie on the client-side (though the server action should handle this)
-    const cookieStore = await cookies();
-    cookieStore.delete(SESSION_COOKIE);
-
-    // Redirect the user
-    redirect('/');
-  };
+    localStorage.removeItem("authToken");
+    redirect("/");
+  }
 
   return (
     <header
@@ -184,36 +170,41 @@ export default function Header() {
                   <DropdownMenuLabel className="font-normal">
                     <div className="flex flex-col space-y-1">
                       <p className="text-sm font-medium leading-none">
-                        {userInfo.name}
+                        {userInfo?.name ?? ""}
                       </p>
                       <p className="text-xs leading-none text-muted-foreground">
-                        {userInfo.email}
+                        {userInfo?.email ?? ""}
                       </p>
                     </div>
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem asChild>
-                    <Link
-                      href={`/seller/dashboard`}
-                      className="cursor-pointer flex items-center"
-                    >
-                      <span className="h-4 w-4 mr-2 rounded-full bg-primary/20 flex items-center justify-center">
-                        <span className="h-1.5 w-1.5 rounded-full bg-primary"></span>
-                      </span>
-                      لوحة التحكم
-                    </Link>
-                  </DropdownMenuItem>
+                  {userInfo?.role !== "user" && (
+                    <DropdownMenuItem asChild>
+                      <Link
+                        href={`/${userInfo?.role}/dashboard`}
+                        className="cursor-pointer flex items-center"
+                      >
+                        <span className="h-4 w-4 mr-2 rounded-full bg-primary/20 flex items-center justify-center">
+                          <span className="h-1.5 w-1.5 rounded-full bg-primary"></span>
+                        </span>
+                        لوحة التحكم
+                      </Link>
+                    </DropdownMenuItem>
+                  )}
                   <DropdownMenuItem asChild>
                     <Link href="/profile" className="cursor-pointer">
                       الملف الشخصي
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
-                  <form onSubmit={handleLogout}>
-                    <Button type="submit" className="cursor-pointer text-white">
-                      {/* TODO: Make it work by adding handel logout in this file */}
+                  <form onSubmit={HandelLogout}>
+                    <Button
+                      type="submit"
+                      variant="ghost"
+                      className="cursor-pointer text-left w-full"
+                    >
                       تسجيل الخروج
-                    </Button> 
+                    </Button>
                   </form>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -269,7 +260,7 @@ export default function Header() {
                     {isLoggedIn ? (
                       <>
                         <Link
-                          href={`/${userInfo.id}/dashboard`}
+                          href={`/${userInfo?.id ?? ""}/dashboard`}
                           className="text-sm font-medium transition-colors hover:text-primary"
                         >
                           لوحة التحكم
@@ -280,7 +271,7 @@ export default function Header() {
                         >
                           الملف الشخصي
                         </Link>
-                        <form action={logoutAction}>
+                        <form onSubmit={HandelLogout}>
                           <button
                             type="submit"
                             className="text-sm font-medium transition-colors hover:text-primary text-left"

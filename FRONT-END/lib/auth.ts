@@ -62,6 +62,7 @@ export async function clearSession() {
   if (typeof window !== 'undefined') {
     localStorage.removeItem("tokenType");
     localStorage.removeItem("userInfo");
+    localStorage.removeItem("authToken");
   }
 }
 
