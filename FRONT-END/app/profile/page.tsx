@@ -29,7 +29,6 @@ import {
   Star,
   User,
 } from "lucide-react";
-import { logoutAction } from "@/lib/actions";
 import { redirect } from "next/navigation";
 
 export default function ProfilePage() {
@@ -115,6 +114,13 @@ export default function ProfilePage() {
     fetchData();
   }, []);
 
+  function HandelLogout() {
+    localStorage.removeItem("tokenType");
+    localStorage.removeItem("userInfo");
+    localStorage.removeItem("authToken");
+    redirect("/");
+  }
+
   return (
     <div className="container px-4 md:px-6 py-8">
       <div className="flex flex-col gap-8">
@@ -126,7 +132,7 @@ export default function ProfilePage() {
             </p>
           </div>
           <div className="flex gap-2">
-            <form action={logoutAction}>
+            <form onSubmit={HandelLogout}>
               <Button type="submit" variant="outline" className="rounded-full">
                 <LogOut className="mr-2 h-4 w-4" />
                 تسجيل الخروج
@@ -174,15 +180,6 @@ export default function ProfilePage() {
               <Separator className="my-6" />
 
               <div className="space-y-4">
-                <div className="flex items-center gap-3">
-                  <Heart className="h-5 w-5 text-muted-foreground" />
-                  <div>
-                    <p className="font-medium">المفضلة</p>
-                    <p className="text-sm text-muted-foreground">
-                      المتاجر والبضائع المفضلة
-                    </p>
-                  </div>
-                </div>
                 <div className="flex items-center gap-3">
                   <Star className="h-5 w-5 text-muted-foreground" />
                   <div>
@@ -382,7 +379,7 @@ export default function ProfilePage() {
                     </div>
                   </CardContent>
                   <CardFooter>
-                    <form action={logoutAction}>
+                    <form onSubmit={HandelLogout}>
                       <Button
                         type="submit"
                         variant="outline"
@@ -456,13 +453,6 @@ export default function ProfilePage() {
                 value="activity"
                 className="space-y-6 animate-fade-in"
               >
-                <Card>
-                  <CardHeader>
-                    <CardTitle>المتاجر المفضلة</CardTitle>
-                    <CardDescription>متاجر قمت بحفظها</CardDescription>
-                  </CardHeader>
-                </Card>
-
                 <Card>
                   <CardHeader>
                     <CardTitle>تقييماتك</CardTitle>
