@@ -5,6 +5,7 @@ use App\Http\Controllers\MapController;
 use App\Http\Controllers\User\UserController;
 use App\Http\Controllers\User\RatingController;
 use App\Http\Controllers\Seller\StoreController;
+use App\Http\Controllers\User\CommentController;
 use App\Http\Controllers\Seller\ProductController;
 use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\VerifyEmailController;
@@ -58,9 +59,19 @@ Route::get('/map-data', [MapController::class, 'getMapData']);
 Route::get('/stores/{id}', [GuestStoreController::class, 'show']);
 
 Route::middleware('auth:sanctum')->get('/users/{id}', [UserController::class, 'show']);
+//
 
+//Rating Routes
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/stores/{store}/ratings', [RatingController::class, 'store']);
     Route::put('/ratings/{rating}', [RatingController::class, 'update']);
     Route::delete('/ratings/{rating}', [RatingController::class, 'destroy']);
+});
+
+//comments Routes
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/stores/{store}/comments', [CommentController::class, 'store']);
+    Route::put('/comments/{comment}', [CommentController::class, 'update']);
+    Route::delete('/comments/{comment}', [CommentController::class, 'destroy']);
+    Route::post('/comments/{comment}/report', [CommentController::class, 'report']);
 });

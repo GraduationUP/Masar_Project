@@ -8,64 +8,76 @@ use Spatie\Permission\Models\Permission;
 
 class DatabaseSeeder extends Seeder
 {
- public function run(): void
- {
-  // إنشاء الأدوار
-  $userRole = Role::firstOrCreate(['name' => 'user']);
-  $sellerRole = Role::firstOrCreate(['name' => 'seller']);
-  $adminRole = Role::firstOrCreate(['name' => 'admin']);
+    public function run(): void
+    {
+        // إنشاء الأدوار
+        $userRole = Role::firstOrCreate(['name' => 'user']);
+        $sellerRole = Role::firstOrCreate(['name' => 'seller']);
+        $adminRole = Role::firstOrCreate(['name' => 'admin']);
 
-  // إنشاء الصلاحيات
-  $permissions = [
-   // صلاحيات المستخدم العادي
-   'view stores',
-   'rate stores',
-   'comment',
-   'receive notifications',
-   'send reports',
+        // جميع الصلاحيات المطلوبة
+        $permissions = [
+            // صلاحيات المستخدم العادي
+            'view stores',
+            'rate stores',
+            'comment',
+            'receive notifications',
+            'send reports',
+            'edit comment',
+            'delete comment',
 
-   // صلاحيات البائع
-   'manage own store',
-   'manage products',
-   'access seller dashboard',
+            // صلاحيات البائع
+            'manage own store',
+            'manage products',
+            'access seller dashboard',
+            'report comment',
 
-   // صلاحيات الأدمن
-   'access admin dashboard',
-   'block users',
-   'block stores',
-   'block products',
-   'send notifications',
-  ];
+            // صلاحيات الأدمن
+            'access admin dashboard',
+            'block users',
+            'block stores',
+            'block products',
+            'send notifications',
+        ];
 
-  foreach ($permissions as $permission) {
-   Permission::firstOrCreate(['name' => $permission]);
-  }
+        // إنشاء الصلاحيات إن لم تكن موجودة
+        foreach ($permissions as $permission) {
+            Permission::firstOrCreate(['name' => $permission]);
+        }
 
-  // ربط الصلاحيات بالأدوار
-  $userRole->givePermissionTo([
-   'view stores',
-   'rate stores',
-   'comment',
-   'receive notifications',
-   'send reports',
-  ]);
+        // ربط الصلاحيات بالأدوار
 
-  $sellerRole->givePermissionTo([
-   'view stores',
-   'rate stores',
-   'comment',
-   'receive notifications',
-   'send reports',
-   'manage own store',
-   'manage products',
-   'access seller dashboard',
-  ]);
+        // المستخدم
+        $userRole->givePermissionTo([
+            'view stores',
+            'rate stores',
+            'comment',
+            'receive notifications',
+            'send reports',
+            'edit comment',
+            'delete comment',
+        ]);
 
-  $adminRole->givePermissionTo(Permission::all());
+        // البائع
+        $sellerRole->givePermissionTo([
+            'view stores',
+            'rate stores',
+            'comment',
+            'receive notifications',
+            'send reports',
+            'manage own store',
+            'manage products',
+            'access seller dashboard',
+            'report comment',
+        ]);
 
-  $this->call([
-   CategorySeeder::class,
-   FakeUsersAndDataSeeder::class,
-  ]);
- }
+        // الأدمن يمتلك كل الصلاحيات
+        $adminRole->syncPermissions(Permission::all());
+
+        // استدعاء سييدرات أخرى
+        $this->call([
+            CategorySeeder::class,
+            FakeUsersAndDataSeeder::class,
+        ]);
+    }
 }
