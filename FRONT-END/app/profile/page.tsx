@@ -1,17 +1,24 @@
-"use client"
+"use client";
 
-import { useEffect, useState } from "react"
-import { useRouter } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Textarea } from "@/components/ui/textarea"
-import { Switch } from "@/components/ui/switch"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Separator } from "@/components/ui/separator"
-import { Badge } from "@/components/ui/badge"
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Separator } from "@/components/ui/separator";
+import { Badge } from "@/components/ui/badge";
 import {
   Camera,
   Check,
@@ -22,24 +29,39 @@ import {
   LogOut,
   Star,
   User,
-} from "lucide-react"
-import { useAuth } from "@/lib/auth-context"
-import { logoutAction } from "@/lib/actions"
+} from "lucide-react";
+import { useAuth } from "@/lib/auth-context";
+import { logoutAction } from "@/lib/actions";
+import { redirect } from "next/navigation";
 
 export default function ProfilePage() {
+  const mockData = {
+    id: 5,
+    first_name: "osama",
+    last_name: "user",
+    username: "osamauser",
+    email: "osama@example.com",
+    role: "user",
+  };
 
   const { user } = useAuth();
   const router = useRouter();
   const [users, setUsers] = useState([]);
-  const [isEditing, setIsEditing] = useState(false)
+  const [isEditing, setIsEditing] = useState(false);
 
   useEffect(() => {
-    fetch("/db.json").
-      then((res) => res.json()).
-      then((data) => {
+    fetch("/db.json")
+      .then((res) => res.json())
+      .then((data) => {
         setUsers(data.users);
-      })
-  }, [])
+      });
+  }, []);
+
+  useEffect(() => {
+      if (!loading && (user === null || user.role !== "seller")) {
+        redirect("/");
+      }
+    }, [user])};
 
   return (
     <>
@@ -48,12 +70,20 @@ export default function ProfilePage() {
           <div className="flex flex-col gap-8">
             <div className="flex flex-col md:flex-row gap-4 md:items-center md:justify-between">
               <div>
-                <h1 className="text-3xl font-bold tracking-tight">الملف الشخصي</h1>
-                <p className="text-muted-foreground">قم بادارة اعدادت ملفك الشخصي</p>
+                <h1 className="text-3xl font-bold tracking-tight">
+                  الملف الشخصي
+                </h1>
+                <p className="text-muted-foreground">
+                  قم بادارة اعدادت ملفك الشخصي
+                </p>
               </div>
               <div className="flex gap-2">
                 <form action={logoutAction}>
-                  <Button type="submit" variant="outline" className="rounded-full">
+                  <Button
+                    type="submit"
+                    variant="outline"
+                    className="rounded-full"
+                  >
                     <LogOut className="mr-2 h-4 w-4" />
                     تسجيل الخروج
                   </Button>
@@ -74,8 +104,13 @@ export default function ProfilePage() {
                   <div className="flex flex-col items-center text-center">
                     <div className="relative mb-4">
                       <Avatar className="h-24 w-24 border-4 border-background">
-                        <AvatarImage src={"/ProfilePlaceholder.jpg"} alt={"user.name"} />
-                        <AvatarFallback className="text-2xl">الاسم هنا</AvatarFallback>
+                        <AvatarImage
+                          src={"/ProfilePlaceholder.jpg"}
+                          alt={"user.name"}
+                        />
+                        <AvatarFallback className="text-2xl">
+                          الاسم هنا
+                        </AvatarFallback>
                       </Avatar>
                       <Button
                         size="icon"
@@ -87,7 +122,9 @@ export default function ProfilePage() {
                     </div>
                     <h2 className="text-xl font-bold mt-2">اسم هنا</h2>
                     {/* <Badge className="mt-1">{user.role.charAt(0).toUpperCase() + user.role.slice(1)}</Badge> */}
-                    <p className="text-sm text-muted-foreground mt-2">عضو منذ ابريل 2023</p>
+                    <p className="text-sm text-muted-foreground mt-2">
+                      عضو منذ ابريل 2023
+                    </p>
                   </div>
 
                   <Separator className="my-6" />
@@ -97,21 +134,27 @@ export default function ProfilePage() {
                       <Heart className="h-5 w-5 text-muted-foreground" />
                       <div>
                         <p className="font-medium">المفضلة</p>
-                        <p className="text-sm text-muted-foreground">المتاجر والبضائع المفضلة</p>
+                        <p className="text-sm text-muted-foreground">
+                          المتاجر والبضائع المفضلة
+                        </p>
                       </div>
                     </div>
                     <div className="flex items-center gap-3">
                       <Star className="h-5 w-5 text-muted-foreground" />
                       <div>
                         <p className="font-medium">التقييمات</p>
-                        <p className="text-sm text-muted-foreground">تقييماتك للمتاجر</p>
+                        <p className="text-sm text-muted-foreground">
+                          تقييماتك للمتاجر
+                        </p>
                       </div>
                     </div>
                     <div className="flex items-center gap-3">
                       <HelpCircle className="h-5 w-5 text-muted-foreground" />
                       <div>
                         <p className="font-medium">مركز المساعدة</p>
-                        <p className="text-sm text-muted-foreground">احصل على المساعدة والدعم</p>
+                        <p className="text-sm text-muted-foreground">
+                          احصل على المساعدة والدعم
+                        </p>
                       </div>
                     </div>
                   </div>
@@ -137,12 +180,17 @@ export default function ProfilePage() {
                   </TabsList>
 
                   {/* Account Tab */}
-                  <TabsContent value="account" className="space-y-6 animate-fade-in">
+                  <TabsContent
+                    value="account"
+                    className="space-y-6 animate-fade-in"
+                  >
                     <Card>
                       <CardHeader className="flex flex-row items-center justify-between">
                         <div>
                           <CardTitle>المعلومات الشخصية</CardTitle>
-                          <CardDescription>قم بادارة معلوماتك الشخصية</CardDescription>
+                          <CardDescription>
+                            قم بادارة معلوماتك الشخصية
+                          </CardDescription>
                         </div>
                         <Button
                           variant={isEditing ? "ghost" : "outline"}
@@ -150,7 +198,11 @@ export default function ProfilePage() {
                           className="rounded-full"
                           onClick={() => setIsEditing(!isEditing)}
                         >
-                          {isEditing ? "الغاء" : <Edit className="mr-2 h-4 w-4" />}
+                          {isEditing ? (
+                            "الغاء"
+                          ) : (
+                            <Edit className="mr-2 h-4 w-4" />
+                          )}
                           {isEditing ? "" : "تعديل"}
                         </Button>
                       </CardHeader>
@@ -160,7 +212,7 @@ export default function ProfilePage() {
                             <Label htmlFor="name">الاسم الكامل</Label>
                             <Input
                               id="name"
-                              value='user.name'
+                              value="user.name"
                               disabled={!isEditing}
                               className="rounded-lg"
                             />
@@ -170,7 +222,7 @@ export default function ProfilePage() {
                             <Input
                               id="email"
                               type="email"
-                              value='user.email'
+                              value="user.email"
                               disabled={!isEditing}
                               className="rounded-lg"
                             />
@@ -181,7 +233,7 @@ export default function ProfilePage() {
                             <Label htmlFor="phone">رقم الجوال</Label>
                             <Input
                               id="phone"
-                              value='user.phone'
+                              value="user.phone"
                               disabled={!isEditing}
                               className="rounded-lg"
                             />
@@ -190,7 +242,7 @@ export default function ProfilePage() {
                             <Label htmlFor="address">العنوان</Label>
                             <Input
                               id="address"
-                              value='user.address'
+                              value="user.address"
                               disabled={!isEditing}
                               className="rounded-lg"
                             />
@@ -200,7 +252,7 @@ export default function ProfilePage() {
                           <Label htmlFor="bio">نبذة</Label>
                           <Textarea
                             id="bio"
-                            value='user.bio'
+                            value="user.bio"
                             disabled={!isEditing}
                             className="min-h-[100px] rounded-lg"
                           />
@@ -208,9 +260,7 @@ export default function ProfilePage() {
                       </CardContent>
                       {isEditing && (
                         <CardFooter>
-                          <Button
-                            className="ml-auto rounded-full bg-gradient-to-r from-blue-400 to-blue-600 hover:from-blue-500 hover:to-blue-700"
-                          >
+                          <Button className="ml-auto rounded-full bg-gradient-to-r from-blue-400 to-blue-600 hover:from-blue-500 hover:to-blue-700">
                             <>
                               <Check className="mr-2 h-4 w-4" />
                               حفظ التغييرات
@@ -222,7 +272,10 @@ export default function ProfilePage() {
                   </TabsContent>
 
                   {/* Security Tab */}
-                  <TabsContent value="security" className="space-y-6 animate-fade-in">
+                  <TabsContent
+                    value="security"
+                    className="space-y-6 animate-fade-in"
+                  >
                     <Card>
                       <CardHeader>
                         <CardTitle>كلمة المرور</CardTitle>
@@ -230,22 +283,40 @@ export default function ProfilePage() {
                       </CardHeader>
                       <CardContent className="space-y-4">
                         <div className="space-y-2">
-                          <Label htmlFor="current-password">الكلمة الحالية</Label>
-                          <Input id="current-password" type="password" className="rounded-lg" />
+                          <Label htmlFor="current-password">
+                            الكلمة الحالية
+                          </Label>
+                          <Input
+                            id="current-password"
+                            type="password"
+                            className="rounded-lg"
+                          />
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <div className="space-y-2">
                             <Label htmlFor="new-password">الكلمة الجديدة</Label>
-                            <Input id="new-password" type="password" className="rounded-lg" />
+                            <Input
+                              id="new-password"
+                              type="password"
+                              className="rounded-lg"
+                            />
                           </div>
                           <div className="space-y-2">
-                            <Label htmlFor="confirm-password">تأكيد الكلمة الجديدة</Label>
-                            <Input id="confirm-password" type="password" className="rounded-lg" />
+                            <Label htmlFor="confirm-password">
+                              تأكيد الكلمة الجديدة
+                            </Label>
+                            <Input
+                              id="confirm-password"
+                              type="password"
+                              className="rounded-lg"
+                            />
                           </div>
                         </div>
                       </CardContent>
                       <CardFooter>
-                        <Button className="ml-auto rounded-full">تحديث كلمة المرور</Button>
+                        <Button className="ml-auto rounded-full">
+                          تحديث كلمة المرور
+                        </Button>
                       </CardFooter>
                     </Card>
 
@@ -263,7 +334,9 @@ export default function ProfilePage() {
                               </div>
                               <div>
                                 <p className="font-medium">الحالة</p>
-                                <p className="text-xs text-muted-foreground">فلسطين . غزة - ابريل 13, 2023</p>
+                                <p className="text-xs text-muted-foreground">
+                                  فلسطين . غزة - ابريل 13, 2023
+                                </p>
                               </div>
                             </div>
                             <Badge>نشط</Badge>
@@ -272,7 +345,11 @@ export default function ProfilePage() {
                       </CardContent>
                       <CardFooter>
                         <form action={logoutAction}>
-                          <Button type="submit" variant="outline" className="w-full rounded-full">
+                          <Button
+                            type="submit"
+                            variant="outline"
+                            className="w-full rounded-full"
+                          >
                             <Lock className="mr-2 h-4 w-4" />
                             تسجيل الخروج من الحساب
                           </Button>
@@ -282,24 +359,37 @@ export default function ProfilePage() {
                   </TabsContent>
 
                   {/* Notifications Tab */}
-                  <TabsContent value="notifications" className="space-y-6 animate-fade-in">
+                  <TabsContent
+                    value="notifications"
+                    className="space-y-6 animate-fade-in"
+                  >
                     <Card>
                       <CardHeader>
                         <CardTitle>الاشعارات</CardTitle>
-                        <CardDescription>ادارة الاشعارات الواردة</CardDescription>
+                        <CardDescription>
+                          ادارة الاشعارات الواردة
+                        </CardDescription>
                       </CardHeader>
                       <CardContent className="space-y-6">
                         <div className="space-y-4">
-                          <h3 className="text-sm font-medium">اشعارات الايميل</h3>
+                          <h3 className="text-sm font-medium">
+                            اشعارات الايميل
+                          </h3>
                           <div className="space-y-3">
                             <div className="flex items-center justify-between">
-                              <Label htmlFor="email-promotions" className="flex-1">
+                              <Label
+                                htmlFor="email-promotions"
+                                className="flex-1"
+                              >
                                 العروض والصفقات
                               </Label>
                               <Switch id="email-promotions" defaultChecked />
                             </div>
                             <div className="flex items-center justify-between">
-                              <Label htmlFor="email-security" className="flex-1">
+                              <Label
+                                htmlFor="email-security"
+                                className="flex-1"
+                              >
                                 تنبيهات الأمان
                               </Label>
                               <Switch id="email-security" defaultChecked />
@@ -313,7 +403,10 @@ export default function ProfilePage() {
                           <h3 className="text-sm font-medium">اشعارات فورية</h3>
                           <div className="space-y-3">
                             <div className="flex items-center justify-between">
-                              <Label htmlFor="push-promotions" className="flex-1">
+                              <Label
+                                htmlFor="push-promotions"
+                                className="flex-1"
+                              >
                                 العروض والصفقات
                               </Label>
                               <Switch id="push-promotions" />
@@ -334,7 +427,10 @@ export default function ProfilePage() {
                   </TabsContent>
 
                   {/* Activity Tab */}
-                  <TabsContent value="activity" className="space-y-6 animate-fade-in">
+                  <TabsContent
+                    value="activity"
+                    className="space-y-6 animate-fade-in"
+                  >
                     <Card>
                       <CardHeader>
                         <CardTitle>المتاجر المفضلة</CardTitle>
@@ -345,7 +441,9 @@ export default function ProfilePage() {
                     <Card>
                       <CardHeader>
                         <CardTitle>تقييماتك</CardTitle>
-                        <CardDescription>التقييمات التي قمت بنشرها</CardDescription>
+                        <CardDescription>
+                          التقييمات التي قمت بنشرها
+                        </CardDescription>
                       </CardHeader>
                       {/* <CardContent> */}
                       {/* {userReviews.length === 0 ? (
@@ -403,7 +501,9 @@ export default function ProfilePage() {
             </div>
           </div>
         </div>
-      ) : (router.push("/login"))}
+      ) : (
+        router.push("/login")
+      )}
     </>
-  )
+  );
 }
