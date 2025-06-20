@@ -1,6 +1,6 @@
 "use client";
 
-// TODO : Fix the data not being stored
+// TODO : Import the right php DB
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
@@ -20,6 +20,7 @@ import { BarChart3, Package, Plus, Star, StoreIcon, Users } from "lucide-react";
 
 export default function SellerDashboard() {
   const [data, setData] = useState({});
+  const [loggedIn, setLoggedIn] = useState(true);
   const [user, setUser] = useState(null);
   const [store, setStore] = useState();
   const [products, setProducts] = useState<Product[]>([]);
@@ -74,7 +75,6 @@ export default function SellerDashboard() {
         console.log("Response Data:", responseData); // Log responseData to confirm it has data
         setData(responseData);
       } catch (error) {
-        setError(error);
         console.error("Error fetching data:", error);
       } finally {
         setLoading(false); // Set loading to false after the fetch completes (success or failure)

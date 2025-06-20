@@ -18,7 +18,7 @@ import { Bell, Menu, Moon, Search, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
 import { Badge } from "@/components/ui/badge";
 import Image from "next/image";
-import { Avatar, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { UserInfo } from "@/lib/types";
 
 export default function Header() {
@@ -63,7 +63,6 @@ export default function Header() {
     { name: "الرئيسية", href: "/" },
     { name: "الخريطة", href: "/map" },
     { name: "السوق", href: "/marketplace" },
-    { name: "خدمات الطوارئ", href: "/services/emergency" },
   ];
 
   function HandelLogout() {
@@ -155,10 +154,7 @@ export default function Header() {
                     className="relative h-8 w-8 rounded-full overflow-hidden ring-2 ring-background"
                   >
                     <Avatar className="h-8 w-8">
-                      <AvatarImage
-                        src={"/ProfilePlaceholder.jpg"}
-                        alt={"profile placeholder"}
-                      />
+                      <AvatarFallback>{"AS"}</AvatarFallback> {/* TODO : Add first two characters of user's name */}
                     </Avatar>
                   </Button>
                 </DropdownMenuTrigger>
