@@ -1,6 +1,5 @@
 "use client";
-
-// TODO : Import the right php DB
+// TODO : edit TypeScript rules when the api is edited
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
@@ -19,13 +18,16 @@ import { Badge } from "@/components/ui/badge";
 import { BarChart3, Package, Plus, Star, StoreIcon, Users } from "lucide-react";
 
 export default function SellerDashboard() {
-  const [data, setData] = useState({});
-  const [loggedIn, setLoggedIn] = useState(true);
+  const [data, setData] = useState({
+    recent_comments: [],
+    recent_products: [],
+    recent_ratings: [],
+    store: {},
+  });
   const [user, setUser] = useState(null);
   const [store, setStore] = useState();
   const [products, setProducts] = useState<Product[]>([]);
   const [stats, setStats] = useState(0);
-  const [error, setError] = useState(null);
 
   const [loading, setLoading] = useState(true); // Add a loading state
 
@@ -55,7 +57,7 @@ export default function SellerDashboard() {
       setLoading(true); // Set loading to true before the fetch
 
       try {
-         const token = localStorage.getItem("authToken");
+        const token = localStorage.getItem("authToken");
         const response = await fetch(
           "http://127.0.0.1:8000/api/seller/dashboard",
           {
@@ -88,7 +90,7 @@ export default function SellerDashboard() {
     console.log("Data state updated:", data); // This will now log the data after it's fetched
     setStore(data.store);
     setProducts(data.recent_products);
-    // setStats(data.recent_comments.length + data.recent_ratings.length);
+    setStats(data.recent_comments.length + data.recent_ratings.length);
   }, [data]); // Add 'data' to the dependency array
 
   if (loading) {
@@ -132,7 +134,7 @@ export default function SellerDashboard() {
               <Package className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              {/*<div className="text-2xl font-bold">{products.length}</div>*/}
+              <div className="text-2xl font-bold">{products.length}</div>
 
               <p className="text-xs text-muted-foreground">المنتجات المدرجة</p>
             </CardContent>
@@ -229,7 +231,7 @@ export default function SellerDashboard() {
                   </CardContent>
                   <CardFooter className="p-4 pt-0 flex justify-between">
                     <span className="text-xs text-muted-foreground">
-                      منتجات ({/*products.length*/})
+                      منتجات ({products.length})
                     </span>
                     <div className="flex gap-2">
                       <Button asChild size="sm" variant="outline">
@@ -257,7 +259,7 @@ export default function SellerDashboard() {
               </Button>
             </div>
 
-            {/* {products.length === 0 ? (
+            {products.length === 0 ? (
               <Card>
                 <CardContent className="flex flex-col items-center justify-center py-6 text-center">
                   <Package className="h-8 w-8 text-muted-foreground mb-2" />
@@ -307,7 +309,7 @@ export default function SellerDashboard() {
                   </Card>
                 ))}
               </div>
-            )} */}
+            )}
           </TabsContent>
           <TabsContent value="analytics" className="space-y-4">
             <h2 className="text-xl font-bold tracking-tight">الإحصاءات</h2>
@@ -318,7 +320,7 @@ export default function SellerDashboard() {
                   عرض مؤشرات أداء متجرك من خلال آراء وتقييمات الزبائن
                 </CardDescription>
               </CardHeader>
-              {/* {stats.legnth === 0 ? (
+              {stats.legnth === 0 ? (
                 <CardContent className="h-80 flex items-center justify-center">
                   <div className="flex flex-col items-center text-center">
                     <BarChart3 className="h-16 w-16 text-muted-foreground mb-4" />
@@ -398,7 +400,7 @@ export default function SellerDashboard() {
                     </div>
                   )}
                 </div>
-              )} */}
+              )}
             </Card>
           </TabsContent>
         </Tabs>
