@@ -1,5 +1,6 @@
 "use client";
 // TODO : edit TypeScript rules when the api is edited
+// TODO : edit the logo, add a store placeholder
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
@@ -16,6 +17,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { BarChart3, Package, Plus, Star, StoreIcon, Users } from "lucide-react";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 export default function SellerDashboard() {
   const [data, setData] = useState({
@@ -74,7 +76,6 @@ export default function SellerDashboard() {
         }
 
         const responseData = await response.json();
-        console.log("Response Data:", responseData); // Log responseData to confirm it has data
         setData(responseData);
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -87,7 +88,6 @@ export default function SellerDashboard() {
   }, []);
 
   useEffect(() => {
-    console.log("Data state updated:", data); // This will now log the data after it's fetched
     setStore(data.store);
     setProducts(data.recent_products);
     setStats(data.recent_comments.length + data.recent_ratings.length);
@@ -188,7 +188,7 @@ export default function SellerDashboard() {
                     />
                     <div className="absolute bottom-4 left-4 bg-background/80 backdrop-blur-sm rounded-full p-1">
                       <img
-                        src={store.logo || "/placeholder.svg"}
+                        src={"/placeholder-store.png"}
                         alt={`${store.name} logo`}
                         className="h-12 w-12 rounded-full border-2 border-background"
                       />
@@ -334,23 +334,23 @@ export default function SellerDashboard() {
                 </CardContent>
               ) : (
                 // TODO : Style this section
-                <div className="space-y-4">
-                  <div className="tabs flex border-b border-gray-200 mb-4">
+                <div className="space-y-6">
+                  <div className="tabs flex border-b border-gray-100">
                     <button
-                      className={`tab-button px-3 py-2 border-none bg-transparent font-semibold cursor-pointer text-gray-600 border-b-2 border-transparent transition-colors duration-300 ${
+                      className={`px-4 py-3 text-sm font-medium transition-colors duration-200 ${
                         activeTab === "التعليقات"
-                          ? "text-black border-b-2 border-black"
-                          : "hover:text-black"
+                          ? "text-primary-500 border-b-2 border-primary-500"
+                          : "text-gray-500 hover:text-gray-700 hover:border-b-2 hover:border-gray-200"
                       }`}
                       onClick={() => handleTabClick("التعليقات")}
                     >
                       التعليقات
                     </button>
                     <button
-                      className={`tab-button px-3 py-2 border-none bg-transparent font-semibold cursor-pointer text-gray-600 border-b-2 border-transparent transition-colors duration-300 ${
+                      className={`px-4 py-3 text-sm font-medium transition-colors duration-200 ${
                         activeTab === "التقييمات"
-                          ? "text-black border-b-2 border-black"
-                          : "hover:text-black"
+                          ? "text-primary-500 border-b-2 border-primary-500"
+                          : "text-gray-500 hover:text-gray-700 hover:border-b-2 hover:border-gray-200"
                       }`}
                       onClick={() => handleTabClick("التقييمات")}
                     >
@@ -358,47 +358,79 @@ export default function SellerDashboard() {
                     </button>
                   </div>
 
-                  {activeTab === "التعليقات" && (
-                    <div className="tab-content py-4">
-                      <h3 className="text-lg font-medium mb-3 text-gray-700">
-                        التعليقات الأخيرة
-                      </h3>
-                      <ul className="list-none p-0">
-                        {data.recent_comments.map((comment) => (
-                          <li
-                            key={comment.created_at}
-                            className="py-2 border-b border-gray-100 last:border-b-0"
-                          >
-                            <strong className="font-semibold text-gray-800">
-                              {comment.user}:
-                            </strong>{" "}
-                            {comment.comment} ({comment.created_at})
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
+                  <div className="rounded-lg bg-white p-4 shadow-xs">
+                    {activeTab === "التعليقات" && (
+                      <div className="tab-content">
+                        <h3 className="mb-4 text-lg font-semibold text-gray-800">
+                          التعليقات الأخيرة
+                        </h3>
+                        <ul className="divide-y divide-gray-100">
+                          {data.recent_comments.map((comment) => (
+                            <li key={comment.created_at} className="py-3 border rounded-sm">
+                              <div className="flex items-start">
+                                <div className="ml-3">
+                                  <div className="flex items-center gap-1">
+                                    <Avatar className="size-8">
+                                      <AvatarFallback>{comment.user.slice(0, 2).toUpperCase()}</AvatarFallback>
+                                    </Avatar>
+                                  <p className="text-sm font-medium text-gray-900">
+                                    {comment.user}
+                                  </p>
+                                  </div>
 
-                  {activeTab === "التقييمات" && (
-                    <div className="tab-content py-4">
-                      <h3 className="text-lg font-medium mb-3 text-gray-700">
-                        التقييمات الأخيرة
-                      </h3>
-                      <ul className="list-none p-0">
-                        {data.recent_ratings.map((rating) => (
-                          <li
-                            key={rating.created_at}
-                            className="py-2 border-b border-gray-100 last:border-b-0"
-                          >
-                            <strong className="font-semibold text-gray-800">
-                              {rating.user}:
-                            </strong>{" "}
-                            {rating.score} نجوم ({rating.created_at})
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
+                                  <p className="text-sm text-gray-600">
+                                    {comment.comment}
+                                  </p>
+                                  <p className="mt-1 text-xs text-gray-500">
+                                    {comment.created_at}
+                                  </p>
+                                </div>
+                              </div>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+
+                    {activeTab === "التقييمات" && (
+                      <div className="tab-content">
+                        <h3 className="mb-4 text-lg font-semibold text-gray-800">
+                          التقييمات الأخيرة
+                        </h3>
+                        <ul className="divide-y divide-gray-100">
+                          {data.recent_ratings.map((rating) => (
+                            <li key={rating.created_at} className="py-3">
+                              <div className="flex items-center justify-between">
+                                <div className="flex items-center">
+                                  <div className="ml-3">
+                                    <p className="text-sm font-medium text-gray-900">
+                                      {rating.user}
+                                    </p>
+                                    <div className="flex items-center mt-1">
+                                      {[...Array(5)].map((_, i) => (
+                                        <Star
+                                          key={i}
+                                          className={`w-4 h-4 ${
+                                            i < rating.score
+                                              ? "text-yellow-400"
+                                              : "text-gray-300"
+                                          }`}
+                                          fill="currentColor"
+                                        />
+                                      ))}
+                                    </div>
+                                  </div>
+                                </div>
+                                <span className="text-xs text-gray-500">
+                                  {rating.created_at}
+                                </span>
+                              </div>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </div>
                 </div>
               )}
             </Card>

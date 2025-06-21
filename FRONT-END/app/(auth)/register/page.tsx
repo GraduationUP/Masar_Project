@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { RegistrationResponse } from "@/lib/types" // Import the type
+import { redirect } from "next/navigation"
 
 export default function RegisterPage() {
   const [role, setRole] = useState<"user" | "seller">("user")
@@ -71,16 +72,16 @@ export default function RegisterPage() {
       if (response.ok) {
         const data: RegistrationResponse = await response.json();
         setRegistrationMessage(data.message);
-        console.log('Registration successful:', data);
         // Optionally redirect the user or clear the form
       } else {
         const errorData = await response.json();
         setRegistrationError(errorData.message || 'Registration failed');
-        console.error('Registration failed:', errorData);
       }
     } catch (error) {
       setRegistrationError('An unexpected error occurred');
       console.error('Error during registration:', error);
+    } finally {
+      redirect("/login");
     }
   };
 

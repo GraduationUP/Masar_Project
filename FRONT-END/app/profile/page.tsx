@@ -97,7 +97,6 @@ export default function ProfilePage() {
           }
 
           const responseData = await response.json();
-          console.log("Response Data:", responseData);
           setData(responseData);
         } else {
           console.error(
