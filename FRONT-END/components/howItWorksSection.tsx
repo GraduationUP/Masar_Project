@@ -3,10 +3,16 @@
 import { MapPinIcon, ShoppingBag, Zap } from "lucide-react"
 import Link from "next/link"
 import { Button } from "./ui/button"
-import { useAuth } from "@/lib/auth-context";
+import { useState, useEffect } from "react";
 
 export default function HowItWorksSection() {
-    const { user } = useAuth();
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
+    useEffect(() => {
+        const token = localStorage.getItem("authToken");
+        if (token) {
+          setIsLoggedIn(true);
+        }
+      }, []);
     return (
         <section className="container px-4 md:px-6 section-padding">
             <div className="flex flex-col gap-8 items-center text-center">
@@ -50,7 +56,7 @@ export default function HowItWorksSection() {
                         </p>
                     </div>
                 </div>
-                {!user &&
+                {!isLoggedIn &&
                     <Button
                         asChild
                         size="lg"

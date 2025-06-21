@@ -1,17 +1,17 @@
-"use client"
-
-import { useEffect, useState } from "react"
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+"use client";
+// TODO : Fix the 500 internal server error
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
+} from "@/components/ui/select";
 import {
   Card,
   CardContent,
@@ -19,121 +19,103 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Filter, Search, ShoppingBag, Star } from "lucide-react"
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Filter, Search, ShoppingBag, Star } from "lucide-react";
 
 type Product = {
-  id: string
-  name: string
-  description: string
-  price: number
-  image?: string
-  category: string
-  rating?: number
-  createdAt: string
-  storeId: string
-}
+  id: string;
+  name: string;
+  description: string;
+  price: number;
+  image?: string;
+  category: string;
+  rating?: number;
+  createdAt: string;
+  storeId: string;
+};
 
 type Store = {
-  id: string
-  name: string
-}
-
-const initialProducts: Product[] = [
-  {
-    id: "1",
-    name: "سوار يدوى",
-    description: "سوار رائع مصنوع من الفولاذ المقاوم للصدأ.",
-    price: 25.5,
-    image: "/images/bracelet.jpg",
-    category: "اكسسوارات",
-    rating: 4.7,
-    createdAt: "2024-12-01",
-    storeId: "a1",
-  },
-  {
-    id: "2",
-    name: "ماوس لاسلكى",
-    description: "ماوس لاسلكى مريح ومستجيب.",
-    price: 18.0,
-    image: "/images/mouse.jpg",
-    category: "اجهزة الكترونية",
-    rating: 4.3,
-    createdAt: "2025-01-15",
-    storeId: "a2",
-  },
-  {
-    id: "3",
-    name: "دفتر ملاحظات من الجلد",
-    description: "دفتر ملاحظات من الجلد من نوعية ممتازة.",
-    price: 12.99,
-    image: "/images/notebook.jpg",
-    category: "قرطاسية",
-    rating: 4.3,
-    createdAt: "2025-02-10",
-    storeId: "a1",
-  },
-]
+  id: string;
+  name: string;
+};
 
 const initialStores: Store[] = [
   { id: "a1", name: "Osama's Store" },
   { id: "a2", name: "Tech World" },
-]
+];
 
 export default function MarketplacePage() {
-  const [products, setProducts] = useState<Product[]>([])
-  const [stores, setStores] = useState<Store[]>([])
-  const [searchQuery, setSearchQuery] = useState("")
-  const [categoryFilter, setCategoryFilter] = useState("")
-  const [sortBy, setSortBy] = useState("newest")
+  const [products, setProducts] = useState<Product[]>([]);
+  const [stores, setStores] = useState<Store[]>(initialStores);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("");
+  const [sortBy, setSortBy] = useState("newest");
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    setProducts(initialProducts)
-    setStores(initialStores)
-  }, [])
+    const fetchData = async () => {
+      try {
+        const response = await fetch(
+          "http://127.0.0.1:8000/api/seller/products"
+        );
+        if (!response.ok) {
+          throw new Error(`Http error? status: ${response.status}`);
+        }
+        const json = await response.json();
+        setProducts(json);
+        setStores(initialStores);
+      } catch (error) {
+        setError(error);
+      }
+    };
+    fetchData();
+  }, []);
 
   const allCategories = [
     ...new Set(products.map((product) => product.category)),
-  ].sort()
+  ].sort();
 
   const filteredProducts = products.filter((product) => {
     const matchesSearch =
       searchQuery === "" ||
       product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      product.description.toLowerCase().includes(searchQuery.toLowerCase())
+      product.description.toLowerCase().includes(searchQuery.toLowerCase());
 
     const matchesCategory =
       categoryFilter === "" ||
       categoryFilter === "all" ||
-      product.category.toLowerCase() === categoryFilter.toLowerCase()
+      products.category.toLowerCase() === categoryFilter.toLowerCase();
 
-    return matchesSearch && matchesCategory
-  })
+    return matchesSearch && matchesCategory;
+  });
 
   const sortedProducts = [...filteredProducts].sort((a, b) => {
     if (sortBy === "newest") {
-      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
     } else if (sortBy === "price-low") {
-      return a.price - b.price
+      return a.price - b.price;
     } else if (sortBy === "price-high") {
-      return b.price - a.price
+      return b.price - a.price;
     } else if (sortBy === "rating") {
-      return (b.rating || 0) - (a.rating || 0)
+      return (b.rating || 0) - (a.rating || 0);
     }
-    return 0
-  })
+    return 0;
+  });
 
   const getStoreName = (storeId: string) => {
-    const store = stores.find((s) => s.id === storeId)
-    return store ? store.name : "Unknown Store"
-  }
+    const store = stores.find((s) => s.id === storeId);
+    return store ? store.name : "Unknown Store";
+  };
+
   return (
     <div className="container px-4 md:px-6 py-8">
       <div className="flex flex-col gap-6">
         <div className="flex flex-col gap-2">
           <h1 className="text-3xl font-bold tracking-tight">السوق</h1>
-          <p className="text-muted-foreground">تصفح البضائع من الباعة المحليين</p>
+          <p className="text-muted-foreground">
+            تصفح البضائع من الباعة المحليين
+          </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
@@ -161,14 +143,20 @@ export default function MarketplacePage() {
 
                 <div className="space-y-2">
                   <Label htmlFor="category">القسم</Label>
-                  <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+                  <Select
+                    value={categoryFilter}
+                    onValueChange={setCategoryFilter}
+                  >
                     <SelectTrigger id="category">
                       <SelectValue placeholder="جميع الأقسام" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="all">جميع الأقسام</SelectItem>
                       {allCategories.map((category) => (
-                        <SelectItem key={category} value={category.toLowerCase()}>
+                        <SelectItem
+                          key={category}
+                          value={category.toLowerCase()}
+                        >
                           {category}
                         </SelectItem>
                       ))}
@@ -184,8 +172,12 @@ export default function MarketplacePage() {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="newest">الأحدث</SelectItem>
-                      <SelectItem value="price-low">السعر: الأقل الى الأعلى</SelectItem>
-                      <SelectItem value="price-high">السعر: الأعلى للأقل</SelectItem>
+                      <SelectItem value="price-low">
+                        السعر: الأقل الى الأعلى
+                      </SelectItem>
+                      <SelectItem value="price-high">
+                        السعر: الأعلى للأقل
+                      </SelectItem>
                       <SelectItem value="rating">الأعلى تقييماً</SelectItem>
                     </SelectContent>
                   </Select>
@@ -196,9 +188,9 @@ export default function MarketplacePage() {
                     variant="outline"
                     className="w-full"
                     onClick={() => {
-                      setSearchQuery("")
-                      setCategoryFilter("")
-                      setSortBy("newest")
+                      setSearchQuery("");
+                      setCategoryFilter("");
+                      setSortBy("newest");
                     }}
                   >
                     <Filter className="mr-2 h-4 w-4" />
@@ -208,21 +200,31 @@ export default function MarketplacePage() {
               </CardContent>
             </Card>
           </div>
-          {sortedProducts.length === 0 ? "جار تحميل البضائع..." :
+          {/* {sortedProducts.length === 0 ? (
+            "جار تحميل البضائع..."
+          ) : ( */}
             <div className="md:col-span-3">
               <div className="flex justify-between items-center mb-4">
                 <div className="flex items-center gap-2">
                   <Label htmlFor="mobile-sort" className="sr-only">
                     رتب
                   </Label>
-                  <Select value={sortBy} onValueChange={setSortBy} className="md:hidden">
+                  <Select
+                    value={sortBy}
+                    onValueChange={setSortBy}
+                    className="md:hidden"
+                  >
                     <SelectTrigger id="mobile-sort" className="w-[180px]">
                       <SelectValue placeholder="ترتيب بواسطة" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="newest">الأحدث</SelectItem>
-                      <SelectItem value="price-low">السعر: الأقل الى الأعلى</SelectItem>
-                      <SelectItem value="price-high">السعر: الأعلى الى الأقل</SelectItem>
+                      <SelectItem value="price-low">
+                        السعر: الأقل الى الأعلى
+                      </SelectItem>
+                      <SelectItem value="price-high">
+                        السعر: الأعلى الى الأقل
+                      </SelectItem>
                       <SelectItem value="rating">الأعلى تقييماً</SelectItem>
                     </SelectContent>
                   </Select>
@@ -256,28 +258,37 @@ export default function MarketplacePage() {
                         </div>
                         <CardContent className="p-4">
                           <h3 className="text-lg font-bold">{product.name}</h3>
-                          <p className="text-sm text-muted-foreground line-clamp-2 mt-1">{product.description}</p>
+                          <p className="text-sm text-muted-foreground line-clamp-2 mt-1">
+                            {product.description}
+                          </p>
                           <div className="flex items-center justify-between mt-3">
-                            <span className="font-bold">${product.price.toFixed(2)}</span>
+                            <span className="font-bold">
+                              ${product.price.toFixed(2)}
+                            </span>
                             {product.rating && (
                               <div className="flex items-center gap-1">
                                 <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                                <span className="text-sm font-medium">{product.rating.toFixed(1)}</span>
+                                <span className="text-sm font-medium">
+                                  {product.rating.toFixed(1)}
+                                </span>
                               </div>
                             )}
                           </div>
                         </CardContent>
                         <CardFooter className="p-4 pt-0 border-t">
-                          <span className="text-xs text-muted-foreground">{getStoreName(product.storeId)}</span>
+                          <span className="text-xs text-muted-foreground">
+                            {getStoreName(product.storeId)}
+                          </span>
                         </CardFooter>
                       </Card>
                     </Link>
                   ))}
                 </div>
               )}
-            </div>}
+            </div>
+          {/* )} */}
         </div>
       </div>
     </div>
-  )
+  );
 }

@@ -7,7 +7,6 @@ import type { AuthUser } from "@/lib/types"
 
 interface AuthContextType {
   user: AuthUser | null
-  loading: boolean
   setUser: (user: AuthUser | null) => void
 }
 
@@ -21,9 +20,8 @@ export function AuthProvider({
   initialUser: AuthUser | null
 }) {
   const [user, setUser] = useState<AuthUser | null>(initialUser)
-  const [loading, setLoading] = useState(false)
 
-  return <AuthContext.Provider value={{ user, loading, setUser }}>{children}</AuthContext.Provider>
+  return <AuthContext.Provider value={{ user, setUser }}>{children}</AuthContext.Provider>
 }
 
 export function useAuth() {

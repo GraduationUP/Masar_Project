@@ -3,7 +3,7 @@
 import type React from "react"
 
 import { useState, useEffect } from "react"
-import { useRouter, useSearchParams } from "next/navigation"
+import { useSearchParams } from "next/navigation"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -13,18 +13,13 @@ import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
 import { ChevronLeft, Loader2, Package, Upload } from "lucide-react"
-import { useAuth } from "@/lib/auth-context"
-import { useToast } from "@/components/ui/use-toast"
-import { addProduct, getStoresByOwner } from "@/lib/storage-utils"
-import type { Store } from "@/lib/storage-utils"
+import { redirect } from "next/navigation"
 
 export default function NewProductPage() {
-  const router = useRouter()
   const searchParams = useSearchParams()
   const storeId = searchParams.get("storeId")
-  const { user } = useAuth()
-  const { toast } = useToast()
-  const [isLoading, setIsLoading] = useState(false)
+  const [user, setUser] = useState(null)
+  const [loading, setLoading] = useState(false)
   const [stores, setStores] = useState<Store[]>([])
   const [productData, setProductData] = useState({
     name: "",
@@ -37,95 +32,21 @@ export default function NewProductPage() {
   })
 
   useEffect(() => {
-    if (!user) return
-
-    // Get seller's stores
-    const sellerStores = getStoresByOwner(user.id)
-    setStores(sellerStores)
-
-    // If storeId is provided and valid, set it
-    if (storeId && sellerStores.some((store) => store.id === storeId)) {
-      setProductData((prev) => ({ ...prev, storeId }))
-    } else if (sellerStores.length > 0) {
-      // Otherwise set the first store as default
-      setProductData((prev) => ({ ...prev, storeId: sellerStores[0].id }))
-    }
-  }, [user, storeId])
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-
-    if (!user) {
-      toast({
-        title: "Authentication required",
-        description: "Please log in as a seller to add a product",
-        variant: "destructive",
-      })
-      return
-    }
-
-    if (!productData.storeId) {
-      toast({
-        title: "Store required",
-        description: "Please select a store for this product",
-        variant: "destructive",
-      })
-      return
-    }
-
-    setIsLoading(true)
-
-    // Get the selected store
-    const store = stores.find((s) => s.id === productData.storeId)
-
-    if (!store) {
-      toast({
-        title: "Invalid store",
-        description: "The selected store does not exist",
-        variant: "destructive",
-      })
-      setIsLoading(false)
-      return
-    }
-
-    // Create new product
-    const newProduct = {
-      name: productData.name,
-      description: productData.description,
-      price: Number.parseFloat(productData.price) || 0,
-      category: productData.category || store.categories[0],
-      storeId: productData.storeId,
-      image: productData.image || "/assorted-products-display.png",
-      inStock: productData.inStock,
-      location: store.location,
-    }
-
-    // Simulate API call
-    setTimeout(() => {
-      try {
-        const product = addProduct(newProduct)
-
-        toast({
-          title: "Product added successfully",
-          description: "Your new product has been added to your store",
-        })
-
-        // Redirect to store management page
-        router.push(`/seller/stores/${productData.storeId}?tab=products`)
-      } catch (error) {
-        toast({
-          title: "Error adding product",
-          description: "There was an error adding your product. Please try again.",
-          variant: "destructive",
-        })
-        setIsLoading(false)
+      const authToken = localStorage.getItem("userInfo");
+      if (authToken) {
+        setUser(JSON.parse(authToken));
       }
-    }, 1500)
-  }
+      setLoading(false); // Set loading to false after attempting to get user info
+    }, []);
+  
+    // Redirect if not logged in or role is undefined, but only after loading is complete
+    useEffect(() => {
+      if (!loading && user === null) {
+        redirect("/");
+      }
+    }, [user, loading]);
 
-  // Get categories from the selected store
-  const selectedStore = stores.find((store) => store.id === productData.storeId)
-  const storeCategories = selectedStore?.categories || []
+    
 
   return (
     <div className="container px-4 md:px-6 py-8">
@@ -330,9 +251,9 @@ export default function NewProductPage() {
               <Button
                 type="submit"
                 className="rounded-full bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700"
-                disabled={isLoading}
+                disabled={loading}
               >
-                {isLoading ? (
+                {loading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     Adding Product...

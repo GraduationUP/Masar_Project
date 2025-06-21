@@ -1,70 +1,78 @@
-"use client"
+"use client";
 
-import { useEffect, useState } from "react"
-import Link from "next/link"
-import { redirect } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Badge } from "@/components/ui/badge"
-import { AlertTriangle, BarChart3, Bell, MapPin, Package, Settings, StoreIcon, Users } from "lucide-react"
-import { useAuth } from "@/lib/auth-context"
-import { type Product, type Service, type Store, getProducts, getServices, getStores } from "@/lib/storage-utils"
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import { redirect } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
+import {
+  AlertTriangle,
+  BarChart3,
+  Bell,
+  MapPin,
+  Package,
+  Settings,
+  StoreIcon,
+  Users,
+} from "lucide-react";
 
 export default function AdminDashboard() {
-  const { user } = useAuth()
-  const [stores, setStores] = useState<Store[]>([])
-  const [products, setProducts] = useState<Product[]>([])
-  const [services, setServices] = useState<Service[]>([])
+  const [stores, setStores] = useState<Store[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
   const [stats, setStats] = useState({
     totalUsers: 0,
     totalStores: 0,
     totalProducts: 0,
-    totalServices: 0,
-  })
-
-  // Redirect if not logged in or not an admin
-  if (!user) {
-    redirect("/login")
+  });
+  interface User {
+    id: number;
+    name: string;
+    email: string;
+    role: string;
   }
 
-  // if (user.role !== "admin") {
-  //   redirect(`/${user.role}/dashboard`)
-  // }
 
-  useEffect(() => {
-    // Initialize storage with mock data
-    const initStorage = async () => {
-      const { initializeStorage } = await import("@/lib/storage-utils")
-      initializeStorage()
+  const [user, setUser] = useState<UserInfo | null>(null);
+    const [loading, setLoading] = useState(true); // Add a loading state
 
-      // Get all stores, products, and services
-      const allStores = getStores()
-      const allProducts = getProducts()
-      const allServices = getServices()
+    useEffect(() => {
+        const storedUser = localStorage.getItem("userInfo");
+        if (storedUser) {
+            setUser(JSON.parse(storedUser));
+        }
+        setLoading(false); // Set loading to false after attempting to get user info
+    }, []);
 
-      setStores(allStores)
-      setProducts(allProducts)
-      setServices(allServices)
+    // Redirect if not logged in or role is undefined, but only after loading is complete
+    useEffect(() => {
+        if (!loading && (user === null || user.role !== "admin")) { // Assuming you only want to show this dashboard to 'admin' roles
+            redirect("/");
+        }
+    }, [user, loading]);
 
-      // Calculate stats
-      setStats({
-        totalUsers: 25, // Mock user count
-        totalStores: allStores.length,
-        totalProducts: allProducts.length,
-        totalServices: allServices.length,
-      })
+    if (loading) {
+        return <div>Loading...</div>; // Optionally show a loading indicator
     }
 
-    initStorage()
-  }, [])
+ 
 
   return (
     <div className="container px-4 md:px-6 py-8">
       <div className="flex flex-col gap-8">
         <div className="flex flex-col md:flex-row gap-4 md:items-center md:justify-between">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">لوحة التحكم للإداري</h1>
+            <h1 className="text-3xl font-bold tracking-tight">
+              لوحة التحكم للإداري
+            </h1>
             <p className="text-muted-foreground">إدارة منصة مسار</p>
           </div>
           <div className="flex gap-2">
@@ -86,17 +94,23 @@ export default function AdminDashboard() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">مجموع المستخدمين</CardTitle>
+              <CardTitle className="text-sm font-medium">
+                مجموع المستخدمين
+              </CardTitle>
               <Users className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{stats.totalUsers}</div>
-              <p className="text-xs text-muted-foreground">المستخدمين المسجلين</p>
+              <p className="text-xs text-muted-foreground">
+                المستخدمين المسجلين
+              </p>
             </CardContent>
           </Card>
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">مجموع المتاجر</CardTitle>
+              <CardTitle className="text-sm font-medium">
+                مجموع المتاجر
+              </CardTitle>
               <StoreIcon className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
@@ -106,7 +120,9 @@ export default function AdminDashboard() {
           </Card>
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">مجموع المنتجات</CardTitle>
+              <CardTitle className="text-sm font-medium">
+                مجموع المنتجات
+              </CardTitle>
               <Package className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
@@ -116,11 +132,13 @@ export default function AdminDashboard() {
           </Card>
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">إجمالي الخدمات</CardTitle>
+              <CardTitle className="text-sm font-medium">
+                إجمالي الخدمات
+              </CardTitle>
               <Bell className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{stats.totalServices}</div>
+              {/* <div className="text-2xl font-bold">{stats.totalServices}</div>*/}
               <p className="text-xs text-muted-foreground">الخدمات المتاحة</p>
             </CardContent>
           </Card>
@@ -134,18 +152,23 @@ export default function AdminDashboard() {
             <TabsTrigger value="analytics">التحليلات</TabsTrigger>
           </TabsList>
           <TabsContent value="users" className="space-y-4">
-            <h2 className="text-xl font-bold tracking-tight">إدارة المستخدمين</h2>
+            <h2 className="text-xl font-bold tracking-tight">
+              إدارة المستخدمين
+            </h2>
             <Card>
               <CardHeader>
                 <CardTitle>مستخدمو المنصة</CardTitle>
-                <CardDescription>إدارة حسابات المستخدمين والأذونات</CardDescription>
+                <CardDescription>
+                  إدارة حسابات المستخدمين والأذونات
+                </CardDescription>
               </CardHeader>
               <CardContent className="h-80 flex items-center justify-center">
                 <div className="flex flex-col items-center text-center">
                   <Users className="h-16 w-16 text-muted-foreground mb-4" />
                   <h3 className="text-lg font-medium">لوحة إدارة المستخدمين</h3>
                   <p className="text-sm text-muted-foreground mt-1 max-w-md">
-                    عرض وإدارة جميع حسابات المستخدمين على المنصة. التحكم في الأذونات، والتحقق من البائعين، ومعالجة تقارير المستخدمين.
+                    عرض وإدارة جميع حسابات المستخدمين على المنصة. التحكم في
+                    الأذونات، والتحقق من البائعين، ومعالجة تقارير المستخدمين.
                   </p>
                 </div>
               </CardContent>
@@ -158,7 +181,9 @@ export default function AdminDashboard() {
           </TabsContent>
           <TabsContent value="stores" className="space-y-4">
             <div className="flex items-center justify-between">
-              <h2 className="text-xl font-bold tracking-tight">إدارة المتاجر</h2>
+              <h2 className="text-xl font-bold tracking-tight">
+                إدارة المتاجر
+              </h2>
               <Button asChild size="sm" variant="outline">
                 <Link href="/admin/stores">عرض جميع المتاجر</Link>
               </Button>
@@ -185,25 +210,37 @@ export default function AdminDashboard() {
                     <div className="flex justify-between items-start">
                       <div>
                         <h3 className="font-bold">{store.name}</h3>
-                        <p className="text-sm text-muted-foreground line-clamp-1">{store.description}</p>
+                        <p className="text-sm text-muted-foreground line-clamp-1">
+                          {store.description}
+                        </p>
                       </div>
                     </div>
                     <div className="flex flex-wrap gap-2 mt-3">
                       {store.categories.slice(0, 3).map((category) => (
-                        <Badge key={category} variant="secondary" className="text-xs">
+                        <Badge
+                          key={category}
+                          variant="secondary"
+                          className="text-xs"
+                        >
                           {category}
                         </Badge>
                       ))}
                     </div>
                   </CardContent>
                   <CardFooter className="p-4 pt-0 flex justify-between">
-                    <span className="text-xs text-muted-foreground">رقم ملكية المتجر: {store.ownerId}</span>
+                    <span className="text-xs text-muted-foreground">
+                      رقم ملكية المتجر: {store.ownerId}
+                    </span>
                     <div className="flex gap-2">
                       <Button asChild size="sm" variant="outline">
-                        <Link href={`/admin/stores/${store.id}`}>إدارة المتجر</Link>
+                        <Link href={`/admin/stores/${store.id}`}>
+                          إدارة المتجر
+                        </Link>
                       </Button>
                       <Button asChild size="sm" variant="destructive">
-                        <Link href={`/admin/stores/${store.id}/block`}>حظر</Link>
+                        <Link href={`/admin/stores/${store.id}/block`}>
+                          حظر
+                        </Link>
                       </Button>
                     </div>
                   </CardFooter>
@@ -213,7 +250,9 @@ export default function AdminDashboard() {
           </TabsContent>
           <TabsContent value="services" className="space-y-4">
             <div className="flex items-center justify-between">
-              <h2 className="text-xl font-bold tracking-tight">إدارة الخدمات</h2>
+              <h2 className="text-xl font-bold tracking-tight">
+                إدارة الخدمات
+              </h2>
               <Button asChild size="sm">
                 <Link href="/admin/services/new">
                   <AlertTriangle className="mr-2 h-4 w-4" />
@@ -223,7 +262,7 @@ export default function AdminDashboard() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {services.slice(0, 3).map((service) => (
+              {/* {services.slice(0, 3).map((service) => (
                 <Card key={service.id} className="overflow-hidden">
                   <div className="relative h-32 w-full">
                     <img
@@ -260,7 +299,7 @@ export default function AdminDashboard() {
                     </Button>
                   </CardFooter>
                 </Card>
-              ))}
+              ))} */}
             </div>
           </TabsContent>
           <TabsContent value="analytics" className="space-y-4">
@@ -268,14 +307,17 @@ export default function AdminDashboard() {
             <Card>
               <CardHeader>
                 <CardTitle>أداء النظام</CardTitle>
-                <CardDescription>عرض التحليلات والمقاييس على مستوى المنصة</CardDescription>
+                <CardDescription>
+                  عرض التحليلات والمقاييس على مستوى المنصة
+                </CardDescription>
               </CardHeader>
               <CardContent className="h-80 flex items-center justify-center">
                 <div className="flex flex-col items-center text-center">
                   <BarChart3 className="h-16 w-16 text-muted-foreground mb-4" />
                   <h3 className="text-lg font-medium">لوحة التحليلات</h3>
                   <p className="text-sm text-muted-foreground mt-1 max-w-md">
-                    تتبع استخدام المنصة، ومشاركة المستخدمين، والتقارير التجارية. رصد أداء النظام واكتشاف فرص النمو.
+                    تتبع استخدام المنصة، ومشاركة المستخدمين، والتقارير التجارية.
+                    رصد أداء النظام واكتشاف فرص النمو.
                   </p>
                 </div>
               </CardContent>
@@ -284,5 +326,5 @@ export default function AdminDashboard() {
         </Tabs>
       </div>
     </div>
-  )
+  );
 }
