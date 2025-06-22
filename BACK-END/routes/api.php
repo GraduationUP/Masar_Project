@@ -6,6 +6,7 @@ use App\Http\Controllers\User\UserController;
 use App\Http\Controllers\User\RatingController;
 use App\Http\Controllers\Seller\StoreController;
 use App\Http\Controllers\User\CommentController;
+use App\Http\Controllers\Guest\CategoryController;
 use App\Http\Controllers\Seller\ProductController;
 use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\VerifyEmailController;
@@ -13,10 +14,12 @@ use App\Http\Controllers\Seller\DashboardController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\Guest\UserController as GuestUserController;
 use App\Http\Controllers\Auth\EmailVerificationNotificationController;
 use App\Http\Controllers\Guest\StoreController as GuestStoreController;
 use App\Http\Controllers\Seller\StoreController as SellerStoreController;
 use App\Http\Controllers\Guest\ProductController as GuestProductController;
+
 
 
 Route::post('/register', [RegisteredUserController::class, 'store']);
@@ -53,13 +56,21 @@ Route::get('/guest/stores', [GuestStoreController::class, 'index']);
 Route::get('/guest/stores/{id}', [GuestStoreController::class, 'show']);
 
 Route::get('/guest/products', [GuestProductController::class, 'index']);
+Route::get('/guest/products/{id}', [GuestProductController::class, 'show']);
+
+Route::get('/guest/categories', [CategoryController::class, 'index']);
+
 
 Route::get('/map-data', [MapController::class, 'getMapData']);
 
 Route::get('/stores/{id}', [GuestStoreController::class, 'show']);
 
-Route::middleware('auth:sanctum')->get('/users/{id}', [UserController::class, 'show']);
-//
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/users/{id}', [UserController::class, 'show']);   // عرض الملف الشخصي
+    Route::put('/users/{id}', [UserController::class, 'update']); // تعديل الملف الشخصي
+});
+// راوت للزوار (مش مسجلين) يشوفوا بيانات عامة فقط
+Route::get('/guest/users/{id}', [GuestUserController::class, 'show']);
 
 //Rating Routes
 Route::middleware(['auth:sanctum'])->group(function () {

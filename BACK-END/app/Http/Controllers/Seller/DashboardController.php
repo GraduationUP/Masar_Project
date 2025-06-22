@@ -9,25 +9,26 @@ use Illuminate\Support\Facades\Auth;
 class DashboardController extends Controller
 {
     /**
-     * عرض معلومات لوحة تحكم البائع
-     */
+  * عرض معلومات لوحة تحكم البائع
+  */
     public function index()
     {
-        // جلب المستخدم والمتجر والتحقق من وجود المتجر
+        // جلب المستخدم الحالي والمتجر الخاص به
         $user = Auth::user();
         $store = $user->store;
+
+        // التحقق من وجود المتجر
         if (!$store) {
             return response()->json(['message' => 'Store not found.'], 404);
         }
 
-        // جلب المنتجات المرتبطة مع التصنيف
+        // جلب المنتجات مع تصنيفاتها
         $products = $store->products()->with('category')->latest()->get();
 
-        // متوسط التقييم وعدد التقييمات
+        // حساب متوسط التقييم
         $averageRating = round($store->ratings()->avg('score'), 1);
-        $ratingsCount = $store->ratings()->count();
 
-        // آخر 5 تقييمات مع بيانات المستخدم
+        // جلب آخر 5 تقييمات
         $recentRatings = $store->ratings()
             ->with('user')
             ->latest()
@@ -41,7 +42,7 @@ class DashboardController extends Controller
                 ];
             });
 
-        // آخر 5 تعليقات مع بيانات المستخدم
+        // جلب آخر 5 تعليقات
         $recentComments = $store->comments()
             ->with('user')
             ->latest()
@@ -55,15 +56,16 @@ class DashboardController extends Controller
                 ];
             });
 
-        // إرسال الرد
+        // إرسال الرد بصيغة JSON
         return response()->json([
             'store' => [
                 'name' => $store->store_name,
+                'owner_phone' => $store->phone,
                 'status' => $store->is_active ? 'Active' : 'Inactive',
                 'created_at' => $store->created_at->toDateTimeString(),
-                'total_products' => $products->count(),
                 'average_rating' => $averageRating,
-                'ratings_count' => $ratingsCount,
+                'latitude' => $store->latitude,
+                'longitude' => $store->longitude,
             ],
             'recent_products' => $products->take(5)->map(function ($product) {
                 return [
