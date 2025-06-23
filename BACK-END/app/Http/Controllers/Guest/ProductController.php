@@ -17,4 +17,26 @@ class ProductController extends Controller
             'data' => $products
         ]);
     }
+
+    public function show($id)
+    {
+        $product = Product::with('store', 'category')->findOrFail($id);
+
+        return response()->json([
+            'status' => true,
+            'data' => [
+                'id' => $product->id,
+                'name' => $product->name,
+                'description' => $product->description,
+                'price' => $product->price,
+                'photo' => $product->photo,
+                'store_name' => $product->store?->store_name,
+                'category_name' => $product->category?->name,
+                'latitude' => $product->latitude,
+                'longitude' => $product->longitude,
+                'show_location' => $product->show_location,
+                'created_at' => $product->created_at->toDateTimeString(),
+            ]
+        ]);
+    }
 }
