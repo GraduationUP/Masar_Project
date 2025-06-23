@@ -1,19 +1,23 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { ChevronLeft, Loader2, StoreIcon, Upload, Check } from "lucide-react";
+import { useToast } from "@/components/ui/use-toast";
+import { useEffect, useState } from "react";
+import { redirect } from "next/navigation";
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { ChevronLeft, Loader2, StoreIcon, Upload, Check } from "lucide-react"
-import { useAuth } from "@/lib/auth-context"
-import { useToast } from "@/components/ui/use-toast"
-import { addStore } from "@/lib/storage-utils"
 
 const categories = [
   "Groceries",
@@ -31,121 +35,58 @@ const categories = [
   "Restaurant",
   "Cafe",
   "Other",
-]
+];
 
 export default function NewStorePage() {
-  const router = useRouter()
-  const { user } = useAuth()
-  const { toast } = useToast()
+  const { toast } = useToast();
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [isLoading, setIsLoading] = useState(false)
-  const [selectedCategories, setSelectedCategories] = useState<string[]>([])
-  const [storeData, setStoreData] = useState({
-    name: "",
-    description: "",
-    address: "",
-    phone: "",
-    email: "",
-    website: "",
-    logo: "",
-    coverImage: "",
-  })
+
+  useEffect(() => {
+    const authToken = localStorage.getItem("userInfo");
+    if (authToken) {
+      setUser(JSON.parse(authToken));
+    }
+    setLoading(false); // Set loading to false after attempting to get user info
+  }, []);
+
+  // Redirect if not logged in or role is undefined, but only after loading is complete
+  useEffect(() => {
+    if (!loading && (user === null || user.role !== "seller")) {
+      redirect("/");
+    }
+  }, [user, loading]);
 
   const handleCategoryChange = (value: string) => {
     if (selectedCategories.includes(value)) {
-      setSelectedCategories(selectedCategories.filter((cat) => cat !== value))
+      setSelectedCategories(selectedCategories.filter((cat) => cat !== value));
     } else {
       if (selectedCategories.length < 5) {
-        setSelectedCategories([...selectedCategories, value])
+        setSelectedCategories([...selectedCategories, value]);
       } else {
         toast({
           title: "Category limit reached",
           description: "You can select up to 5 categories",
           variant: "destructive",
-        })
+        });
       }
     }
-  }
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-
-    if (!user) {
-      toast({
-        title: "Authentication required",
-        description: "Please log in as a seller to create a store",
-        variant: "destructive",
-      })
-      return
-    }
+  
+  }
 
     if (selectedCategories.length === 0) {
       toast({
         title: "Categories required",
         description: "Please select at least one category for your store",
         variant: "destructive",
-      })
-      return
+      });
+      return;
     }
-
-    setIsLoading(true)
-
-    // Generate random coordinates near Amman, Jordan
-    const lat = 31.9539 + (Math.random() - 0.5) * 0.05
-    const lng = 35.9106 + (Math.random() - 0.5) * 0.05
-
-    // Create new store
-    const newStore = {
-      name: storeData.name,
-      description: storeData.description,
-      logo: storeData.logo || "/abstract-storefront.png",
-      coverImage: storeData.coverImage || "/modern-clothing-boutique.png",
-      ownerId: user.id,
-      categories: selectedCategories,
-      location: {
-        address: storeData.address || "Amman, Jordan",
-        lat,
-        lng,
-      },
-      contactInfo: {
-        phone: storeData.phone,
-        email: storeData.email,
-        website: storeData.website,
-      },
-      openingHours: {
-        monday: "9:00 AM - 9:00 PM",
-        tuesday: "9:00 AM - 9:00 PM",
-        wednesday: "9:00 AM - 9:00 PM",
-        thursday: "9:00 AM - 9:00 PM",
-        friday: "9:00 AM - 10:00 PM",
-        saturday: "10:00 AM - 10:00 PM",
-        sunday: "10:00 AM - 8:00 PM",
-      },
-      rating: undefined,
-      reviews: [],
-    }
-
-    // Simulate API call
-    setTimeout(() => {
-      try {
-        const store = addStore(newStore)
-
-        toast({
-          title: "Store created successfully",
-          description: "Your new store has been created",
-        })
-
-        // Redirect to store management page
-        router.push(`/seller/stores/${store.id}`)
-      } catch (error) {
-        toast({
-          title: "Error creating store",
-          description: "There was an error creating your store. Please try again.",
-          variant: "destructive",
-        })
-        setIsLoading(false)
-      }
-    }, 1500)
-  }
 
   return (
     <div className="container px-4 md:px-6 py-8">
@@ -157,7 +98,9 @@ export default function NewStorePage() {
             </Link>
           </Button>
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">انئ متجراً جديداً</h1>
+            <h1 className="text-3xl font-bold tracking-tight">
+              انئ متجراً جديداً
+            </h1>
             <p className="text-muted-foreground">قم بانشاء متجرك على مسار</p>
           </div>
         </div>
@@ -177,7 +120,9 @@ export default function NewStorePage() {
                       id="name"
                       placeholder="ادخل اسم المتجر"
                       value={storeData.name}
-                      onChange={(e) => setStoreData({ ...storeData, name: e.target.value })}
+                      onChange={(e) =>
+                        setStoreData({ ...storeData, name: e.target.value })
+                      }
                       required
                       className="rounded-lg"
                     />
@@ -188,7 +133,12 @@ export default function NewStorePage() {
                       id="description"
                       placeholder="قم بوصف متجرك"
                       value={storeData.description}
-                      onChange={(e) => setStoreData({ ...storeData, description: e.target.value })}
+                      onChange={(e) =>
+                        setStoreData({
+                          ...storeData,
+                          description: e.target.value,
+                        })
+                      }
                       required
                       className="min-h-[120px] rounded-lg"
                     />
@@ -200,17 +150,25 @@ export default function NewStorePage() {
                         <Button
                           key={category}
                           type="button"
-                          variant={selectedCategories.includes(category) ? "default" : "outline"}
+                          variant={
+                            selectedCategories.includes(category)
+                              ? "default"
+                              : "outline"
+                          }
                           size="sm"
                           className="rounded-full"
                           onClick={() => handleCategoryChange(category)}
                         >
-                          {selectedCategories.includes(category) && <Check className="mr-1 h-3 w-3" />}
+                          {selectedCategories.includes(category) && (
+                            <Check className="mr-1 h-3 w-3" />
+                          )}
                           {category}
                         </Button>
                       ))}
                     </div>
-                    <p className="text-xs text-muted-foreground mt-1">اختر 5 اقسام كحد اقصى</p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      اختر 5 اقسام كحد اقصى
+                    </p>
                   </div>
                 </CardContent>
               </Card>
@@ -228,7 +186,9 @@ export default function NewStorePage() {
                         id="phone"
                         placeholder="+962 7 1234 5678"
                         value={storeData.phone}
-                        onChange={(e) => setStoreData({ ...storeData, phone: e.target.value })}
+                        onChange={(e) =>
+                          setStoreData({ ...storeData, phone: e.target.value })
+                        }
                         required
                         className="rounded-lg"
                       />
@@ -240,7 +200,9 @@ export default function NewStorePage() {
                         type="email"
                         placeholder="store@example.com"
                         value={storeData.email}
-                        onChange={(e) => setStoreData({ ...storeData, email: e.target.value })}
+                        onChange={(e) =>
+                          setStoreData({ ...storeData, email: e.target.value })
+                        }
                         required
                         className="rounded-lg"
                       />
@@ -252,7 +214,9 @@ export default function NewStorePage() {
                       id="website"
                       placeholder="www.yourstore.com"
                       value={storeData.website}
-                      onChange={(e) => setStoreData({ ...storeData, website: e.target.value })}
+                      onChange={(e) =>
+                        setStoreData({ ...storeData, website: e.target.value })
+                      }
                       className="rounded-lg"
                     />
                   </div>
@@ -262,7 +226,9 @@ export default function NewStorePage() {
                       id="address"
                       placeholder="123 شارع الرئيسي، عمان، الاردن"
                       value={storeData.address}
-                      onChange={(e) => setStoreData({ ...storeData, address: e.target.value })}
+                      onChange={(e) =>
+                        setStoreData({ ...storeData, address: e.target.value })
+                      }
                       required
                       className="rounded-lg"
                     />
@@ -293,11 +259,18 @@ export default function NewStorePage() {
                             <StoreIcon className="h-8 w-8 text-muted-foreground" />
                           )}
                         </div>
-                        <Button type="button" variant="outline" size="sm" className="rounded-full">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          className="rounded-full"
+                        >
                           <Upload className="h-4 w-4 mr-2" />
                           حمل الشعار
                         </Button>
-                        <p className="text-xs text-muted-foreground">مطلوب: 200x200px</p>
+                        <p className="text-xs text-muted-foreground">
+                          مطلوب: 200x200px
+                        </p>
                       </div>
                     </div>
                   </div>
@@ -316,11 +289,18 @@ export default function NewStorePage() {
                             <Upload className="h-8 w-8 text-muted-foreground" />
                           )}
                         </div>
-                        <Button type="button" variant="outline" size="sm" className="rounded-full">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          className="rounded-full"
+                        >
                           <Upload className="h-4 w-4 mr-2" />
                           حمل صورة الغلاف
                         </Button>
-                        <p className="text-xs text-muted-foreground">مطلوب: 1200x400px</p>
+                        <p className="text-xs text-muted-foreground">
+                          مطلوب: 1200x400px
+                        </p>
                       </div>
                     </div>
                   </div>
@@ -343,7 +323,9 @@ export default function NewStorePage() {
                         />
                       ) : (
                         <div className="h-full w-full flex items-center justify-center">
-                          <p className="text-sm text-muted-foreground">صورة الغلاف</p>
+                          <p className="text-sm text-muted-foreground">
+                            صورة الغلاف
+                          </p>
                         </div>
                       )}
                       <div className="absolute bottom-4 left-4 bg-background rounded-full p-1">
@@ -361,19 +343,26 @@ export default function NewStorePage() {
                       </div>
                     </div>
                     <div className="p-4">
-                      <h3 className="font-bold">{storeData.name || "اسم متجرك"}</h3>
+                      <h3 className="font-bold">
+                        {storeData.name || "اسم متجرك"}
+                      </h3>
                       <p className="text-sm text-muted-foreground line-clamp-2 mt-1">
                         {storeData.description || "سيظهر وصف متجرك هنا"}
                       </p>
                       <div className="flex flex-wrap gap-1 mt-2">
                         {selectedCategories.length > 0 ? (
                           selectedCategories.map((category) => (
-                            <span key={category} className="text-xs bg-muted px-2 py-1 rounded-full">
+                            <span
+                              key={category}
+                              className="text-xs bg-muted px-2 py-1 rounded-full"
+                            >
                               {category}
                             </span>
                           ))
                         ) : (
-                          <span className="text-xs text-muted-foreground">لا يوجد تصنيفات محددة</span>
+                          <span className="text-xs text-muted-foreground">
+                            لا يوجد تصنيفات محددة
+                          </span>
                         )}
                       </div>
                     </div>
@@ -384,7 +373,12 @@ export default function NewStorePage() {
           </div>
 
           <div className="mt-8 flex justify-between">
-            <Button type="button" variant="outline" asChild className="rounded-full">
+            <Button
+              type="button"
+              variant="outline"
+              asChild
+              className="rounded-full"
+            >
               <Link href="/seller/dashboard">إلغاء</Link>
             </Button>
             <Button
@@ -408,6 +402,5 @@ export default function NewStorePage() {
         </form>
       </div>
     </div>
-  )
+  );
 }
-

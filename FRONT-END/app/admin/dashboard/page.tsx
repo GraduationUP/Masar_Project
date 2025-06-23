@@ -63,8 +63,6 @@ export default function AdminDashboard() {
         return <div>Loading...</div>; // Optionally show a loading indicator
     }
 
- 
-
   return (
     <div className="container px-4 md:px-6 py-8">
       <div className="flex flex-col gap-8">

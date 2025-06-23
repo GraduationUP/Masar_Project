@@ -1,6 +1,6 @@
 "use client";
 // TODO : edit TypeScript rules when the api is edited
-// TODO : edit the logo, add a store placeholder
+// TODO : add a delete product backend logic
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
@@ -108,17 +108,18 @@ export default function SellerDashboard() {
             <p className="text-muted-foreground">إدارة متاجرك و منتجاتك</p>
           </div>
           <div className="flex gap-2">
-            <Button asChild variant="outline">
-              <Link href="/seller/products/new">
-                <Package className="mr-2 h-4 w-4" />
-                إضافة منتج
-              </Link>
-            </Button>
-            {!store && (
+            {!store.name ? (
               <Button asChild>
                 <Link href="/seller/stores/new">
                   <StoreIcon className="mr-2 h-4 w-4" />
                   إنشاء متجر
+                </Link>
+              </Button>
+            ) : (
+              <Button asChild variant="outline">
+                <Link href="/seller/products/new">
+                  <Package className="mr-2 h-4 w-4" />
+                  إضافة منتج
                 </Link>
               </Button>
             )}
@@ -126,31 +127,39 @@ export default function SellerDashboard() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
-                إجمالي المنتجات
-              </CardTitle>
-              <Package className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{products.length}</div>
+          {store.name && (
+            <>
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">
+                    إجمالي المنتجات
+                  </CardTitle>
+                  <Package className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{products.length}</div>
 
-              <p className="text-xs text-muted-foreground">المنتجات المدرجة</p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">الاحصاءات</CardTitle>
-              <Users className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{stats}</div>
-              <p className="text-xs text-muted-foreground">
-                التقييمات والتعليقات
-              </p>
-            </CardContent>
-          </Card>
+                  <p className="text-xs text-muted-foreground">
+                    المنتجات المدرجة
+                  </p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">
+                    الاحصاءات
+                  </CardTitle>
+                  <Users className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{stats}</div>
+                  <p className="text-xs text-muted-foreground">
+                    التقييمات والتعليقات
+                  </p>
+                </CardContent>
+              </Card>
+            </>
+          )}
         </div>
 
         <Tabs defaultValue="stores">
@@ -164,7 +173,7 @@ export default function SellerDashboard() {
               <h2 className="text-xl font-bold tracking-tight">متجري</h2>
             </div>
 
-            {!store ? (
+            {!store.name ? (
               <Card>
                 <CardContent className="flex flex-col items-center justify-center py-6 text-center">
                   <StoreIcon className="h-8 w-8 text-muted-foreground mb-2" />
@@ -251,12 +260,14 @@ export default function SellerDashboard() {
           <TabsContent value="products" className="space-y-4">
             <div className="flex items-center justify-between">
               <h2 className="text-xl font-bold tracking-tight">منتجاتي</h2>
-              <Button asChild size="sm">
-                <Link href="/seller/products/new">
-                  <Plus className="mr-2 h-4 w-4" />
-                  إضافة منتج
-                </Link>
-              </Button>
+              {store.name && (
+                <Button asChild size="sm">
+                  <Link href="/seller/products/new">
+                    <Plus className="mr-2 h-4 w-4" />
+                    إضافة منتج
+                  </Link>
+                </Button>
+              )}
             </div>
 
             {products.length === 0 ? (
@@ -267,9 +278,11 @@ export default function SellerDashboard() {
                   <p className="text-sm text-muted-foreground mt-1">
                     أضف منتجات إلى متجرك لبدء البيع.
                   </p>
-                  <Button asChild className="mt-4">
-                    <Link href="/seller/products/new">إضافة منتج</Link>
-                  </Button>
+                  {store.name && (
+                    <Button asChild className="mt-4">
+                      <Link href="/seller/products/new">إضافة منتج</Link>
+                    </Button>
+                  )}
                 </CardContent>
               </Card>
             ) : (
@@ -366,16 +379,21 @@ export default function SellerDashboard() {
                         </h3>
                         <ul className="divide-y divide-gray-100">
                           {data.recent_comments.map((comment) => (
-                            <li key={comment.created_at} className="py-3 border rounded-sm">
+                            <li
+                              key={comment.created_at}
+                              className="py-3 border rounded-sm"
+                            >
                               <div className="flex items-start">
                                 <div className="ml-3">
                                   <div className="flex items-center gap-1">
                                     <Avatar className="size-8">
-                                      <AvatarFallback>{comment.user.slice(0, 2).toUpperCase()}</AvatarFallback>
+                                      <AvatarFallback>
+                                        {comment.user.slice(0, 2).toUpperCase()}
+                                      </AvatarFallback>
                                     </Avatar>
-                                  <p className="text-sm font-medium text-gray-900">
-                                    {comment.user}
-                                  </p>
+                                    <p className="text-sm font-medium text-gray-900">
+                                      {comment.user}
+                                    </p>
                                   </div>
 
                                   <p className="text-sm text-gray-600">
