@@ -191,7 +191,7 @@ export default function SellerDashboard() {
                 <Card key={store.id} className="overflow-hidden">
                   <div className="relative h-32 w-full">
                     <img
-                      src={store.coverImage || "/placeholder.svg"}
+                      src={"/storeBanner.svg"}
                       alt={store.name}
                       className="h-full w-full object-cover"
                     />

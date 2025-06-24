@@ -1,9 +1,8 @@
 "use client";
-
+// TODO : solve 500 e=internal server error
 import type React from "react";
 
 import { useState, useEffect, lazy, Suspense } from "react";
-import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import {
@@ -29,13 +28,10 @@ import { redirect } from "next/navigation";
 
 // Dynamically import Leaflet with ssr: false
 const LeafletMap = lazy(() =>
-  import("@/components/LeafletMap").then((module) => ({ default: module.default }))
+  import("@/components/LeafletMap").then((module) => ({
+    default: module.default,
+  }))
 );
-
-interface Product {
-  id?: number;
-  // other properties Product type here
-}
 
 interface DashboardData {
   recent_comments: any[]; // Replace 'any' with the actual type
@@ -44,18 +40,27 @@ interface DashboardData {
   store: any; // Replace 'any' with the actual type
 }
 
+interface Product {
+  id?: number;
+  name: string;
+  description: string;
+  category_id: string;
+  price: string;
+  latitude: number;
+  longitude: number;
+  showLocation: boolean;
+}
+
 export default function NewProductPage() {
-  const searchParams = useSearchParams();
-  const storeId = searchParams.get("storeId");
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true); // Initialize loading to true
-  const [productData, setProductData] = useState({
+  const [productData, setProductData] = useState<Product>({
     name: "",
     description: "",
     category_id: "",
     price: "",
-    latitude: 21.3891,
-    longitude: 39.8579,
+    latitude: 31.53157982870554,
+    longitude: 34.46717173572411,
     showLocation: false,
   });
 
@@ -65,8 +70,15 @@ export default function NewProductPage() {
     recent_ratings: [],
     store: {},
   });
-  const [store, setStore] = useState();
-  const [products, setProducts] = useState<Product[]>([]);
+  const [storeCategories, setStoreCategories] = useState<{
+    status: boolean;
+    data: { id: number; name: string }[]; // Assuming the category object has an 'id' and 'name'
+  }>({
+    status: false,
+    data: [],
+  });
+
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     const authToken = localStorage.getItem("userInfo");
@@ -74,9 +86,8 @@ export default function NewProductPage() {
       setUser(JSON.parse(authToken));
     }
     setLoading(false); // Set loading to false after attempting to get user info
-  }, []);
+  }, []); // Redirect if not logged in or role is undefined, but only after loading is complete
 
-  // Redirect if not logged in or role is undefined, but only after loading is complete
   useEffect(() => {
     if (!loading && (user === null || user.role !== "seller")) {
       redirect("/");
@@ -117,8 +128,43 @@ export default function NewProductPage() {
   }, []);
 
   useEffect(() => {
-    setStore(data.store);
-    setProducts(data.recent_products);
+    async function fetchCategories() {
+      try {
+        const token = localStorage.getItem("authToken");
+        const response = await fetch(
+          "http://127.0.0.1:8000/api/guest/categories",
+          {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const responseData = await response.json();
+        setStoreCategories(
+          responseData as {
+            status: boolean;
+            data: { id: number; name: string }[];
+          }
+        ); // Type assertion here
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+      }
+    }
+    fetchCategories();
+  }, []);
+
+  useEffect(() => {
+    // Assuming data.store and data.recent_products are correctly typed in your actual response
+    // You might need to adjust this based on the actual structure of 'data'
+    if (data && data.store && data.recent_products) {
+      // setStore(data.store); // Assuming you have a setStore function
+      // setProducts(data.recent_products); // Assuming you have a setProducts function
+    }
   }, [data]); // Add 'data' to the dependency array
 
   const handleLocationChange = (lat: number, lng: number) => {
@@ -127,6 +173,39 @@ export default function NewProductPage() {
       latitude: lat,
       longitude: lng,
     }));
+  };
+
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    setIsSubmitting(true);
+
+    const token = localStorage.getItem("authToken");
+
+    try {
+      const response = await fetch(
+        "http://127.0.0.1:8000/api/seller/products",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(productData),
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error("Error creating product:", errorData); // TODO: Handle error messages to display to the user
+      } else {
+        const successData = await response.json();
+        console.log("Product created successfully:", successData); // TODO: Redirect the user to the store page or show a success message
+      }
+    } catch (error) {
+      console.error("Error submitting form:", error); // TODO: Handle network errors
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -151,8 +230,7 @@ export default function NewProductPage() {
             <p className="text-muted-foreground">أضف منتجًا إلى متجرك</p>
           </div>
         </div>
-        <form>
-          {/* Add onSubmit={handleSubmit} */}
+        <form onSubmit={handleSubmit}>
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div className="lg:col-span-2 space-y-6">
               <Card>
@@ -206,12 +284,11 @@ export default function NewProductPage() {
                         <SelectValue placeholder="اختر فئة" />
                       </SelectTrigger>
                       <SelectContent>
-                        {/* {storeCategories.map((category) => (
-                          <SelectItem key={category} value={category}>
-                            {category}
+                        {storeCategories.data.map((category) => (
+                          <SelectItem key={category.id} value={category.name}>
+                            {category.name}
                           </SelectItem>
-                        ))} */}
-                        {/* TODO: Add the categories*/}
+                        ))}
                       </SelectContent>
                     </Select>
                   </div>
@@ -236,7 +313,7 @@ export default function NewProductPage() {
                       />
                     </div>
                   </div>
-                  <div className="flex items-center space-x-2">
+                  <div className="flex items-center space-x-2 gap-1">
                     <Switch
                       id="show-location"
                       checked={productData.showLocation}
@@ -252,7 +329,7 @@ export default function NewProductPage() {
                   </div>
                   {productData.showLocation && (
                     <div className="space-y-4 mt-4">
-                      <Label>اختر موقع المنتج</Label> {/* TODO: Add the map markers */}
+                      <Label>اختر موقع المنتج</Label>{" "}
                       <Suspense fallback={<>جار تحميل الخريطة...</>}>
                         <LeafletMap
                           latitude={productData.latitude}
@@ -297,17 +374,9 @@ export default function NewProductPage() {
                 <CardContent>
                   <div className="rounded-lg border overflow-hidden">
                     <div className="h-48 bg-muted/50 relative">
-                      {productData.image ? (
-                        <img
-                          src={productData.image || "/placeholder.svg"}
-                          alt="معاينة المنتج"
-                          className="h-full w-full object-cover"
-                        />
-                      ) : (
-                        <div className="h-full w-full flex items-center justify-center">
-                          <Package className="h-12 w-12 text-muted-foreground" />
-                        </div>
-                      )}
+                      <div className="h-full w-full flex items-center justify-center">
+                        <Package className="h-12 w-12 text-muted-foreground" />
+                      </div>
                     </div>
                     <div className="p-4">
                       <h3 className="font-bold">
@@ -324,11 +393,9 @@ export default function NewProductPage() {
                           )}
                         </span>
                         <span className="text-xs bg-muted px-2 py-1 rounded-full">
-                          {/* {productData.category ||
-                            (storeCategories.length > 0
-                              ? storeCategories[0]
-                              : "Category")}{" "} */}
-                          {/* TODO: Add the categories */}
+                          {storeCategories.data.find(
+                            (cat) => cat.name === productData.category_id
+                          )?.name || "القسم"}
                         </span>
                       </div>
                     </div>
@@ -351,7 +418,7 @@ export default function NewProductPage() {
                     : "/seller/dashboard"
                 }
               >
-                Cancel
+                الغاء
               </Link>
             </Button>
             <Button
@@ -359,7 +426,7 @@ export default function NewProductPage() {
               className="rounded-full bg-gradient-to-r from-blue-400 to-blue-500 hover:from-blue-500 hover:to-blue-600"
               disabled={loading}
             >
-              {loading ? (
+              {isSubmitting ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   جار اضافة المنتج...

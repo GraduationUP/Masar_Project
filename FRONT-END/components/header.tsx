@@ -188,7 +188,7 @@ export default function Header() {
                     </DropdownMenuItem>
                   )}
                   <DropdownMenuItem asChild>
-                    <Link href="/profile" className="cursor-pointer">
+                    <Link href={`/profile/${userInfo?.id}`} className="cursor-pointer">
                       الملف الشخصي
                     </Link>
                   </DropdownMenuItem>
@@ -262,7 +262,7 @@ export default function Header() {
                           لوحة التحكم
                         </Link>
                         <Link
-                          href="/profile"
+                          href={`/profile/${userInfo?.id}`}
                           className="text-sm font-medium transition-colors hover:text-primary"
                         >
                           الملف الشخصي
