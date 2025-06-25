@@ -13,46 +13,39 @@ class UserController extends Controller
     {
         $user = User::with(['store', 'comments.store', 'ratings.store'])->findOrFail($id);
 
-        // إذا المستخدم مسجل وبيشوف صفحته
-        if (Auth::check() && Auth::id() === $user->id) {
-            return response()->json([
-                'id' => $user->id,
-                'first_name' => $user->first_name,
-                'last_name' => $user->last_name,
-                'username' => $user->username,
-                'email' => $user->email,
-                'role' => $user->getRoleNames()->first(),
-                'store' => $user->store,
-                'comments' => $user->comments->map(function ($comment) {
-                    return [
-                        'id' => $comment->id,
-                        'store_id' => $comment->store_id,
-                        'store_name' => $comment->store->store_name ?? null,
-                        'comment' => $comment->content,
-                        'created_at' => $comment->created_at,
-                    ];
-                }),
-                'ratings' => $user->ratings->map(function ($rating) {
-                    return [
-                        'id' => $rating->id,
-                        'store_id' => $rating->store_id,
-                        'store_name' => $rating->store->store_name ?? null,
-                        'rating' => $rating->score,
-                        'created_at' => $rating->created_at,
-                    ];
-                }),
-            ]);
+        if (!Auth::check() || Auth::id() !== $user->id) {
+            return response()->json(['message' => 'Unauthorized'], 403);
         }
 
-        // أي شخص تاني بيشوف فقط البيانات العامة
         return response()->json([
             'id' => $user->id,
             'first_name' => $user->first_name,
             'last_name' => $user->last_name,
             'username' => $user->username,
+            'email' => $user->email,
+            'role' => $user->getRoleNames()->first(),
             'store' => $user->store,
+            'comments' => $user->comments->map(function ($comment) {
+                return [
+                    'id' => $comment->id,
+                    'store_id' => $comment->store_id,
+                    'store_name' => $comment->store->store_name ?? null,
+                    'comment' => $comment->content,
+                    'created_at' => $comment->created_at,
+                ];
+            }),
+            'ratings' => $user->ratings->map(function ($rating) {
+                return [
+                    'id' => $rating->id,
+                    'store_id' => $rating->store_id,
+                    'store_name' => $rating->store->store_name ?? null,
+                    'rating' => $rating->score,
+                    'created_at' => $rating->created_at,
+                ];
+            }),
         ]);
     }
+
 
     public function update(Request $request, $id)
     {

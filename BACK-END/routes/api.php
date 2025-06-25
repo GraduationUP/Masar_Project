@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\MapController;
+use App\Http\Controllers\ReportController;
 use App\Http\Controllers\User\UserController;
 use App\Http\Controllers\User\RatingController;
 use App\Http\Controllers\Seller\StoreController;
@@ -11,6 +12,7 @@ use App\Http\Controllers\Seller\ProductController;
 use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\VerifyEmailController;
 use App\Http\Controllers\Seller\DashboardController;
+use App\Http\Controllers\User\NotificationController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
@@ -86,3 +88,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/comments/{comment}', [CommentController::class, 'destroy']);
     Route::post('/comments/{comment}/report', [CommentController::class, 'report']);
 });
+
+
+
+
+

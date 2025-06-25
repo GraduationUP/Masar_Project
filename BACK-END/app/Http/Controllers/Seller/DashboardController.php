@@ -59,6 +59,7 @@ class DashboardController extends Controller
         // إرسال الرد بصيغة JSON
         return response()->json([
             'store' => [
+                'id' => $store->id,
                 'name' => $store->store_name,
                 'owner_phone' => $store->phone,
                 'status' => $store->is_active ? 'Active' : 'Inactive',

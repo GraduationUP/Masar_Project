@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('types', function (Blueprint $table) {
             $table->id();
-            $table->bigInteger('type');
+    $table->string('type');        // اسم نوع الإشعار (زي rating, comment, report...)
             $table->timestamps();
         });
     }
