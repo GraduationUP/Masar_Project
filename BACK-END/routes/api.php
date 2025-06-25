@@ -70,6 +70,8 @@ Route::get('/stores/{id}', [GuestStoreController::class, 'show']);
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/users/{id}', [UserController::class, 'show']);   // عرض الملف الشخصي
     Route::put('/users/{id}', [UserController::class, 'update']); // تعديل الملف الشخصي
+    Route::post('/users/change-password', [UserController::class, 'changePassword']);
+
 });
 // راوت للزوار (مش مسجلين) يشوفوا بيانات عامة فقط
 Route::get('/guest/users/{id}', [GuestUserController::class, 'show']);
@@ -90,6 +92,9 @@ Route::middleware('auth:sanctum')->group(function () {
 });
 
 
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/reports', [ReportController::class, 'store']);
+});
 
 
 

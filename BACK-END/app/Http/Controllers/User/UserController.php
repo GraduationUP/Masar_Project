@@ -6,7 +6,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
-
+  use Illuminate\Support\Facades\Hash;
 class UserController extends Controller
 {
     public function show($id)
@@ -60,7 +60,6 @@ class UserController extends Controller
             'last_name' => 'required|string|max:255',
             'username' => 'required|string|max:255|unique:users,username,' . $user->id,
             'email' => 'required|email|max:255|unique:users,email,' . $user->id,
-            'password' => 'nullable|string|min:8|confirmed',
         ]);
 
         $user->first_name = $validated['first_name'];
@@ -68,9 +67,7 @@ class UserController extends Controller
         $user->username = $validated['username'];
         $user->email = $validated['email'];
 
-        if (!empty($validated['password'])) {
-            $user->password = bcrypt($validated['password']);
-        }
+
 
         $user->save();
 
@@ -84,5 +81,27 @@ class UserController extends Controller
                 'email' => $user->email,
             ]
         ]);
+    }
+
+
+    public function changePassword(Request $request)
+    {
+        $request->validate([
+            'current_password' => 'required|string',
+            'password' => 'required|string|min:8|confirmed',
+        ]);
+
+        $user = Auth::user();
+
+        // تحقق من كلمة المرور الحالية
+        if (!Hash::check($request->current_password, $user->password)) {
+            return response()->json(['message' => 'كلمة المرور الحالية غير صحيحة'], 422);
+        }
+
+        // تحديث كلمة المرور
+        $user->password = bcrypt($request->password);
+        $user->save();
+
+        return response()->json(['message' => 'تم تحديث كلمة المرور بنجاح']);
     }
 }
