@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\MapController;
+use App\Http\Controllers\ReportController;
 use App\Http\Controllers\User\UserController;
 use App\Http\Controllers\User\RatingController;
 use App\Http\Controllers\Seller\StoreController;
@@ -11,6 +12,7 @@ use App\Http\Controllers\Seller\ProductController;
 use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\VerifyEmailController;
 use App\Http\Controllers\Seller\DashboardController;
+use App\Http\Controllers\User\NotificationController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
@@ -68,6 +70,8 @@ Route::get('/stores/{id}', [GuestStoreController::class, 'show']);
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/users/{id}', [UserController::class, 'show']);   // عرض الملف الشخصي
     Route::put('/users/{id}', [UserController::class, 'update']); // تعديل الملف الشخصي
+    Route::post('/users/change-password', [UserController::class, 'changePassword']);
+
 });
 // راوت للزوار (مش مسجلين) يشوفوا بيانات عامة فقط
 Route::get('/guest/users/{id}', [GuestUserController::class, 'show']);
@@ -86,3 +90,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/comments/{comment}', [CommentController::class, 'destroy']);
     Route::post('/comments/{comment}/report', [CommentController::class, 'report']);
 });
+
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/reports', [ReportController::class, 'store']);
+});
+
+
+
