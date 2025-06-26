@@ -11,9 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('types', function (Blueprint $table) {
+         Schema::create('reports', function (Blueprint $table) {
             $table->id();
-    $table->string('type');        // اسم نوع الإشعار (زي rating, comment, report...)
+            $table->foreignId('user_id')->constrained()->onDelete('cascade'); // المبلّغ
+            $table->foreignId('reported_user_id')->constrained('users')->onDelete('cascade'); // المبلّغ عنه
+            $table->text('message');
             $table->timestamps();
         });
     }
@@ -23,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('types');
+        Schema::dropIfExists('reports');
     }
 };
