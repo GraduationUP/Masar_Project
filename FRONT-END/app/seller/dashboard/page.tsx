@@ -27,7 +27,7 @@ export default function SellerDashboard() {
     store: {},
   });
   const [user, setUser] = useState(null);
-  const [store, setStore] = useState();
+  const [store, setStore] = useState({});
   const [products, setProducts] = useState<Product[]>([]);
   const [stats, setStats] = useState(0);
 
@@ -249,7 +249,7 @@ export default function SellerDashboard() {
                         </Link>
                       </Button>
                       <Button asChild size="sm">
-                        <Link href={`/stores/${store.id}`}>عرض</Link>
+                        <Link href={`/stores/${data.store.id}`}>عرض</Link>
                       </Button>
                     </div>
                   </CardFooter>

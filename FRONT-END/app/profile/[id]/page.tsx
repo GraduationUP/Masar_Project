@@ -1,9 +1,8 @@
 "use client";
 
-// TODO : add a profile api
-// TODO : change the page layout based on it's owner
+// TODO : Solve api token issue
 
-import { useEffect, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -35,10 +34,14 @@ import { redirect } from "next/navigation";
 import React from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
+import { SuccessAlert } from "@/components/successAlert";
+import { set } from "react-hook-form";
 
 export default function ProfilePage() {
   const params = useParams();
   const [loading, setLoading] = useState(true);
+  const [successAlert, setSucssesAlert] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   interface Store {
     id: any;
@@ -59,7 +62,32 @@ export default function ProfilePage() {
     last_name: string;
     username: string;
     store: Store | null;
+    comments: [];
+    ratings: [];
+    email: string;
   }
+
+  const [ownerData, setOwnerData] = useState<Data>({
+    id: Number,
+    first_name: "",
+    last_name: "",
+    username: "",
+    email: "",
+    role: "",
+    store: {
+      id: null,
+      user_id: null,
+      store_name: "",
+      id_card_photo: "",
+      phone: "",
+      location_address: "",
+      status: null,
+      latitude: null,
+      longitude: null,
+    },
+    comments: [],
+    ratings: [],
+  });
 
   const [data, setData] = useState<Data>({
     id: Number,
@@ -79,17 +107,46 @@ export default function ProfilePage() {
     },
   });
 
+  const [formData, setFormData] = useState({
+    first_name: "",
+    last_name: "",
+    username: "",
+    email: "",
+  });
+
   // For the page owner
-  const userInfoString =
-    typeof window !== "undefined" ? localStorage.getItem("userInfo") : null;
-  const userInfo: Data = userInfoString
-    ? JSON.parse(userInfoString)
-    : {
-        email: "",
-        id: 0,
-        name: "",
-        role: "",
-      };
+  useEffect(() => {
+    async function fetchData() {
+      setLoading(true); // Set loading to true before the fetch
+
+      try {
+        const token = localStorage.getItem("authToken");
+        const response = await fetch(
+          `http://127.0.0.1:8000/api/users/${params.id}`,
+          {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const responseData = await response.json();
+        setOwnerData(responseData);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchData();
+  }, []);
 
   function HandelLogout() {
     localStorage.removeItem("tokenType");
@@ -114,6 +171,50 @@ export default function ProfilePage() {
       });
   }, []);
 
+  async function handleUserInfoEdit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setLoading(true);
+
+    try {
+      const token = localStorage.getItem("authToken");
+      const response = await fetch(
+        `http://127.0.0.1:8000/api/users/${params.id}`,
+        {
+          method: "PUT",
+          body: JSON.stringify(formData), 
+          headers: {
+            "Content-Type": "application/json", 
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to submit the data. Please try again.");
+      }
+
+      const data = await response.json();
+      // Update state with new data if needed
+      setOwnerData(data);
+      setSucssesAlert(true);
+    } catch (error) {
+      console.error(error);
+      // Show error to user
+    } finally {
+      setIsEditing(false);
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    setFormData({
+      first_name: ownerData.first_name,
+      last_name: ownerData.last_name,
+      username: ownerData.username,
+      email: ownerData.email,
+    });
+  }, [ownerData]);
+
   return (
     <div className="container px-4 md:px-6 py-8">
       <div className="flex flex-col w-full gap-8">
@@ -124,7 +225,7 @@ export default function ProfilePage() {
               قم بادارة اعدادت ملفك الشخصي
             </p>
           </div>
-          {userInfo?.name && (
+          {ownerData.first_name !== "" && (
             <div className="flex gap-2">
               <form onSubmit={HandelLogout}>
                 <Button
@@ -139,12 +240,25 @@ export default function ProfilePage() {
             </div>
           )}
         </div>
-        {/* If the visitor wasn't the owner and the profile has no store the sidebar should take the full width */}
         <div className="flex flex-col md:flex-row gap-8">
+            <SuccessAlert
+              message="تم تحديث البيانات بنجاح"
+              show={successAlert}
+              onClose={() => setSucssesAlert(false)}
+            />
           {/* Sidebar */}
           <Card className="w-full md:w-1/3 h-fit">
             <CardContent className="p-6">
-              {data.store !== null && <Badge>صاحب متجر</Badge>}
+              <div className="flex">
+                {data.store !== null && <Badge>صاحب متجر</Badge>}
+                <Image
+                  src={"/reportFlag.svg"}
+                  alt={"report flag"}
+                  width={30}
+                  height={30}
+                />{" "}
+                {/* TODO : add a report button */}
+              </div>
               <div className="flex flex-col items-center text-center">
                 <div className="relative mb-4">
                   <Avatar className="h-24 w-24 border-4 border-background">
@@ -152,7 +266,7 @@ export default function ProfilePage() {
                       {data.first_name.slice(0, 2)}
                     </AvatarFallback>
                   </Avatar>
-                  {userInfo.name && (
+                  {ownerData.first_name !== "" && (
                     <Button
                       size="icon"
                       variant="secondary"
@@ -165,8 +279,6 @@ export default function ProfilePage() {
                 <h2 className="text-xl font-bold mt-2">
                   {data.first_name} {data.last_name}
                 </h2>
-                {/* <Badge className="mt-1">{user.role.charAt(0).toUpperCase() + user.role.slice(1)}</Badge> */}{" "}
-                {/* TODO : add the role */}
                 <p className="text-sm text-muted-foreground mt-2">
                   عضو منذ ابريل 2023
                 </p>
@@ -199,7 +311,7 @@ export default function ProfilePage() {
 
           {/* Main Content */}
           <div className="flex-grow space-y-6 w-full md:w-2/3">
-            {userInfo.name && (
+            {ownerData.first_name !== "" && (
               <Tabs defaultValue="account" className="w-full">
                 <TabsList className="grid w-full grid-cols-4 rounded-lg mb-6">
                   <TabsTrigger value="account" className="rounded-md">
@@ -226,9 +338,11 @@ export default function ProfilePage() {
                     <CardHeader className="flex flex-row items-center justify-between">
                       <div>
                         <CardTitle>المعلومات الشخصية</CardTitle>
-                        <CardDescription>
-                          قم بادارة معلوماتك الشخصية
-                        </CardDescription>
+                        {ownerData.first_name !== "" && (
+                          <CardDescription>
+                            قم بادارة معلوماتك الشخصية
+                          </CardDescription>
+                        )}
                       </div>
                       <Button
                         variant={isEditing ? "ghost" : "outline"}
@@ -244,64 +358,92 @@ export default function ProfilePage() {
                         {isEditing ? "" : "تعديل"}
                       </Button>
                     </CardHeader>
-                    <CardContent className="space-y-4">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                          <Label htmlFor="name">الاسم الأول</Label>
-                          <Input
-                            id="first_name"
-                            value={data.first_name}
-                            disabled={!isEditing}
-                            className="rounded-lg"
-                          />
+                    <form onSubmit={handleUserInfoEdit}>
+                      <CardContent className="space-y-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                            <Label htmlFor="name">الاسم الأول</Label>
+                            <Input
+                              id="first_name"
+                              value={formData.first_name}
+                              disabled={!isEditing}
+                              onChange={(e) =>
+                                setFormData({
+                                  ...formData,
+                                  first_name: e.target.value,
+                                })
+                              }
+                              className="rounded-lg"
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="email">الاسم الأخير</Label>
+                            <Input
+                              id="last_name"
+                              value={formData.last_name}
+                              disabled={!isEditing}
+                              onChange={(e) =>
+                                setFormData({
+                                  ...formData,
+                                  last_name: e.target.value,
+                                })
+                              }
+                              className="rounded-lg"
+                            />
+                          </div>
                         </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="email">الاسم الأخير</Label>
-                          <Input
-                            id="last_name"
-                            value={data.last_name}
-                            disabled={!isEditing}
-                            className="rounded-lg"
-                          />
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                            <Label htmlFor="email">الايميل</Label>
+                            <Input
+                              id="email"
+                              type="email"
+                              value={formData.email}
+                              disabled={!isEditing}
+                              onChange={(e) =>
+                                setFormData({
+                                  ...formData,
+                                  email: e.target.value,
+                                })
+                              }
+                              className="rounded-lg"
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="username">اسم المتسخدم</Label>
+                            <Input
+                              id="username"
+                              value={formData.username}
+                              disabled={!isEditing}
+                              onChange={(e) =>
+                                setFormData({
+                                  ...formData,
+                                  username: e.target.value,
+                                })
+                              }
+                              className="rounded-lg"
+                            />
+                          </div>
                         </div>
-                      </div>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                          <Label htmlFor="name">الايميل</Label>
-                          <Input
-                            id="name"
-                            type="email"
-                            value={"user.email"} // TODO : add email to api
-                            disabled={!isEditing}
-                            className="rounded-lg"
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="email">اسم المتسخدم</Label>
-                          <Input
-                            id="email"
-                            type="email"
-                            value="user.email"
-                            disabled={!isEditing}
-                            className="rounded-lg"
-                          />
-                        </div>
-                      </div>
-                    </CardContent>
-                    {isEditing && (
-                      <CardFooter>
-                        <Button className="ml-auto rounded-full bg-gradient-to-r from-blue-400 to-blue-600 hover:from-blue-500 hover:to-blue-700">
-                          <>
-                            <Check className="mr-2 h-4 w-4" />
-                            حفظ التغييرات
-                          </>
-                        </Button>
-                      </CardFooter>
-                    )}
+                      </CardContent>
+                      {isEditing && (
+                        <CardFooter>
+                          <Button
+                            className="ml-auto rounded-full bg-gradient-to-r from-blue-400 to-blue-600 hover:from-blue-500 hover:to-blue-700"
+                            type="submit"
+                          >
+                            <>
+                              <Check className="mr-2 h-4 w-4" />
+                              حفظ التغييرات
+                            </>
+                          </Button>
+                        </CardFooter>
+                      )}
+                    </form>
                   </Card>
                 </TabsContent>
 
-                {/* ... Security Tab Content ... */}
+                {/* ... Security Tab Content ... TODO : Make this form works */}
                 <TabsContent
                   value="security"
                   className="space-y-6 animate-fade-in"
@@ -362,9 +504,6 @@ export default function ProfilePage() {
                             </div>
                             <div>
                               <p className="font-medium">الحالة</p>
-                              <p className="text-xs text-muted-foreground">
-                                فلسطين . غزة - ابريل 13, 2023
-                              </p>
                             </div>
                           </div>
                           <Badge>نشط</Badge>
