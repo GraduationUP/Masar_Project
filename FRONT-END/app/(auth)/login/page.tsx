@@ -51,9 +51,6 @@ const LoginPage: React.FC = () => {
       localStorage.setItem("tokenType", data.token_type);
       localStorage.setItem("userInfo", JSON.stringify(data.user_info));
 
-      console.log("Login successful:", data.message);
-      console.log("User Info:", data.user_info);
-
       router.push("/");
     } catch (err: any) {
       console.error("Error during sign-in:", err);

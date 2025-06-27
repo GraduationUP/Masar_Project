@@ -1,5 +1,6 @@
 "use client";
 // TODO : edit TypeScript rules when the api is edited
+// TODO : add a delete product backend logic
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
@@ -16,6 +17,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { BarChart3, Package, Plus, Star, StoreIcon, Users } from "lucide-react";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 export default function SellerDashboard() {
   const [data, setData] = useState({
@@ -25,7 +27,7 @@ export default function SellerDashboard() {
     store: {},
   });
   const [user, setUser] = useState(null);
-  const [store, setStore] = useState();
+  const [store, setStore] = useState({});
   const [products, setProducts] = useState<Product[]>([]);
   const [stats, setStats] = useState(0);
 
@@ -74,7 +76,6 @@ export default function SellerDashboard() {
         }
 
         const responseData = await response.json();
-        console.log("Response Data:", responseData); // Log responseData to confirm it has data
         setData(responseData);
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -87,7 +88,6 @@ export default function SellerDashboard() {
   }, []);
 
   useEffect(() => {
-    console.log("Data state updated:", data); // This will now log the data after it's fetched
     setStore(data.store);
     setProducts(data.recent_products);
     setStats(data.recent_comments.length + data.recent_ratings.length);
@@ -108,17 +108,18 @@ export default function SellerDashboard() {
             <p className="text-muted-foreground">إدارة متاجرك و منتجاتك</p>
           </div>
           <div className="flex gap-2">
-            <Button asChild variant="outline">
-              <Link href="/seller/products/new">
-                <Package className="mr-2 h-4 w-4" />
-                إضافة منتج
-              </Link>
-            </Button>
-            {!store && (
+            {!store.name ? (
               <Button asChild>
                 <Link href="/seller/stores/new">
                   <StoreIcon className="mr-2 h-4 w-4" />
                   إنشاء متجر
+                </Link>
+              </Button>
+            ) : (
+              <Button asChild variant="outline">
+                <Link href="/seller/products/new">
+                  <Package className="mr-2 h-4 w-4" />
+                  إضافة منتج
                 </Link>
               </Button>
             )}
@@ -126,31 +127,39 @@ export default function SellerDashboard() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
-                إجمالي المنتجات
-              </CardTitle>
-              <Package className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{products.length}</div>
+          {store.name && (
+            <>
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">
+                    إجمالي المنتجات
+                  </CardTitle>
+                  <Package className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{products.length}</div>
 
-              <p className="text-xs text-muted-foreground">المنتجات المدرجة</p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">الاحصاءات</CardTitle>
-              <Users className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{stats}</div>
-              <p className="text-xs text-muted-foreground">
-                التقييمات والتعليقات
-              </p>
-            </CardContent>
-          </Card>
+                  <p className="text-xs text-muted-foreground">
+                    المنتجات المدرجة
+                  </p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">
+                    الاحصاءات
+                  </CardTitle>
+                  <Users className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{stats}</div>
+                  <p className="text-xs text-muted-foreground">
+                    التقييمات والتعليقات
+                  </p>
+                </CardContent>
+              </Card>
+            </>
+          )}
         </div>
 
         <Tabs defaultValue="stores">
@@ -164,7 +173,7 @@ export default function SellerDashboard() {
               <h2 className="text-xl font-bold tracking-tight">متجري</h2>
             </div>
 
-            {!store ? (
+            {!store.name ? (
               <Card>
                 <CardContent className="flex flex-col items-center justify-center py-6 text-center">
                   <StoreIcon className="h-8 w-8 text-muted-foreground mb-2" />
@@ -182,13 +191,13 @@ export default function SellerDashboard() {
                 <Card key={store.id} className="overflow-hidden">
                   <div className="relative h-32 w-full">
                     <img
-                      src={store.coverImage || "/placeholder.svg"}
+                      src={"/storeBanner.svg"}
                       alt={store.name}
                       className="h-full w-full object-cover"
                     />
                     <div className="absolute bottom-4 left-4 bg-background/80 backdrop-blur-sm rounded-full p-1">
                       <img
-                        src={store.logo || "/placeholder.svg"}
+                        src={"/placeholder-store.png"}
                         alt={`${store.name} logo`}
                         className="h-12 w-12 rounded-full border-2 border-background"
                       />
@@ -240,7 +249,7 @@ export default function SellerDashboard() {
                         </Link>
                       </Button>
                       <Button asChild size="sm">
-                        <Link href={`/stores/${store.id}`}>عرض</Link>
+                        <Link href={`/stores/${data.store.id}`}>عرض</Link>
                       </Button>
                     </div>
                   </CardFooter>
@@ -251,12 +260,14 @@ export default function SellerDashboard() {
           <TabsContent value="products" className="space-y-4">
             <div className="flex items-center justify-between">
               <h2 className="text-xl font-bold tracking-tight">منتجاتي</h2>
-              <Button asChild size="sm">
-                <Link href="/seller/products/new">
-                  <Plus className="mr-2 h-4 w-4" />
-                  إضافة منتج
-                </Link>
-              </Button>
+              {store.name && (
+                <Button asChild size="sm">
+                  <Link href="/seller/products/new">
+                    <Plus className="mr-2 h-4 w-4" />
+                    إضافة منتج
+                  </Link>
+                </Button>
+              )}
             </div>
 
             {products.length === 0 ? (
@@ -267,9 +278,11 @@ export default function SellerDashboard() {
                   <p className="text-sm text-muted-foreground mt-1">
                     أضف منتجات إلى متجرك لبدء البيع.
                   </p>
-                  <Button asChild className="mt-4">
-                    <Link href="/seller/products/new">إضافة منتج</Link>
-                  </Button>
+                  {store.name && (
+                    <Button asChild className="mt-4">
+                      <Link href="/seller/products/new">إضافة منتج</Link>
+                    </Button>
+                  )}
                 </CardContent>
               </Card>
             ) : (
@@ -334,23 +347,23 @@ export default function SellerDashboard() {
                 </CardContent>
               ) : (
                 // TODO : Style this section
-                <div className="space-y-4">
-                  <div className="tabs flex border-b border-gray-200 mb-4">
+                <div className="space-y-6">
+                  <div className="tabs flex border-b border-gray-100">
                     <button
-                      className={`tab-button px-3 py-2 border-none bg-transparent font-semibold cursor-pointer text-gray-600 border-b-2 border-transparent transition-colors duration-300 ${
+                      className={`px-4 py-3 text-sm font-medium transition-colors duration-200 ${
                         activeTab === "التعليقات"
-                          ? "text-black border-b-2 border-black"
-                          : "hover:text-black"
+                          ? "text-primary-500 border-b-2 border-primary-500"
+                          : "text-gray-500 hover:text-gray-700 hover:border-b-2 hover:border-gray-200"
                       }`}
                       onClick={() => handleTabClick("التعليقات")}
                     >
                       التعليقات
                     </button>
                     <button
-                      className={`tab-button px-3 py-2 border-none bg-transparent font-semibold cursor-pointer text-gray-600 border-b-2 border-transparent transition-colors duration-300 ${
+                      className={`px-4 py-3 text-sm font-medium transition-colors duration-200 ${
                         activeTab === "التقييمات"
-                          ? "text-black border-b-2 border-black"
-                          : "hover:text-black"
+                          ? "text-primary-500 border-b-2 border-primary-500"
+                          : "text-gray-500 hover:text-gray-700 hover:border-b-2 hover:border-gray-200"
                       }`}
                       onClick={() => handleTabClick("التقييمات")}
                     >
@@ -358,47 +371,84 @@ export default function SellerDashboard() {
                     </button>
                   </div>
 
-                  {activeTab === "التعليقات" && (
-                    <div className="tab-content py-4">
-                      <h3 className="text-lg font-medium mb-3 text-gray-700">
-                        التعليقات الأخيرة
-                      </h3>
-                      <ul className="list-none p-0">
-                        {data.recent_comments.map((comment) => (
-                          <li
-                            key={comment.created_at}
-                            className="py-2 border-b border-gray-100 last:border-b-0"
-                          >
-                            <strong className="font-semibold text-gray-800">
-                              {comment.user}:
-                            </strong>{" "}
-                            {comment.comment} ({comment.created_at})
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
+                  <div className="rounded-lg bg-white p-4 shadow-xs">
+                    {activeTab === "التعليقات" && (
+                      <div className="tab-content">
+                        <h3 className="mb-4 text-lg font-semibold text-gray-800">
+                          التعليقات الأخيرة
+                        </h3>
+                        <ul className="divide-y divide-gray-100">
+                          {data.recent_comments.map((comment) => (
+                            <li
+                              key={comment.created_at}
+                              className="py-3 border rounded-sm"
+                            >
+                              <div className="flex items-start">
+                                <div className="ml-3">
+                                  <div className="flex items-center gap-1">
+                                    <Avatar className="size-8">
+                                      <AvatarFallback>
+                                        {comment.user.slice(0, 2).toUpperCase()}
+                                      </AvatarFallback>
+                                    </Avatar>
+                                    <p className="text-sm font-medium text-gray-900">
+                                      {comment.user}
+                                    </p>
+                                  </div>
 
-                  {activeTab === "التقييمات" && (
-                    <div className="tab-content py-4">
-                      <h3 className="text-lg font-medium mb-3 text-gray-700">
-                        التقييمات الأخيرة
-                      </h3>
-                      <ul className="list-none p-0">
-                        {data.recent_ratings.map((rating) => (
-                          <li
-                            key={rating.created_at}
-                            className="py-2 border-b border-gray-100 last:border-b-0"
-                          >
-                            <strong className="font-semibold text-gray-800">
-                              {rating.user}:
-                            </strong>{" "}
-                            {rating.score} نجوم ({rating.created_at})
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
+                                  <p className="text-sm text-gray-600">
+                                    {comment.comment}
+                                  </p>
+                                  <p className="mt-1 text-xs text-gray-500">
+                                    {comment.created_at}
+                                  </p>
+                                </div>
+                              </div>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+
+                    {activeTab === "التقييمات" && (
+                      <div className="tab-content">
+                        <h3 className="mb-4 text-lg font-semibold text-gray-800">
+                          التقييمات الأخيرة
+                        </h3>
+                        <ul className="divide-y divide-gray-100">
+                          {data.recent_ratings.map((rating) => (
+                            <li key={rating.created_at} className="py-3">
+                              <div className="flex items-center justify-between">
+                                <div className="flex items-center">
+                                  <div className="ml-3">
+                                    <p className="text-sm font-medium text-gray-900">
+                                      {rating.user}
+                                    </p>
+                                    <div className="flex items-center mt-1">
+                                      {[...Array(5)].map((_, i) => (
+                                        <Star
+                                          key={i}
+                                          className={`w-4 h-4 ${
+                                            i < rating.score
+                                              ? "text-yellow-400"
+                                              : "text-gray-300"
+                                          }`}
+                                          fill="currentColor"
+                                        />
+                                      ))}
+                                    </div>
+                                  </div>
+                                </div>
+                                <span className="text-xs text-gray-500">
+                                  {rating.created_at}
+                                </span>
+                              </div>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </div>
                 </div>
               )}
             </Card>
