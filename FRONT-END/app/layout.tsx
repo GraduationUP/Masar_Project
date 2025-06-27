@@ -7,6 +7,8 @@ import { Toaster } from "@/components/ui/toaster"
 import Header from "@/components/header"
 import Footer from "@/components/Footer"
 
+// TODO : some how add a loading to the header component
+
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {

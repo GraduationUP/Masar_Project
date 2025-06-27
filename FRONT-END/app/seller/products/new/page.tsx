@@ -1,5 +1,4 @@
 "use client";
-// TODO : solve 500 e=internal server error
 import type React from "react";
 
 import { useState, useEffect, lazy, Suspense } from "react";
@@ -25,6 +24,7 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { ChevronLeft, Loader2, Package, Upload } from "lucide-react";
 import { redirect } from "next/navigation";
+import { SuccessAlert } from "@/components/successAlert";
 
 // Dynamically import Leaflet with ssr: false
 const LeafletMap = lazy(() =>
@@ -44,24 +44,25 @@ interface Product {
   id?: number;
   name: string;
   description: string;
-  category_id: string;
-  price: string;
+  category_id: number;
+  price: number;
   latitude: number;
   longitude: number;
-  showLocation: boolean;
+  show_location: boolean;
 }
 
 export default function NewProductPage() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true); // Initialize loading to true
+  const [showSuccess, setShowSuccess] = useState(false);
   const [productData, setProductData] = useState<Product>({
     name: "",
     description: "",
-    category_id: "",
-    price: "",
+    category_id: 1,
+    price: 0,
     latitude: 31.53157982870554,
     longitude: 34.46717173572411,
-    showLocation: false,
+    show_location: false,
   });
 
   const [data, setData] = useState<DashboardData>({
@@ -149,23 +150,14 @@ export default function NewProductPage() {
           responseData as {
             status: boolean;
             data: { id: number; name: string }[];
-          }
-        ); // Type assertion here
+          } // Type assertion here
+        );
       } catch (error) {
         console.error("Error fetching categories:", error);
       }
     }
     fetchCategories();
   }, []);
-
-  useEffect(() => {
-    // Assuming data.store and data.recent_products are correctly typed in your actual response
-    // You might need to adjust this based on the actual structure of 'data'
-    if (data && data.store && data.recent_products) {
-      // setStore(data.store); // Assuming you have a setStore function
-      // setProducts(data.recent_products); // Assuming you have a setProducts function
-    }
-  }, [data]); // Add 'data' to the dependency array
 
   const handleLocationChange = (lat: number, lng: number) => {
     setProductData((prevData) => ({
@@ -195,14 +187,25 @@ export default function NewProductPage() {
       );
 
       if (!response.ok) {
+        console.log(productData);
         const errorData = await response.json();
-        console.error("Error creating product:", errorData); // TODO: Handle error messages to display to the user
+        console.error("Error creating product:", errorData);
       } else {
         const successData = await response.json();
-        console.log("Product created successfully:", successData); // TODO: Redirect the user to the store page or show a success message
+        console.log("Product created successfully:", successData);
+        setShowSuccess(true);
+        setProductData({
+          name: "",
+          description: "",
+          category_id: 1,
+          price: 0,
+          latitude: 31.53157982870554,
+          longitude: 34.46717173572411,
+          show_location: false,
+        });
       }
     } catch (error) {
-      console.error("Error submitting form:", error); // TODO: Handle network errors
+      console.error("Error submitting form:", error);
     } finally {
       setIsSubmitting(false);
     }
@@ -216,7 +219,7 @@ export default function NewProductPage() {
             <Link
               href={
                 data.recent_products?.id
-                  ? `/seller/stores/${data.recent_products.id}` // TODO : Edit links if needed
+                  ? `/seller/stores/${data.recent_products.id}`
                   : "/seller/dashboard"
               }
             >
@@ -231,6 +234,11 @@ export default function NewProductPage() {
           </div>
         </div>
         <form onSubmit={handleSubmit}>
+          <SuccessAlert
+            message="تم اضافة المنتج بنجاح"
+            show={showSuccess}
+            onClose={() => setShowSuccess(false)}
+          />
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div className="lg:col-span-2 space-y-6">
               <Card>
@@ -274,10 +282,13 @@ export default function NewProductPage() {
                   <div className="space-y-2">
                     <Label htmlFor="category">الفئة *</Label>
                     <Select
-                      value={productData.category_id}
-                      onValueChange={(value) =>
-                        setProductData({ ...productData, category_id: value })
-                      }
+                      value={productData.category_id.toString()} // ← Convert number to string for UI
+                      onValueChange={(value) => {
+                        setProductData({
+                          ...productData,
+                          category_id: parseInt(value, 10), // ← Convert string back to number for state
+                        });
+                      }}
                       required
                     >
                       <SelectTrigger id="category" className="rounded-lg">
@@ -285,7 +296,10 @@ export default function NewProductPage() {
                       </SelectTrigger>
                       <SelectContent>
                         {storeCategories.data.map((category) => (
-                          <SelectItem key={category.id} value={category.name}>
+                          <SelectItem
+                            key={category.id}
+                            value={category.id.toString()}
+                          >
                             {category.name}
                           </SelectItem>
                         ))}
@@ -305,7 +319,7 @@ export default function NewProductPage() {
                         onChange={(e) =>
                           setProductData({
                             ...productData,
-                            price: e.target.value,
+                            price: parseFloat(e.target.value),
                           })
                         }
                         required
@@ -316,20 +330,20 @@ export default function NewProductPage() {
                   <div className="flex items-center space-x-2 gap-1">
                     <Switch
                       id="show-location"
-                      checked={productData.showLocation}
+                      checked={productData.show_location}
                       onCheckedChange={(checked) =>
                         setProductData({
                           ...productData,
-                          showLocation: checked,
+                          show_location: checked,
                         })
                       }
                       className="flex flex-row-reverse"
                     />
                     <Label htmlFor="show-location">عرض الموقع</Label>
                   </div>
-                  {productData.showLocation && (
+                  {productData.show_location && (
                     <div className="space-y-4 mt-4">
-                      <Label>اختر موقع المنتج</Label>{" "}
+                      <Label>اختر موقع المنتج</Label>
                       <Suspense fallback={<>جار تحميل الخريطة...</>}>
                         <LeafletMap
                           latitude={productData.latitude}
@@ -394,7 +408,7 @@ export default function NewProductPage() {
                         </span>
                         <span className="text-xs bg-muted px-2 py-1 rounded-full">
                           {storeCategories.data.find(
-                            (cat) => cat.name === productData.category_id
+                            (cat) => cat.id === productData.category_id
                           )?.name || "القسم"}
                         </span>
                       </div>
