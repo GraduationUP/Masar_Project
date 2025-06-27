@@ -25,11 +25,14 @@ class ProductController extends Controller
         return response()->json([
             'status' => true,
             'data' => [
+                                'id' => $product->id,
+
                 'id' => $product->id,
                 'name' => $product->name,
                 'description' => $product->description,
                 'price' => $product->price,
                 'photo' => $product->photo,
+                'store_id' => $product->store_id,
                 'store_name' => $product->store?->store_name,
                 'category_name' => $product->category?->name,
                 'latitude' => $product->latitude,

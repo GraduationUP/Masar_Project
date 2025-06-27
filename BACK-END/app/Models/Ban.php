@@ -14,8 +14,9 @@ class Ban extends Model
         return $this->belongsTo(User::class, 'target_id');
     }
 
-    public function admin() {
-        return $this->belongsTo(User::class, 'banned_by');
-    }
+ public function admin()
+{
+    return $this->belongsTo(\App\Models\User::class, 'banned_by')->select('id', 'username');
+}
 
 }
