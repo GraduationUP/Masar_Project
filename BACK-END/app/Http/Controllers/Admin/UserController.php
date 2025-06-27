@@ -30,40 +30,45 @@ class UserController extends Controller
     /**
      * حظر مستخدم معين من قبل الأدمن
      */
-    public function ban(Request $request, $id)
-    {
-        // تحقق أن الأدمن يملك صلاحية الحظر
-        if (!Auth::user()->can('block users')) {
-            return response()->json(['error' => 'غير مصرح لك بالحظر'], 403);
-        }
-
-        // البحث عن المستخدم المراد حظره
-        $user = User::findOrFail($id);
-
-        // منع حظر أدمن آخر
-        if ($user->hasRole('admin')) {
-            return response()->json(['error' => 'لا يمكن حظر مستخدم يملك دور أدمن'], 403);
-        }
-
-        // التأكد إذا كان المستخدم محظورًا بالفعل
-        if ($user->ban) {
-            return response()->json(['message' => 'المستخدم محظور مسبقًا'], 422);
-        }
-
-        // التحقق من إدخال سبب الحظر
-        $request->validate([
-            'reason' => 'required|string|max:1000',
-        ]);
-
-        // إنشاء سجل الحظر
-        Ban::create([
-            'target_id' => $user->id, // المستخدم المحظور
-            'reason' => $request->reason,
-            'banned_by' => auth::id(), // الأدمن الذي قام بالحظر
-        ]);
-
-        return response()->json(['message' => 'تم حظر المستخدم بنجاح']);
+   public function ban(Request $request, $id)
+{
+    // تحقق أن الأدمن يملك صلاحية الحظر
+    if (!Auth::user()->can('block users')) {
+        return response()->json(['error' => 'غير مصرح لك بالحظر'], 403);
     }
+
+    // البحث عن المستخدم
+    $user = User::findOrFail($id);
+
+    // منع حظر أدمن آخر
+    if ($user->hasRole('admin')) {
+        return response()->json(['error' => 'لا يمكن حظر مستخدم يملك دور أدمن'], 403);
+    }
+
+    // التحقق إذا كان المستخدم محظورًا بالفعل
+    if ($user->ban) {
+        return response()->json(['message' => 'المستخدم محظور مسبقًا'], 422);
+    }
+
+    // التحقق من السبب
+    $request->validate([
+        'reason' => 'required|string|max:1000',
+    ]);
+
+    // إنشاء سجل الحظر
+    Ban::create([
+        'target_id' => $user->id,
+        'reason' => $request->reason,
+        'banned_by' => Auth::id(),
+    ]);
+
+    // إذا المستخدم بائع، يتم إيقاف متجره تلقائيًا
+    if ($user->hasRole('seller') && $user->store) {
+        $user->store->update(['status' => false]);
+    }
+
+    return response()->json(['message' => 'تم حظر المستخدم بنجاح']);
+}
 
     /**
      * فك الحظر عن مستخدم
