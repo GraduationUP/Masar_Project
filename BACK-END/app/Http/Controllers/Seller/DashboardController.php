@@ -68,7 +68,7 @@ class DashboardController extends Controller
                 'latitude' => $store->latitude,
                 'longitude' => $store->longitude,
             ],
-            'recent_products' => $products->take(5)->map(function ($product) {
+            'recent_products' => $products->map(function ($product) {
                 return [
                     'id' => $product->id,
                     'name' => $product->name,
@@ -77,6 +77,8 @@ class DashboardController extends Controller
                     'created_at' => $product->created_at->toDateTimeString(),
                 ];
             }),
+
+
             'recent_ratings' => $recentRatings,
             'recent_comments' => $recentComments,
         ]);
