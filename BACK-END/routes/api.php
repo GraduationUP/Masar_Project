@@ -16,6 +16,8 @@ use App\Http\Controllers\User\NotificationController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Admin\AdminNotificationController;
+use App\Http\Controllers\Admin\UserController as AdminUsersController;
+
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Guest\UserController as GuestUserController;
 use App\Http\Controllers\Auth\EmailVerificationNotificationController;
@@ -100,9 +102,15 @@ Route::middleware('auth:sanctum')->group(function () {
 
 Route::middleware(['auth:sanctum'])->prefix('admin')->group(function () {
     Route::post('/notifications/send', [AdminNotificationController::class, 'send']);
+     Route::get('/users', [AdminUsersController::class, 'index']);
+    Route::post('/users/{id}/ban', [AdminUsersController::class, 'ban']);
+    Route::post('/users/{id}/unban', [AdminUsersController::class, 'unban']);
 });
 
 Route::middleware('auth:sanctum')->get('/notifications', [NotificationController::class, 'index']);
 Route::middleware('auth:sanctum')->patch('/notifications/{id}/read', [NotificationController::class, 'markAsRead']);
 Route::middleware('auth:sanctum')->patch('/notifications/read-all', [NotificationController::class, 'markAllAsRead']);
 Route::middleware('auth:sanctum')->delete('/notifications/{id}', [NotificationController::class, 'destroy']);
+
+
+

@@ -38,10 +38,17 @@ class User extends Authenticatable
         return $this->hasMany(Notification::class);
     }
 
-    public function bans()
+    public function ban()
     {
-        return $this->hasMany(Ban::class, 'target_id');
+        return $this->hasOne(Ban::class, 'target_id');
     }
+public function admin()
+{
+    return $this->belongsTo(\App\Models\User::class, 'banned_by');
+}
+
+
+
 
     /**
      * The attributes that are mass assignable.
