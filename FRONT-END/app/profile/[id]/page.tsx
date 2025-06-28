@@ -345,52 +345,54 @@ export default function ProfilePage() {
                   {data.store !== null && <Badge>صاحب متجر</Badge>}
                 </div>
               )}
-              <Dialog open={open} onOpenChange={setOpen}>
-                <DialogTrigger asChild>
-                  <Button variant={"outline"}>
-                    <Image
-                      src={"/reportFlag.svg"}
-                      alt={"report flag"}
-                      width={30}
-                      height={30}
-                    />
-                  </Button>
-                </DialogTrigger>
-                <DialogContent>
-                  <DialogHeader>
-                    <DialogTitle>الابلاغ عن مستخدم</DialogTitle>
-                    <DialogDescription>
-                      رجاء اكتب سبب كتابة الابلاغ بدقة
-                    </DialogDescription>
-                  </DialogHeader>
-                  <div className="grid gap-4 py-4">
-                    <div className="grid grid-cols-4 items-center gap-4">
-                      <label
-                        htmlFor="message"
-                        className="text-right text-sm font-medium leading-none text-muted-foreground"
-                      >
-                        الرسالة
-                      </label>
-                      <div className="col-span-3">
-                        <Textarea
-                          id="message"
-                          placeholder="اكتب رسالة الابلاغ هنا!"
-                          value={message}
-                          onChange={(e) => setMessage(e.target.value)}
-                        />
+              {isUser && ownerData.first_name === "" && (
+                <Dialog open={open} onOpenChange={setOpen}>
+                  <DialogTrigger asChild>
+                    <Button variant={"outline"}>
+                      <Image
+                        src={"/reportFlag.svg"}
+                        alt={"report flag"}
+                        width={30}
+                        height={30}
+                      />
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>الابلاغ عن مستخدم</DialogTitle>
+                      <DialogDescription>
+                        رجاء اكتب سبب كتابة الابلاغ بدقة
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="grid gap-4 py-4">
+                      <div className="grid grid-cols-4 items-center gap-4">
+                        <label
+                          htmlFor="message"
+                          className="text-right text-sm font-medium leading-none text-muted-foreground"
+                        >
+                          الرسالة
+                        </label>
+                        <div className="col-span-3">
+                          <Textarea
+                            id="message"
+                            placeholder="اكتب رسالة الابلاغ هنا!"
+                            value={message}
+                            onChange={(e) => setMessage(e.target.value)}
+                          />
+                        </div>
                       </div>
                     </div>
-                  </div>
-                  <DialogFooter>
-                    <DialogClose asChild>
-                      <Button variant="secondary">الغاء</Button>
-                    </DialogClose>
-                    <Button onClick={() => handleSendReport(message)}>
-                      ارسال الابلاغ
-                    </Button>
-                  </DialogFooter>
-                </DialogContent>
-              </Dialog>
+                    <DialogFooter>
+                      <DialogClose asChild>
+                        <Button variant="secondary">الغاء</Button>
+                      </DialogClose>
+                      <Button onClick={() => handleSendReport(message)}>
+                        ارسال الابلاغ
+                      </Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
+              )}
               <div className="flex flex-col items-center text-center">
                 <div className="relative mb-4">
                   <Avatar className="h-24 w-24 border-4 border-background">

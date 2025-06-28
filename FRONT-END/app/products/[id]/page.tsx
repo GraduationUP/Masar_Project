@@ -252,15 +252,12 @@ export default function ProductPage() {
         {/* Product Tabs */}
         <div className="mt-8">
           <Tabs defaultValue="details" className="w-full">
-            <TabsList className="grid w-full grid-cols-3 rounded-lg mb-6">
+            <TabsList className="grid w-full grid-cols-2 rounded-lg mb-6">
               <TabsTrigger value="details" className="rounded-md">
-                Details
+                التفاصيل
               </TabsTrigger>
               <TabsTrigger value="reviews" className="rounded-md">
-                Reviews
-              </TabsTrigger>
-              <TabsTrigger value="shipping" className="rounded-md">
-                Shipping
+                التقييمات
               </TabsTrigger>
             </TabsList>
             <TabsContent value="details" className="animate-fade-in">
