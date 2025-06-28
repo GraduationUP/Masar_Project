@@ -70,10 +70,11 @@ class RegisteredUserController extends Controller
      * تحويل account_type إلى اسم دور مناسب
      */
     protected function mapAccountTypeToRole(string $accountType): string
-    {
-        return match ($accountType) {
-            'seller' => 'seller',
-            default => 'user',
-        };
-    }
+{
+    return match ($accountType) {
+        'seller' => 'seller',
+        'admin'  => 'admin',
+        default  => 'user',
+    };
+}
 }
