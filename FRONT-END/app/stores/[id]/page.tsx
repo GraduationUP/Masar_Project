@@ -1,5 +1,7 @@
 "use client";
 
+// TODO : Handele redirect if there was no store
+
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
