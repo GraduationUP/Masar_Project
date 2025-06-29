@@ -7,17 +7,22 @@ use App\Http\Controllers\User\UserController;
 use App\Http\Controllers\User\RatingController;
 use App\Http\Controllers\Seller\StoreController;
 use App\Http\Controllers\User\CommentController;
+use App\Http\Controllers\Admin\AdminMapController;
 use App\Http\Controllers\Guest\CategoryController;
 use App\Http\Controllers\Seller\ProductController;
+use App\Http\Controllers\Admin\AdminStoreController;
 use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\VerifyEmailController;
 use App\Http\Controllers\Seller\DashboardController;
 use App\Http\Controllers\User\NotificationController;
+use App\Http\Controllers\Admin\AdminProductController;
 use App\Http\Controllers\Auth\RegisteredUserController;
+
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Admin\AdminNotificationController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Guest\UserController as GuestUserController;
+use App\Http\Controllers\Admin\UserController as AdminUsersController;
 use App\Http\Controllers\Auth\EmailVerificationNotificationController;
 use App\Http\Controllers\Guest\StoreController as GuestStoreController;
 use App\Http\Controllers\Seller\StoreController as SellerStoreController;
@@ -100,9 +105,32 @@ Route::middleware('auth:sanctum')->group(function () {
 
 Route::middleware(['auth:sanctum'])->prefix('admin')->group(function () {
     Route::post('/notifications/send', [AdminNotificationController::class, 'send']);
+     Route::get('/users', [AdminUsersController::class, 'index']);
+    Route::post('/users/{id}/ban', [AdminUsersController::class, 'ban']);
+    Route::post('/users/{id}/unban', [AdminUsersController::class, 'unban']);
 });
 
 Route::middleware('auth:sanctum')->get('/notifications', [NotificationController::class, 'index']);
 Route::middleware('auth:sanctum')->patch('/notifications/{id}/read', [NotificationController::class, 'markAsRead']);
 Route::middleware('auth:sanctum')->patch('/notifications/read-all', [NotificationController::class, 'markAllAsRead']);
 Route::middleware('auth:sanctum')->delete('/notifications/{id}', [NotificationController::class, 'destroy']);
+
+Route::middleware(['auth:sanctum'])->prefix('admin')->group(function () {
+    Route::get('/stores', [AdminStoreController::class, 'index']);
+    Route::get('/stores/{id}', [AdminStoreController::class, 'show']);
+    Route::put('/stores/{id}/ban', [AdminStoreController::class, 'banStore']);
+    Route::put('/stores/{id}/unban', [AdminStoreController::class, 'unbanStore']);
+    Route::delete('/stores/{id}', [AdminStoreController::class, 'destroy']);
+     Route::put('/stores/{id}/status', [AdminStoreController::class, 'updateStatus']);
+
+     Route::get('/products', [AdminProductController::class, 'index']);
+    Route::get('/products/{id}', [AdminProductController::class, 'show']);
+    Route::delete('/products/{id}', [AdminProductController::class, 'destroy']);
+
+     Route::get('/map', [AdminMapController::class, 'index']);
+    Route::post('/map', [AdminMapController::class, 'store']);
+    Route::put('/map/{id}', [AdminMapController::class, 'update']);
+    Route::delete('/map/{id}', [AdminMapController::class, 'destroy']);
+
+});
+
