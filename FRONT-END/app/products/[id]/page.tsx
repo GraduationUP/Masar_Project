@@ -29,6 +29,7 @@ interface Products {
   status: Boolean;
   data: {
     id: Number;
+    store_id: Number;
     name: String;
     description: String;
     price: String;
@@ -39,6 +40,8 @@ interface Products {
     longitude: any;
     show_location: any;
     created_at: String;
+    updated_at: String;
+    location_address: String;
   };
 }
 
@@ -50,6 +53,7 @@ export default function ProductPage() {
     status: true,
     data: {
       id: 0,
+      store_id: 0,
       name: "",
       description: "",
       price: "",
@@ -60,6 +64,8 @@ export default function ProductPage() {
       longitude: null,
       show_location: null,
       created_at: "",
+      updated_at: "",
+      location_address: "",
     },
   });
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
@@ -257,7 +263,7 @@ export default function ProductPage() {
                 التفاصيل
               </TabsTrigger>
               <TabsTrigger value="reviews" className="rounded-md">
-                التقييمات
+                بضائع مشابهة
               </TabsTrigger>
             </TabsList>
             <TabsContent value="details" className="animate-fade-in">
@@ -265,27 +271,25 @@ export default function ProductPage() {
                 <CardContent className="p-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     <div>
-                      <h3 className="text-lg font-bold mb-4">
-                        Product Details
-                      </h3>
+                      <h3 className="text-lg font-bold mb-4">تفاصيل المنتج</h3>
                       <div className="space-y-3">
                         <div className="grid grid-cols-2 gap-2 py-2 border-b">
-                          <span className="text-muted-foreground">
-                            Category
-                          </span>
+                          <span className="text-muted-foreground">القسم</span>
                           <span>{products.data.category_name}</span>
                         </div>
                         <div className="grid grid-cols-2 gap-2 py-2 border-b">
-                          <span className="text-muted-foreground">Store</span>
-                          {/* <Link
-                            href={`/stores/${store.id}`}
+                          <span className="text-muted-foreground">المتجر</span>
+                          <Link
+                            href={`/stores/${products.data.store_id}`}
                             className="text-primary hover:underline"
                           >
-                            {store.name}
-                          </Link> TODO */}
+                            {products.data.store_name}
+                          </Link>
                         </div>
                         <div className="grid grid-cols-2 gap-2 py-2 border-b">
-                          <span className="text-muted-foreground">Added</span>
+                          <span className="text-muted-foreground">
+                            تاريخ الاضافة
+                          </span>
                           <span>
                             {new Date(
                               products.data.created_at
@@ -295,9 +299,7 @@ export default function ProductPage() {
                       </div>
                     </div>
                     <div>
-                      <h3 className="text-lg font-bold mb-4">
-                        Product Location
-                      </h3>
+                      <h3 className="text-lg font-bold mb-4">موقع المنتج</h3>
                       <div className="h-64 rounded-lg overflow-hidden">
                         {/* <MapWithNoSSR
                           center={[
@@ -319,7 +321,7 @@ export default function ProductPage() {
                       </div>
                       <div className="flex items-center gap-2 mt-2 text-sm text-muted-foreground">
                         <MapPin className="h-4 w-4" />
-                        {/* <span>{store.location.address}</span> TODO */}
+                        <span>{products.data.location_address}</span>
                       </div>
                     </div>
                   </div>
@@ -351,9 +353,9 @@ export default function ProductPage() {
                     <div className="pb-4 border-b">
                       <h4 className="font-medium mb-2">Delivery Options</h4>
                       <p className="text-sm text-muted-foreground">
-                        This product is available for pickup
-                        from {products.data.store_name}. Please check the store's opening
-                        hours for pickup availability.
+                        This product is available for pickup from{" "}
+                        {products.data.store_name}. Please check the store's
+                        opening hours for pickup availability.
                       </p>
                     </div>
                     <div className="pb-4 border-b">
@@ -424,7 +426,7 @@ export default function ProductPage() {
           </Tabs>
         </div>
 
-        {/* Related Products */}
+        {/* Related Products TODO */}
         {/* {relatedProducts.length > 0 && (
           <div className="mt-12">
             <div className="flex items-center justify-between mb-6">
