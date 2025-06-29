@@ -25,8 +25,6 @@ class ProductController extends Controller
         return response()->json([
             'status' => true,
             'data' => [
-                                'id' => $product->id,
-
                 'id' => $product->id,
                 'name' => $product->name,
                 'description' => $product->description,
@@ -38,6 +36,7 @@ class ProductController extends Controller
                 'latitude' => $product->latitude,
                 'longitude' => $product->longitude,
                 'show_location' => $product->show_location,
+                'location_address' => $product->location_address,
                 'created_at' => $product->created_at->toDateTimeString(),
             ]
         ]);

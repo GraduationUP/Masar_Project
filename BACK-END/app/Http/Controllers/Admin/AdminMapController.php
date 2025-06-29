@@ -14,93 +14,80 @@ class AdminMapController extends Controller
      *  - كل الخدمات (store / market / warehouse) مهما كانت حالتها
      *  - كل المتاجر (نشطة أو معطَّلة)
      */
+
     public function index()
     {
-        // الخدمات من جدول services
-        $services = Service::all()->map(function ($service) {
-            return [
-                'id'        => $service->id,
-                'name'      => $service->name,
-                'type'      => $service->type,      // store | market | warehouse
-                'latitude'  => (float) $service->latitude,
-                'longitude' => (float) $service->longitude,
-                'status'    => (bool)  $service->status,
-            ];
-        });
 
-        // المتاجر من جدول stores
-        $stores = Store::all()->map(function ($store) {
-            return [
-                'id'        => $store->id,
-                'name'      => $store->store_name,
-                'type'      => 'store',            // نوحّدها مع نوع service
-                'latitude'  => (float) $store->latitude,
-                'longitude' => (float) $store->longitude,
-                'status'    => (bool)  $store->status,
-            ];
-        });
+    return response()->json([
+        'city' => 'غزة',
 
-        // دمج النتائج
-        $points = $services->merge($stores);
+        'aids' => Service::where('type', 'aid')->get()->map(fn($s) => [
+            'name' => $s->name,
+            'status' => (bool) $s->status,
+            'coordinates' => json_decode($s->coordinates),
+        ]),
 
-        return response()->json([
-            'status' => true,
-            'data'   => $points
-        ]);
-    }
+        'markets' => Service::where('type', 'market')->get()->map(fn($s) => [
+            'name' => $s->name,
+            'status' => (bool) $s->status,
+            'coordinates' => json_decode($s->coordinates),
+        ]),
 
-    /* ───────── الدوال السابقة (store / update / destroy) كما هي ───────── */
+        'GasStations' => Service::where('type', 'gas_station')->get()->map(fn($s) => [
+            'name' => $s->name,
+            'status' => (bool) $s->status,
+            'coordinates' => json_decode($s->coordinates),
+        ]),
 
-    public function store(Request $request)
+        'stores' => Store::all()->map(fn($store) => [
+            'name' => $store->store_name,
+            'status' => (bool) $store->status,
+            'coordinates' => [(float) $store->latitude, (float) $store->longitude],
+        ]),
+    ]);
+}
+
+
+
+public function store(Request $request)
     {
         $request->validate([
-            'name'      => 'required|string',
-            'type'      => 'required|in:store,market,warehouse',
-            'latitude'  => 'required',
-            'longitude' => 'required',
+            'name'        => 'required|string|max:255',
+            'type'        => 'required|in:store,market,warehouse,aid,gas_station',
+            'coordinates' => 'required|json', // نتوقع نص JSON لمصفوفة الإحداثيات
+            'status'      => 'boolean',
         ]);
 
         $service = Service::create([
-            'name'      => $request->name,
-            'type'      => $request->type,
-            'latitude'  => $request->latitude,
-            'longitude' => $request->longitude,
-            'status'    => true,
+            'name'        => $request->name,
+            'type'        => $request->type,
+            'coordinates' => $request->coordinates,  // نخزن JSON كما هو
+            'status'      => $request->status ?? true, // افتراضيًا مفعّل
         ]);
 
         return response()->json([
-            'message' => 'Service point added successfully.',
-            'data'    => $service
+            'message' => 'Service added successfully.',
+            'data'    => $service,
         ]);
     }
 
+    // تعديل خدمة موجودة
     public function update(Request $request, $id)
     {
         $service = Service::findOrFail($id);
 
         $request->validate([
-            'name'      => 'sometimes|string',
-            'type'      => 'sometimes|in:store,market,warehouse',
-            'latitude'  => 'sometimes',
-            'longitude' => 'sometimes',
-            'status'    => 'sometimes|boolean',
+            'name'        => 'sometimes|string|max:255',
+            'type'        => 'sometimes|in:store,market,warehouse,aid,gas_station',
+            'coordinates' => 'sometimes|json',
+            'status'      => 'sometimes|boolean',
         ]);
 
-        $service->update($request->only(['name', 'type', 'latitude', 'longitude', 'status']));
+        $service->update($request->only(['name', 'type', 'coordinates', 'status']));
 
         return response()->json([
-            'message' => 'Service point updated successfully.',
-            'data'    => $service
-        ]);
-    }
-
-    public function destroy($id)
-    {
-        $service = Service::findOrFail($id);
-        $service->delete();
-
-        return response()->json([
-            'message' => 'Service point deleted successfully.'
+            'message' => 'Service updated successfully.',
+            'data'    => $service,
         ]);
     }
 }

@@ -134,3 +134,4 @@ Route::middleware(['auth:sanctum'])->prefix('admin')->group(function () {
 
 });
 
+Route::get('/map-data/structured', [MapController::class, 'getStructuredMapData']);

@@ -18,6 +18,8 @@ class ProductFactory extends Factory
             'description' => $this->faker->sentence,
             'price' => $this->faker->randomFloat(2, 5, 100),
             'category_id' => 1,
+           'latitude' => $request->latitude ?? $product->latitude ?? 31.41,
+            'longitude' => $request->longitude ?? $product->longitude ?? 34.39,
         ];
     }
 }

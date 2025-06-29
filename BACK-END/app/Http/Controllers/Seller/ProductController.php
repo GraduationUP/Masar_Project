@@ -42,8 +42,8 @@ class ProductController extends Controller
                 'photo'         => $photoPath,
                 'category_id'   => $request->category_id,
                 'price'         => $request->price,
-                'latitude'      => $request->latitude,
-                'longitude'     => $request->longitude,
+                'latitude' => $request->latitude ?? 31.41,
+                'longitude' => $request->longitude ?? 34.39,
                 'show_location' => $request->boolean('show_location', true),
             ]);
 
@@ -69,8 +69,13 @@ class ProductController extends Controller
 
         try {
             $updateData = $request->only([
-                'name', 'description', 'category_id',
-                'price', 'latitude', 'longitude', 'show_location'
+                'name',
+                'description',
+                'category_id',
+                'price',
+                'latitude',
+                'longitude',
+                'show_location'
             ]);
 
             if ($request->hasFile('photo')) {
