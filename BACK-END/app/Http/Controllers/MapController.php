@@ -3,43 +3,43 @@
 namespace App\Http\Controllers;
 
 use App\Models\Store;
+use App\Models\Service;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 
 class MapController extends Controller
 {
    public function getMapData()
-   {
-      $filePath = resource_path('data/mapData.json');
+{
+    // أولًا: الخدمات من جدول services
+    $services = Service::where('status', true)->get()->map(function ($service) {
+        return [
+            'id' => $service->id,
+            'name' => $service->name,
+            'type' => $service->type, // store / market / warehouse
+            'latitude' => (float) $service->latitude,
+            'longitude' => (float) $service->longitude,
+        ];
+    });
 
-      if (!file_exists($filePath)) {
-         return response()->json([
-            'message' => 'Map data file not found.',
-         ], 404);
-      }
+    // ثانيًا: المتاجر النشطة من جدول stores
+    $activeStores = Store::where('status', 1)->get()->map(function ($store) {
+        return [
+            'id' => $store->id,
+            'name' => $store->store_name,
+            'type' => 'store', // نوحدها مع نوع service
+            'latitude' => (float) $store->latitude,
+            'longitude' => (float) $store->longitude,
+        ];
+    });
 
-      // قراءة البيانات من ملف json
-      $json = file_get_contents($filePath);
-      $mapData = json_decode($json, true);
+    // دمج النتائج في مصفوفة وحدة
+    $combined = $services->merge($activeStores);
 
-      // جلب المتاجر من قاعدة البيانات
-      $stores = Store::select('id', 'store_name', 'latitude', 'longitude')
-         ->whereNotNull('latitude')
-         ->whereNotNull('longitude')
-         ->get()
-         ->map(function ($store) {
-            return [
-               'id' => $store->id,
-               'name' => $store->store_name,
-               'latitude' => (float) $store->latitude,
-               'longitude' => (float) $store->longitude,
-               'link' => url("/api/stores/" . $store->id),
-            ];
-         });
+    return response()->json([
+        'status' => true,
+        'data' => $combined
+    ]);
+}
 
-      // دمج المتاجر مع بيانات الجيسون
-      $mapData['stores'] = $stores;
-
-      return response()->json($mapData);
-   }
 }

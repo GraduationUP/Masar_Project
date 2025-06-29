@@ -7,16 +7,19 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Ban extends Model
 {
-        use HasFactory;
+    use HasFactory;
 
-        protected $guarded = [];
-         public function target() {
+    protected $guarded = [];
+    public function target()
+    {
         return $this->belongsTo(User::class, 'target_id');
     }
 
- public function admin()
-{
-    return $this->belongsTo(\App\Models\User::class, 'banned_by')->select('id', 'username');
-}
-
+    public function admin()
+    {
+        return $this->belongsTo(\App\Models\User::class, 'banned_by')->select('id', 'username');
+    }
+    protected $casts = [
+        'expires_at' => 'datetime',
+    ];
 }

@@ -7,10 +7,12 @@ use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Carbon\Carbon;
 
 class AuthenticatedSessionController extends Controller
 {
-    // تسجيل الدخول وإنشاء توكن
+
+
     public function store(Request $request)
     {
         try {
@@ -21,7 +23,7 @@ class AuthenticatedSessionController extends Controller
 
             $user = \App\Models\User::where('email', $request->email)->first();
 
-            // ✅ التحقق من وجود المستخدم
+            // تحقق من صحة البيانات
             if (!$user || !\Illuminate\Support\Facades\Hash::check($request->password, $user->password)) {
                 return response()->json([
                     'response_code' => 401,
@@ -30,16 +32,29 @@ class AuthenticatedSessionController extends Controller
                 ], 401);
             }
 
-            // ✅ التحقق من الحظر
+            // التحقق من وجود حظر
             if ($user->ban) {
-                return response()->json([
-                    'response_code' => 403,
-                    'status'  => 'banned',
-                    'message'   => 'تم حظرك مؤقتًا من استخدام المنصة بسبب: ' . $user->ban->reason,
-                ], 403);
-            }
+    // إذا الحظر منتهي نحذفه تلقائي
+    if ($user->ban->expires_at && now()->greaterThanOrEqualTo($user->ban->expires_at)) {
+        $user->ban->delete();
 
-            // ✅ تسجيل الدخول
+        // إن كان المستخدم بائع، يتم تفعيل متجره تلقائياً
+        if ($user->hasRole('seller') && $user->store) {
+            $user->store->update(['status' => true]);
+        }
+
+    } else {
+        // لا يزال محظورًا
+        return response()->json([
+            'response_code' => 403,
+            'status' => 'error',
+            'message' => 'تم حظرك مؤقتاً حتى ' . optional($user->ban->expires_at)->format('Y-m-d H:i'),
+        ], 403);
+    }
+}
+
+
+            // تسجيل الدخول وإنشاء توكن
             Auth::login($user);
             $token = $user->createToken('authToken')->plainTextToken;
 
@@ -51,7 +66,7 @@ class AuthenticatedSessionController extends Controller
                     'id' => $user->id,
                     'name' => $user->first_name . ' ' . $user->last_name,
                     'email' => $user->email,
-                    'role' => $user->getRoleNames()->first()
+                    'role' => $user->getRoleNames()->first(),
                 ],
                 'token'   => $token,
                 'token_type' => 'Bearer',
@@ -64,44 +79,12 @@ class AuthenticatedSessionController extends Controller
                 'errors'  => $e->errors(),
             ], 422);
         } catch (\Exception $e) {
-            \Illuminate\Support\Facades\Log::error('Login Error: ' . $e->getMessage());
+            Log::error('Login Error: ' . $e->getMessage());
 
             return response()->json([
                 'response_code' => 500,
                 'status'  => 'error',
-                'message'  => 'Login failed',
-            ], 500);
-        }
-    }
-
-
-    public function destroy(Request $request)
-    {
-        try {
-            $user = $request->user();
-
-            if ($user) {
-                $user->tokens()->delete();
-
-                return response()->json([
-                    'response_code' => 200,
-                    'status'        => 'success',
-                    'message'       => 'Successfully logged out',
-                ]);
-            }
-
-            return response()->json([
-                'response_code' => 401,
-                'status'        => 'error',
-                'message'       => 'User not authenticated',
-            ], 401);
-        } catch (\Exception $e) {
-            Log::error('Logout Error: ' . $e->getMessage());
-
-            return response()->json([
-                'response_code' => 500,
-                'status'        => 'error',
-                'message'       => 'An error occurred during logout',
+                'message'   => 'Login failed',
             ], 500);
         }
     }

@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use Carbon\Carbon;
 
 class UserController extends Controller
 {
@@ -50,16 +51,38 @@ class UserController extends Controller
             return response()->json(['message' => 'المستخدم محظور مسبقًا'], 422);
         }
 
-        // التحقق من السبب
-        $request->validate([
-            'reason' => 'required|string|max:1000',
-        ]);
+
+           $request->validate([
+        'reason' => 'required|string|max:1000',
+        'duration_value' => 'required|integer|min:1',
+        'duration_unit' => 'required|string|in:minutes,hours,days',
+    ]);
+
+
+$durationValue = $request->input('duration_value');
+$durationUnit = $request->input('duration_unit');
+
+switch ($durationUnit) {
+    case 'minutes':
+        $expiresAt = Carbon::now()->addMinutes($durationValue);
+        break;
+    case 'hours':
+        $expiresAt = Carbon::now()->addHours($durationValue);
+        break;
+    case 'days':
+        $expiresAt = Carbon::now()->addDays($durationValue);
+        break;
+    default:
+        $expiresAt = null; // في حال وحدة غير معروفة، اعتبر حظر دائم
+}
 
         // إنشاء سجل الحظر
         Ban::create([
             'target_id' => $user->id,
             'reason' => $request->reason,
             'banned_by' => Auth::id(),
+          'expires_at' =>$expiresAt,
+
         ]);
 
         // إذا المستخدم بائع، يتم إيقاف متجره تلقائيًا
@@ -73,22 +96,23 @@ class UserController extends Controller
     /**
      * فك الحظر عن مستخدم
      */
-    public function unban($id)
-    {
-        $user = User::findOrFail($id);
+ public function unban($id)
+{
+    $user = User::findOrFail($id);
 
-        if (!$user->ban) {
-            return response()->json(['message' => 'المستخدم غير محظور'], 422);
-        }
-
-        // حذف سجل الحظر
-        $user->ban->delete();
-
-        // إذا المستخدم بائع، يتم تفعيل المتجر الخاص به
-        if ($user->hasRole('seller') && $user->store) {
-            $user->store->update(['is_active' => true]);
-        }
-
-        return response()->json(['message' => 'تم فك الحظر عن المستخدم بنجاح']);
+    if (!$user->ban) {
+        return response()->json(['message' => 'المستخدم غير محظور'], 422);
     }
+
+    // حذف الحظر
+    $user->ban->delete();
+
+    // تفعيل المتجر إذا كان المستخدم بائع
+    if ($user->hasRole('seller') && $user->store) {
+        $user->store->update(['status' => true]);
+    }
+
+    return response()->json(['message' => 'تم فك الحظر عن المستخدم بنجاح']);
+}
+
 }
