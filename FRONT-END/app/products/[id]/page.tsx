@@ -4,12 +4,11 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   Clock,
   MapPin,
@@ -21,9 +20,20 @@ import {
   ChevronRight,
   Plus,
   Minus,
+  Loader2,
 } from "lucide-react";
-import { useToast } from "@/components/ui/use-toast";
-import FavoriteButton from "@/components/favorite-button";
+import dynamic from "next/dynamic";
+
+
+const MapWithNoSSR = dynamic(() => import("@/components/mapWithNoSSR"), {
+  ssr: false,
+  loading: () => (
+    <div className="h-full w-full bg-muted/30 animate-pulse flex items-center justify-center">
+      <Loader2 className="h-8 w-8 text-muted-foreground animate-spin" />
+      <span className="sr-only">جار تحميل الخريطة...</span>
+    </div>
+  ),
+})
 
 interface Products {
   status: Boolean;
@@ -40,14 +50,11 @@ interface Products {
     longitude: any;
     show_location: any;
     created_at: String;
-    updated_at: String;
     location_address: String;
   };
 }
 
 export default function ProductPage() {
-  const router = useRouter();
-  const { toast } = useToast();
   const [loading, setLoading] = useState(true);
   const [products, setProducts] = useState<Products>({
     status: true,
@@ -60,14 +67,14 @@ export default function ProductPage() {
       photo: "",
       store_name: "",
       category_name: "",
-      latitude: null,
-      longitude: null,
+      latitude: 0,
+      longitude: 0,
       show_location: null,
       created_at: "",
-      updated_at: "",
       location_address: "",
     },
   });
+  const [similerProducts, SetSimilerProducts] = useState();
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
   const params = useParams();
 
@@ -115,22 +122,22 @@ export default function ProductPage() {
         {/* Breadcrumb */}
         <nav className="flex items-center text-sm text-muted-foreground">
           <Link href="/" className="hover:text-primary transition-colors">
-            Home
+            الرئيسية
           </Link>
           <ChevronRight className="h-4 w-4 mx-2" />
           <Link
             href="/marketplace"
             className="hover:text-primary transition-colors"
           >
-            Marketplace
+            السوق
           </Link>
           <ChevronRight className="h-4 w-4 mx-2" />
-          {/* <Link
-            href={`/stores/${store.id}`}
+          <Link
+            href={`/stores/${products.data.store_id}`}
             className="hover:text-primary transition-colors"
-          > TODO */}
-          {/* {products.data.store_name}
-          </Link> */}
+          >
+            {products.data.store_name}
+          </Link>
           <ChevronRight className="h-4 w-4 mx-2" />
           <span className="text-foreground font-medium truncate">
             {products.data.name}
@@ -174,56 +181,8 @@ export default function ProductPage() {
                 <span className="text-3xl font-bold">
                   ${Number(products.data.price).toFixed(2)}
                 </span>
-                {/* {product.inStock && (
-                  <span className="text-sm text-muted-foreground">
-                    Available for {store.categories.includes("Groceries") ? "pickup" : "delivery"}
-                  </span>
-                )} */}
               </div>
             </div>
-            {/*             
-              <div className="flex items-center gap-4">
-                <div className="flex items-center border rounded-full overflow-hidden">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="rounded-none h-10 w-10"
-                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                  >
-                    <Minus className="h-4 w-4" />
-                  </Button>
-                  <span className="w-10 text-center">{quantity}</span>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="rounded-none h-10 w-10"
-                    onClick={() => setQuantity(quantity + 1)}
-                  >
-                    <Plus className="h-4 w-4" />
-                  </Button>
-                </div>
-                <Button
-                  className="flex-1 rounded-full bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700"
-                  onClick={handleAddToCart}
-                >
-                  <ShoppingBag className="mr-2 h-4 w-4" />
-                  Add to Cart
-                </Button>
-                <FavoriteButton itemId={product.id} itemType="product" />
-                <Button variant="outline" size="icon" className="rounded-full">
-                  <Share2 className="h-4 w-4" />
-                </Button>
-              </div> */}
-
-            {/* {!product.inStock && (
-              <Button
-                variant="outline"
-                className="w-full rounded-full"
-                disabled
-              >
-                Out of Stock
-              </Button>
-            )} */}
 
             {/* Store Quick Info */}
             <Card className="mt-6 card-hover">
@@ -238,7 +197,9 @@ export default function ProductPage() {
                     <h3 className="font-bold">{products.data.store_name}</h3>
                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
                       <MapPin className="h-3.5 w-3.5" />
-                      {/* <span className="truncate">{store.location.address}</span> TODO */}
+                      <span className="truncate">
+                        {products.data.location_address}
+                      </span>
                     </div>
                   </div>
                   <Button
@@ -247,7 +208,9 @@ export default function ProductPage() {
                     size="sm"
                     className="rounded-full"
                   >
-                    {/* <Link href={`/stores/${store.id}`}>View Store</Link> TODO */}
+                    <Link href={`/stores/${products.data.store_id}`}>
+                      عرض المتجر
+                    </Link>
                   </Button>
                 </div>
               </CardContent>
@@ -258,12 +221,9 @@ export default function ProductPage() {
         {/* Product Tabs */}
         <div className="mt-8">
           <Tabs defaultValue="details" className="w-full">
-            <TabsList className="grid w-full grid-cols-2 rounded-lg mb-6">
+            <TabsList className="grid w-full grid-cols-1 rounded-lg mb-6">
               <TabsTrigger value="details" className="rounded-md">
                 التفاصيل
-              </TabsTrigger>
-              <TabsTrigger value="reviews" className="rounded-md">
-                بضائع مشابهة
               </TabsTrigger>
             </TabsList>
             <TabsContent value="details" className="animate-fade-in">
@@ -303,17 +263,17 @@ export default function ProductPage() {
                       <div className="h-64 rounded-lg overflow-hidden">
                         {/* <MapWithNoSSR
                           center={[
-                            product.location?.lat || store.location.lat,
-                            product.location?.lng || store.location.lng,
+                            products.data.latitude,
+                            products.data.longitude,
                           ]}
                           zoom={15}
                           markers={[
                             {
                               position: [
-                                product.location?.lat || store.location.lat,
-                                product.location?.lng || store.location.lng,
+                                products.data.latitude,
+                                products.data.longitude,
                               ],
-                              title: store.name,
+                              title: products.data.store_name,
                               type: "store",
                             },
                           ]}
@@ -324,21 +284,6 @@ export default function ProductPage() {
                         <span>{products.data.location_address}</span>
                       </div>
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-            <TabsContent value="reviews" className="animate-fade-in">
-              <Card>
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between mb-6">
-                    <h3 className="text-lg font-bold">Customer Reviews</h3>
-                    {/* {user && (
-                      <Button className="rounded-full">
-                        <MessageSquare className="mr-2 h-4 w-4" />
-                        Write a Review
-                      </Button>
-                    )} */}
                   </div>
                 </CardContent>
               </Card>

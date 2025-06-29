@@ -1,45 +1,55 @@
-"use client"
+"use client";
 
 // TODO : add confirm password
 
-import type React from "react"
+import type React from "react";
 
-import { useState } from "react"
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { RegistrationResponse } from "@/lib/types" // Import the type
-import { redirect } from "next/navigation"
+import { useState } from "react";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { RegistrationResponse } from "@/lib/types";
+import { redirect } from "next/navigation";
 
 export default function RegisterPage() {
-  const [role, setRole] = useState<"user" | "seller">("user")
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
-  const [username, setUsername] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [registrationMessage, setRegistrationMessage] = useState('');
-  const [registrationError, setRegistrationError] = useState('');
+  const [role, setRole] = useState<"user" | "seller">("user");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [registrationMessage, setRegistrationMessage] = useState("");
+  const [registrationError, setRegistrationError] = useState("");
+  const [onFocus, setOnFocues] = useState(false);
+  const isAnyFieldEmpty = [firstName, lastName, username, email, password].every(field => field === "");
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target;
     switch (name) {
-      case 'firstName':
+      case "firstName":
         setFirstName(value);
         break;
-      case 'lastName':
+      case "lastName":
         setLastName(value);
         break;
-      case 'username':
+      case "username":
         setUsername(value);
         break;
-      case 'email':
+      case "email":
         setEmail(value);
         break;
-      case 'password':
+      case "password":
         setPassword(value);
         break;
       default:
@@ -49,8 +59,8 @@ export default function RegisterPage() {
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-    setRegistrationMessage('');
-    setRegistrationError('');
+    setRegistrationMessage("");
+    setRegistrationError("");
 
     const registrationData = {
       first_name: firstName,
@@ -62,11 +72,11 @@ export default function RegisterPage() {
     };
 
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/register', {
-        method: 'POST',
+      const response = await fetch("http://127.0.0.1:8000/api/register", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
+          "Content-Type": "application/json",
+          Accept: "application/json",
         },
         body: JSON.stringify(registrationData),
       });
@@ -77,11 +87,11 @@ export default function RegisterPage() {
         // Optionally redirect the user or clear the form
       } else {
         const errorData = await response.json();
-        setRegistrationError(errorData.message || 'Registration failed');
+        setRegistrationError(errorData.message || "Registration failed");
       }
     } catch (error) {
-      setRegistrationError('An unexpected error occurred');
-      console.error('Error during registration:', error);
+      setRegistrationError("An unexpected error occurred");
+      console.error("Error during registration:", error);
     } finally {
       redirect("/login");
     }
@@ -94,7 +104,7 @@ export default function RegisterPage() {
           <CardTitle className="text-2xl font-bold">انشئ حساب جديد</CardTitle>
           <CardDescription>ادخل بياناتك لتنشئ حساب في مسار</CardDescription>
         </CardHeader>
-        <form onSubmit={handleSubmit}> {/* Removed action={signUpAction} and added onSubmit */}
+        <form onSubmit={handleSubmit}>
           <CardContent className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="firstName">الاسم الأول</Label>
@@ -151,6 +161,22 @@ export default function RegisterPage() {
               />
             </div>
             <div className="space-y-2">
+              <Label htmlFor="confirmPassword">تأكيد كلمة المرور</Label>
+              <Input
+                id="confirmPassword"
+                name="confirmPassword"
+                type="password"
+                required
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                onFocus={() => setOnFocues(true)}
+                onBlur={() => setOnFocues(false)}
+              />
+            </div>
+            {password !== confirmPassword && onFocus && (
+              <p className="font-bold text-red-400">كلمة المرور غير متطابقة</p>
+            )}
+            <div className="space-y-2">
               <Label>نوع الحساب</Label>
               <RadioGroup
                 defaultValue="user"
@@ -174,9 +200,15 @@ export default function RegisterPage() {
             </div>
           </CardContent>
           <CardFooter className="flex flex-col gap-4">
-            <Button type="submit" className="w-full">
-              انشاء حساب
-            </Button>
+            {!isAnyFieldEmpty && password === confirmPassword ? (
+              <Button type="submit" className="w-full">
+                انشاء حساب
+              </Button>
+            ) : (
+              <div className="bg-secondary text-secondary-foreground hover:bg-secondary/80 w-full py-2 rounded-md text-center">
+                انشاء حساب
+              </div>
+            )}
             <p className="text-center text-sm text-muted-foreground">
               لديك حساب بالفعل?{" "}
               <Link href="/login" className="text-primary hover:underline">
@@ -185,9 +217,13 @@ export default function RegisterPage() {
             </p>
           </CardFooter>
         </form>
-        {registrationMessage && <p className="mt-4 text-green-500">{registrationMessage}</p>}
-        {registrationError && <p className="mt-4 text-red-500">{registrationError}</p>}
+        {registrationMessage && (
+          <p className="mt-4 text-green-500">{registrationMessage}</p>
+        )}
+        {registrationError && (
+          <p className="mt-4 text-red-500">{registrationError}</p>
+        )}
       </Card>
     </div>
-  )
+  );
 }

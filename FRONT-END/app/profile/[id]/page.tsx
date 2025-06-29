@@ -117,8 +117,8 @@ export default function ProfilePage() {
       phone: "",
       location_address: "",
       status: null,
-      latitude: null,
-      longitude: null,
+      latitude: 0,
+      longitude: 0,
     },
   });
 
@@ -348,7 +348,7 @@ export default function ProfilePage() {
               {isUser && ownerData.first_name === "" && (
                 <Dialog open={open} onOpenChange={setOpen}>
                   <DialogTrigger asChild>
-                    <Button variant={"outline"}>
+                    <Button variant={"outline"} title="ابلاغ">
                       <Image
                         src={"/reportFlag.svg"}
                         alt={"report flag"}
