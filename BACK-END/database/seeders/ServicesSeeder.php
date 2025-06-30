@@ -8,53 +8,44 @@ use App\Models\Service;
 class ServicesSeeder extends Seeder
 {
     public function run()
-    {
-        $json = file_get_contents(database_path('data/mapData.json'));
-        $data = json_decode($json, true);
+{
+    $json = file_get_contents(database_path('data/mapData.json'));
+    $data = json_decode($json, true);
 
-        if (!$data) {
-            throw new \Exception("Invalid or empty JSON data in mapData.json");
-        }
-
-        // معالجة aids
-        if (isset($data['aids']) && is_array($data['aids'])) {
-            foreach ($data['aids'] as $item) {
-                Service::create([
-                    'name' => $item['name'],
-                    'type' => 'aid',
-                    'latitude' => $item['coordinates'][0] ?? null,
-                    'longitude' => $item['coordinates'][1] ?? null,
-                    'status' => true,
-                ]);
-            }
-        }
-
-        // معالجة GasStations
-        if (isset($data['GasStations']) && is_array($data['GasStations'])) {
-            foreach ($data['GasStations'] as $item) {
-                Service::create([
-                    'name' => $item['name'],
-                    'type' => 'gas_station',
-                    'latitude' => $item['coordinates'][0] ?? null,
-                    'longitude' => $item['coordinates'][1] ?? null,
-                    'status' => true,
-                ]);
-            }
-        }
-
-        // معالجة markets (الإحداثيات مصفوفة من نقاط)
-        if (isset($data['markets']) && is_array($data['markets'])) {
-            foreach ($data['markets'] as $item) {
-                foreach ($item['coordinates'] as $coord) {
-                    Service::create([
-                        'name' => $item['name'],
-                        'type' => 'market',
-                        'latitude' => $coord[0] ?? null,
-                        'longitude' => $coord[1] ?? null,
-                        'status' => true,
-                    ]);
-                }
-            }
-        }
+    if (!$data) {
+        throw new \Exception("Invalid or empty JSON data in mapData.json");
     }
+
+    // Aids
+    foreach ($data['aids'] ?? [] as $item) {
+        Service::create([
+            'name' => $item['name'],
+            'type' => 'aid',
+            'coordinates' => json_encode([$item['coordinates']]),
+            'status' => true,
+        ]);
+    }
+
+    // Gas Stations
+    foreach ($data['GasStations'] ?? [] as $item) {
+        Service::create([
+            'name' => $item['name'],
+            'type' => 'gas_station',
+            'coordinates' => json_encode([$item['coordinates']]),
+            'status' => true,
+        ]);
+    }
+
+    // Markets (نفس السوق له أكثر من نقطة)
+    foreach ($data['markets'] ?? [] as $marketGroup) {
+        $groupedCoordinates = $marketGroup['coordinates'];
+        Service::create([
+            'name' => $marketGroup['name'],
+            'type' => 'market',
+            'coordinates' => json_encode($groupedCoordinates),
+            'status' => true,
+        ]);
+    }
+}
+
 }

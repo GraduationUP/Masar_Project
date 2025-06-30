@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers\Guest;
 
-use App\Http\Controllers\Controller;
+use App\Models\Store;
 use App\Models\Product;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
 
 class ProductController extends Controller
 {
@@ -21,12 +22,9 @@ class ProductController extends Controller
     public function show($id)
     {
         $product = Product::with('store', 'category')->findOrFail($id);
-
         return response()->json([
             'status' => true,
             'data' => [
-                                'id' => $product->id,
-
                 'id' => $product->id,
                 'name' => $product->name,
                 'description' => $product->description,
@@ -38,6 +36,7 @@ class ProductController extends Controller
                 'latitude' => $product->latitude,
                 'longitude' => $product->longitude,
                 'show_location' => $product->show_location,
+            'location_address' => $product->store?->location_address,
                 'created_at' => $product->created_at->toDateTimeString(),
             ]
         ]);
