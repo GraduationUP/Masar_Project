@@ -18,38 +18,43 @@ class AdminMapController extends Controller
     public function index()
     {
 
-    return response()->json([
-        'city' => 'غزة',
-
-        'aids' => Service::where('type', 'aid')->get()->map(fn($s) => [
-            'name' => $s->name,
-            'status' => (bool) $s->status,
-            'coordinates' => json_decode($s->coordinates),
-        ]),
-
-        'markets' => Service::where('type', 'market')->get()->map(fn($s) => [
-            'name' => $s->name,
-            'status' => (bool) $s->status,
-            'coordinates' => json_decode($s->coordinates),
-        ]),
-
-        'GasStations' => Service::where('type', 'gas_station')->get()->map(fn($s) => [
-            'name' => $s->name,
-            'status' => (bool) $s->status,
-            'coordinates' => json_decode($s->coordinates),
-        ]),
-
-        'stores' => Store::all()->map(fn($store) => [
-            'name' => $store->store_name,
-            'status' => (bool) $store->status,
-            'coordinates' => [(float) $store->latitude, (float) $store->longitude],
-        ]),
-    ]);
-}
+        return response()->json([
+            'city' => 'غزة',
 
 
+            'aids' => Service::where('type', 'aid')->get()->map(fn($s) => [
+                'id'          => $s->id,
+                'name' => $s->name,
+                'status' => (bool) $s->status,
+                'coordinates' => json_decode($s->coordinates),
+            ]),
 
-public function store(Request $request)
+            'markets' => Service::where('type', 'market')->get()->map(fn($s) => [
+                'id'          => $s->id,
+                'name' => $s->name,
+                'status' => (bool) $s->status,
+                'coordinates' => json_decode($s->coordinates),
+            ]),
+
+            'GasStations' => Service::where('type', 'gas_station')->get()->map(fn($s) => [
+                'id'          => $s->id,
+                'name' => $s->name,
+                'status' => (bool) $s->status,
+                'coordinates' => json_decode($s->coordinates),
+            ]),
+
+            'stores' => Store::all()->map(fn($store) => [
+                'id' => $store->id,
+                'name' => $store->store_name,
+                'status' => (bool) $store->status,
+                'coordinates' => [(float) $store->latitude, (float) $store->longitude],
+            ]),
+        ]);
+    }
+
+
+
+    public function store(Request $request)
     {
         $request->validate([
             'name'        => 'required|string|max:255',
