@@ -18,6 +18,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { BarChart3, Package, Plus, Star, StoreIcon, Users } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import Loading from "./loading";
 
 export default function SellerDashboard() {
   const [data, setData] = useState({
@@ -94,7 +95,7 @@ export default function SellerDashboard() {
   }, [data]); // Add 'data' to the dependency array
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <Loading/>;
   }
 
   return (
@@ -291,9 +292,9 @@ export default function SellerDashboard() {
                   <Card key={product.id} className="overflow-hidden">
                     <div className="relative h-40 w-full">
                       <img
-                        src={product.image || "/placeholder.svg"}
+                        src={product.image || "/boxes.png"}
                         alt={product.name}
-                        className="h-full w-full object-cover"
+                        className="h-full w-full object-contain"
                       />
                       <div className="absolute top-2 right-2">
                         <Badge className="bg-background/80 hover:bg-background/80 backdrop-blur-sm text-foreground">

@@ -1,6 +1,6 @@
 "use client";
 
-// TODO : Solve api token issue
+// TODO : Solve api issue for the password
 
 import { FormEvent, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -15,7 +15,6 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
@@ -30,19 +29,35 @@ import {
   Star,
   User,
 } from "lucide-react";
-import { redirect } from "next/navigation";
 import React from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { SuccessAlert } from "@/components/successAlert";
-import { set } from "react-hook-form";
+import Loading from "./loading";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
 
 export default function ProfilePage() {
+  const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
   const params = useParams();
   const [loading, setLoading] = useState(true);
   const [successAlert, setSucssesAlert] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  const [showErrorMessage, setShowErrorMessage] = useState(false);
+  const [showFormError, setShowFormError] = useState(false);
+  const [isUser, setISUser] = useState(false);
+  const [message, setMessage] = useState("");
+  const [open, setOpen] = useState(false);
   interface Store {
     id: any;
     user_id: any;
@@ -102,8 +117,8 @@ export default function ProfilePage() {
       phone: "",
       location_address: "",
       status: null,
-      latitude: null,
-      longitude: null,
+      latitude: 0,
+      longitude: 0,
     },
   });
 
@@ -114,6 +129,12 @@ export default function ProfilePage() {
     email: "",
   });
 
+  const [passwordFromData, setPasswordFormData] = useState({
+    current_password: "",
+    password: "",
+    confirm_password: "",
+  });
+
   // For the page owner
   useEffect(() => {
     async function fetchData() {
@@ -121,19 +142,16 @@ export default function ProfilePage() {
 
       try {
         const token = localStorage.getItem("authToken");
-        const response = await fetch(
-          `http://127.0.0.1:8000/api/users/${params.id}`,
-          {
-            method: "GET",
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
-          }
-        );
+        const response = await fetch(`${API_BASE_URL}/api/users/${params.id}`, {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        });
 
         if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
+          return;
         }
 
         const responseData = await response.json();
@@ -152,12 +170,12 @@ export default function ProfilePage() {
     localStorage.removeItem("tokenType");
     localStorage.removeItem("userInfo");
     localStorage.removeItem("authToken");
-    redirect("/");
+    window.location.href = "/";
   }
 
   // Fetch for visitors
   useEffect(() => {
-    fetch(`http://127.0.0.1:8000/api/guest/users/${params.id}`, {
+    fetch(`${API_BASE_URL}/api/guest/users/${params.id}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -173,21 +191,17 @@ export default function ProfilePage() {
 
   async function handleUserInfoEdit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    setLoading(true);
 
     try {
       const token = localStorage.getItem("authToken");
-      const response = await fetch(
-        `http://127.0.0.1:8000/api/users/${params.id}`,
-        {
-          method: "PUT",
-          body: JSON.stringify(formData), 
-          headers: {
-            "Content-Type": "application/json", 
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const response = await fetch(`${API_BASE_URL}/api/users/${params.id}`, {
+        method: "PUT",
+        body: JSON.stringify(formData),
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
       if (!response.ok) {
         throw new Error("Failed to submit the data. Please try again.");
@@ -197,12 +211,48 @@ export default function ProfilePage() {
       // Update state with new data if needed
       setOwnerData(data);
       setSucssesAlert(true);
+      setShowFormError(false);
     } catch (error) {
       console.error(error);
-      // Show error to user
+      setShowFormError(true);
     } finally {
       setIsEditing(false);
-      setLoading(false);
+    }
+  }
+
+  async function handlePasswordChange(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    try {
+      const token = localStorage.getItem("authToken");
+      const response = await fetch(
+        `${API_BASE_URL}/api/users/change-password`,
+        {
+          method: "POST",
+          body: JSON.stringify(passwordFromData),
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to change password. Please try again.");
+      }
+      console.log(response);
+      setPasswordFormData({
+        current_password: "",
+        password: "",
+        confirm_password: "",
+      });
+      setSucssesAlert(true);
+      setShowFormError(false);
+    } catch (error) {
+      console.error(error);
+      setShowFormError(true);
+    } finally {
+      setIsEditing(false);
     }
   }
 
@@ -214,6 +264,47 @@ export default function ProfilePage() {
       email: ownerData.email,
     });
   }, [ownerData]);
+
+  useEffect(() => {
+    if (localStorage.getItem("authToken")) {
+      setISUser(true);
+    }
+  });
+
+  const handleSendReport = async (message: string) => {
+    try {
+      const token = localStorage.getItem("authToken");
+      const response = await fetch(`${API_BASE_URL}/api/reports`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          reported_user_id: params.id,
+          message: message,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(
+          errorData?.message || "Failed to send report. Please try again."
+        );
+      }
+      console.log("Report sent successfully:", response);
+      setOpen(false);
+      setMessage("");
+      setSucssesAlert(true);
+    } catch (error: any) {
+      console.error("Error sending report:", error);
+      // You might want to set an error state here to display an error message to the user
+    }
+  };
+
+  if (loading) {
+    return <Loading />;
+  }
 
   return (
     <div className="container px-4 md:px-6 py-8">
@@ -241,24 +332,67 @@ export default function ProfilePage() {
           )}
         </div>
         <div className="flex flex-col md:flex-row gap-8">
-            <SuccessAlert
-              message="تم تحديث البيانات بنجاح"
-              show={successAlert}
-              onClose={() => setSucssesAlert(false)}
-            />
+          <SuccessAlert
+            message="تم تحديث البيانات بنجاح"
+            show={successAlert}
+            onClose={() => setSucssesAlert(false)}
+          />
           {/* Sidebar */}
           <Card className="w-full md:w-1/3 h-fit">
             <CardContent className="p-6">
-              <div className="flex">
-                {data.store !== null && <Badge>صاحب متجر</Badge>}
-                <Image
-                  src={"/reportFlag.svg"}
-                  alt={"report flag"}
-                  width={30}
-                  height={30}
-                />{" "}
-                {/* TODO : add a report button */}
-              </div>
+              {ownerData.first_name === "" && (
+                <div className="flex" title="ابلاغ">
+                  {data.store !== null && <Badge>صاحب متجر</Badge>}
+                </div>
+              )}
+              {isUser && ownerData.first_name === "" && (
+                <Dialog open={open} onOpenChange={setOpen}>
+                  <DialogTrigger asChild>
+                    <Button variant={"outline"} title="ابلاغ">
+                      <Image
+                        src={"/reportFlag.svg"}
+                        alt={"report flag"}
+                        width={30}
+                        height={30}
+                      />
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>الابلاغ عن مستخدم</DialogTitle>
+                      <DialogDescription>
+                        رجاء اكتب سبب كتابة الابلاغ بدقة
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="grid gap-4 py-4">
+                      <div className="grid grid-cols-4 items-center gap-4">
+                        <label
+                          htmlFor="message"
+                          className="text-right text-sm font-medium leading-none text-muted-foreground"
+                        >
+                          الرسالة
+                        </label>
+                        <div className="col-span-3">
+                          <Textarea
+                            id="message"
+                            placeholder="اكتب رسالة الابلاغ هنا!"
+                            value={message}
+                            onChange={(e) => setMessage(e.target.value)}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                    <DialogFooter>
+                      <DialogClose asChild>
+                        <Button variant="secondary">الغاء</Button>
+                      </DialogClose>
+                      <Button onClick={() => handleSendReport(message)}>
+                        ارسال الابلاغ
+                      </Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
+              )}
               <div className="flex flex-col items-center text-center">
                 <div className="relative mb-4">
                   <Avatar className="h-24 w-24 border-4 border-background">
@@ -360,6 +494,11 @@ export default function ProfilePage() {
                     </CardHeader>
                     <form onSubmit={handleUserInfoEdit}>
                       <CardContent className="space-y-4">
+                        {showFormError && (
+                          <span className="text-sm text-muted-foreground text-red-400">
+                            حدث خطأ ما اعد المحاولة لاحقاً!
+                          </span>
+                        )}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <div className="space-y-2">
                             <Label htmlFor="name">الاسم الأول</Label>
@@ -449,45 +588,88 @@ export default function ProfilePage() {
                   className="space-y-6 animate-fade-in"
                 >
                   <Card>
-                    <CardHeader>
-                      <CardTitle>كلمة المرور</CardTitle>
-                      <CardDescription>تغيير كلمة المرور</CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="current-password">الكلمة الحالية</Label>
-                        <Input
-                          id="current-password"
-                          type="password"
-                          className="rounded-lg"
-                        />
-                      </div>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <form onSubmit={handlePasswordChange}>
+                      <CardHeader>
+                        <CardTitle>كلمة المرور</CardTitle>
+                        <CardDescription>تغيير كلمة المرور</CardDescription>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                        {showFormError && (
+                          <span className="text-sm text-muted-foreground text-red-400">
+                            حدث خطاء ما اعد المحاولة لاحقاً!
+                          </span>
+                        )}
                         <div className="space-y-2">
-                          <Label htmlFor="new-password">الكلمة الجديدة</Label>
-                          <Input
-                            id="new-password"
-                            type="password"
-                            className="rounded-lg"
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="confirm-password">
-                            تأكيد الكلمة الجديدة
+                          <Label htmlFor="current-password">
+                            الكلمة الحالية
                           </Label>
                           <Input
-                            id="confirm-password"
+                            id="current-password"
                             type="password"
                             className="rounded-lg"
+                            onChange={(e) =>
+                              setPasswordFormData({
+                                ...passwordFromData,
+                                current_password: e.target.value,
+                              })
+                            }
                           />
                         </div>
-                      </div>
-                    </CardContent>
-                    <CardFooter>
-                      <Button className="ml-auto rounded-full">
-                        تحديث كلمة المرور
-                      </Button>
-                    </CardFooter>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                            <Label htmlFor="new-password">الكلمة الجديدة</Label>
+                            <Input
+                              id="new-password"
+                              type="password"
+                              className="rounded-lg"
+                              onChange={(e) =>
+                                setPasswordFormData({
+                                  ...passwordFromData,
+                                  password: e.target.value,
+                                })
+                              }
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="confirm-password">
+                              تأكيد الكلمة الجديدة
+                            </Label>
+                            <Input
+                              id="confirm-password"
+                              type="password"
+                              className="rounded-lg"
+                              onChange={(e) =>
+                                setPasswordFormData({
+                                  ...passwordFromData,
+                                  confirm_password: e.target.value,
+                                })
+                              }
+                              onFocus={() => {
+                                if (
+                                  passwordFromData.password !==
+                                  passwordFromData.confirm_password
+                                ) {
+                                  setShowErrorMessage(true);
+                                }
+                              }}
+                              onBlur={() => setShowErrorMessage(false)}
+                            />
+                            {showErrorMessage &&
+                              passwordFromData.password !==
+                                passwordFromData.confirm_password && (
+                                <p className="text-xs text-muted-foreground text-red-600">
+                                  الكلمة الجديدة غير متطابقة
+                                </p>
+                              )}
+                          </div>
+                        </div>
+                      </CardContent>
+                      <CardFooter>
+                        <Button className="ml-auto rounded-full" type="submit">
+                          تحديث كلمة المرور
+                        </Button>
+                      </CardFooter>
+                    </form>
                   </Card>
 
                   <Card>

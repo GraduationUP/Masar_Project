@@ -1,5 +1,8 @@
 "use client";
 
+// TODO : Handele redirect if there was no store
+// TODO : Fix the map issue
+
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
@@ -395,7 +398,7 @@ export default function StorePage() {
               <CardContent className="p-4">
                 <h3 className="font-bold mb-2">موقع المتجر</h3>
                 <div className="h-64 rounded-lg overflow-hidden mb-4">
-                  <MapWithNoSSR
+                  {/* <MapWithNoSSR
                     center={[data?.latitude, data?.longitude]}
                     zoom={15}
                     markers={[
@@ -405,7 +408,7 @@ export default function StorePage() {
                         type: "store",
                       },
                     ]}
-                  />
+                  /> */}
                 </div>
                 <div className="flex items-start gap-2">
                   <MapPin className="h-5 w-5 text-muted-foreground shrink-0 mt-0.5" />
