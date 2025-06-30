@@ -15,7 +15,7 @@ class StoreController extends Controller
     {
         $user = Auth::user();
 
-        if (!$user->hasRole('seller')) {
+        if (!$user->hasRole('admin') && !$user->hasRole('seller')) {
     return response()->json(['message' => 'Unauthorized. Only sellers can create stores.'], 403);
 }
 
@@ -45,7 +45,7 @@ class StoreController extends Controller
     {
         $user = Auth::user();
 
-          if (!$user->hasRole('seller')) {
+          if (!$user->hasRole('admin') && !$user->hasRole('seller')) {
         return response()->json(['message' => 'Unauthorized. Only sellers can view store.'], 403);
     }
 
@@ -89,7 +89,7 @@ public function destroy(): JsonResponse
 {
     $user = Auth::user();
 
-    if (!$user->hasRole('seller')) {
+    if (!$user->hasRole('admin') && !$user->hasRole('seller')) {
         return response()->json(['message' => 'Unauthorized.'], 403);
     }
 

@@ -100,26 +100,27 @@ Route::middleware('auth:sanctum')->group(function () {
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/reports', [ReportController::class, 'store']);
+
+    Route::get('/notifications', [NotificationController::class, 'index']);
+    Route::patch('/notifications/{id}/read', [NotificationController::class, 'markAsRead']);
+    Route::patch('/notifications/read-all', [NotificationController::class, 'markAllAsRead']);
+    Route::delete('/notifications/{id}', [NotificationController::class, 'destroy']);
 });
 
 
+
 Route::middleware(['auth:sanctum'])->prefix('admin')->group(function () {
+
     Route::post('/notifications/send', [AdminNotificationController::class, 'send']);
     Route::get('/users', [AdminUsersController::class, 'index']);
     Route::post('/users/{id}/ban', [AdminUsersController::class, 'ban']);
     Route::post('/users/{id}/unban', [AdminUsersController::class, 'unban']);
-});
+    Route::delete('/users/{id}', [AdminUsersController::class, 'destroy']);
 
-Route::middleware('auth:sanctum')->get('/notifications', [NotificationController::class, 'index']);
-Route::middleware('auth:sanctum')->patch('/notifications/{id}/read', [NotificationController::class, 'markAsRead']);
-Route::middleware('auth:sanctum')->patch('/notifications/read-all', [NotificationController::class, 'markAllAsRead']);
-Route::middleware('auth:sanctum')->delete('/notifications/{id}', [NotificationController::class, 'destroy']);
-
-Route::middleware(['auth:sanctum'])->prefix('admin')->group(function () {
     Route::get('/stores', [AdminStoreController::class, 'index']);
     Route::get('/stores/{id}', [AdminStoreController::class, 'show']);
     Route::put('/stores/{id}/ban', [AdminStoreController::class, 'banStore']);
-    Route::put('/stores/{id}/unban', [AdminStoreController::class, 'unbanStore']);
+    Route::put('/stores/{id}/urban', [AdminStoreController::class, 'unbanStore']);
     Route::delete('/stores/{id}', [AdminStoreController::class, 'destroy']);
     Route::put('/stores/{id}/status', [AdminStoreController::class, 'updateStatus']);
 
@@ -132,12 +133,6 @@ Route::middleware(['auth:sanctum'])->prefix('admin')->group(function () {
     Route::put('/map/{id}', [AdminMapController::class, 'update']);
     Route::delete('/map/{id}', [AdminMapController::class, 'destroy']);
 
-    // حذف مستخدم
-    Route::delete('/users/{id}', [AdminUsersController::class, 'destroy']);
-
     // حذف تعليق
     Route::delete('/comments/{id}', [AdminCommentController::class, 'destroy']);
-
 });
-
-Route::get('/map-data/structured', [MapController::class, 'getStructuredMapData']);

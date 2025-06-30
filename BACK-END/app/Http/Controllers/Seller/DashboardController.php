@@ -2,8 +2,9 @@
 
 namespace App\Http\Controllers\Seller;
 
-use App\Http\Controllers\Controller;
+use App\Models\Analytics;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 
 class DashboardController extends Controller
@@ -11,24 +12,19 @@ class DashboardController extends Controller
     /**
   * عرض معلومات لوحة تحكم البائع
   */
+
     public function index()
     {
-        // جلب المستخدم الحالي والمتجر الخاص به
         $user = Auth::user();
         $store = $user->store;
 
-        // التحقق من وجود المتجر
         if (!$store) {
             return response()->json(['message' => 'Store not found.'], 404);
         }
 
-        // جلب المنتجات مع تصنيفاتها
         $products = $store->products()->with('category')->latest()->get();
-
-        // حساب متوسط التقييم
         $averageRating = round($store->ratings()->avg('score'), 1);
 
-        // جلب آخر 5 تقييمات
         $recentRatings = $store->ratings()
             ->with('user')
             ->latest()
@@ -42,7 +38,6 @@ class DashboardController extends Controller
                 ];
             });
 
-        // جلب آخر 5 تعليقات
         $recentComments = $store->comments()
             ->with('user')
             ->latest()
@@ -56,7 +51,15 @@ class DashboardController extends Controller
                 ];
             });
 
-        // إرسال الرد بصيغة JSON
+        // 🧮 إحصائيات رقمية
+        $totalProducts = $products->count();
+        $totalRatings = $store->ratings()->count();
+        $totalComments = $store->comments()->count();
+
+        $productIds = $products->pluck('id');
+        $totalViews = Analytics::whereIn('product_id', $productIds)->sum('views');
+        $totalClicks = Analytics::whereIn('product_id', $productIds)->sum('clicks');
+
         return response()->json([
             'store' => [
                 'id' => $store->id,
@@ -68,6 +71,15 @@ class DashboardController extends Controller
                 'latitude' => $store->latitude,
                 'longitude' => $store->longitude,
             ],
+
+            'stats' => [
+                'total_products' => $totalProducts,
+                'total_ratings' => $totalRatings,
+                'total_comments' => $totalComments,
+                'total_views' => $totalViews,
+                'total_clicks' => $totalClicks,
+            ],
+
             'recent_products' => $products->map(function ($product) {
                 return [
                     'id' => $product->id,
@@ -77,7 +89,6 @@ class DashboardController extends Controller
                     'created_at' => $product->created_at->toDateTimeString(),
                 ];
             }),
-
 
             'recent_ratings' => $recentRatings,
             'recent_comments' => $recentComments,

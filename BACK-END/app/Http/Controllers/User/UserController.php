@@ -6,16 +6,22 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
-  use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Hash;
+
 class UserController extends Controller
 {
     public function show($id)
     {
         $user = User::with(['store', 'comments.store', 'ratings.store'])->findOrFail($id);
 
-        if (!Auth::check() || Auth::id() !== $user->id) {
+        $authUser = Auth::user();
+
+        if (! $authUser || (
+            ! $authUser->hasRole('admin') && $authUser->id !== $user->id
+        )) {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
+
 
         return response()->json([
             'id' => $user->id,

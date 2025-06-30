@@ -52,9 +52,11 @@ class RatingController extends Controller
     // حذف تقييم
     public function destroy(Rating $rating)
     {
-        if ($rating->user_id !== Auth::id()) {
-            return response()->json(['message' => 'Unauthorized'], 403);
-        }
+         $user = Auth::user();
+
+    if ($user->id !== $rating->user_id && ! $user->hasRole('admin')) {
+        return response()->json(['message' => 'Unauthorized'], 403);
+    }
 
         $rating->delete();
 
