@@ -24,6 +24,9 @@ import {
   StoreIcon,
   Users,
 } from "lucide-react";
+import Loading from "./loading";
+
+// TODO : Complete store data
 
 export default function AdminDashboard() {
   const [stores, setStores] = useState<Store[]>([]);
@@ -40,28 +43,131 @@ export default function AdminDashboard() {
     role: string;
   }
 
+  interface Roles {
+  id: number;
+  name: string;
+}
 
-  const [user, setUser] = useState<UserInfo | null>(null);
-    const [loading, setLoading] = useState(true); // Add a loading state
+interface Admin {
+  id: number;
+  username: string;
+}
 
-    useEffect(() => {
-        const storedUser = localStorage.getItem("userInfo");
-        if (storedUser) {
-            setUser(JSON.parse(storedUser));
-        }
-        setLoading(false); // Set loading to false after attempting to get user info
-    }, []);
+interface Ban {
+  id: number;
+  target_id: number;
+  reason: string;
+  banned_by: number;
+  created_at: string;
+  updated_at: string;
+  admin: Admin | null; 
+}
 
-    // Redirect if not logged in or role is undefined, but only after loading is complete
-    useEffect(() => {
-        if (!loading && (user === null || user.role !== "admin")) { // Assuming you only want to show this dashboard to 'admin' roles
-            redirect("/");
-        }
-    }, [user, loading]);
+interface Data {
+  id: number;
+  first_name: string;
+  last_name: string;
+  username: string;
+  email: string;
+  created_at: string;
+  updated_at: string;
+  roles: Roles[]; 
+  ban: Ban | null; 
+}
 
-    if (loading) {
-        return <div>Loading...</div>; // Optionally show a loading indicator
+const [user, setUser] = useState<UserInfo | null>(null);
+const [loading, setLoading] = useState(true);
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
+const [userData, setUserData] = useState<Data[]>([{
+  id: 0,
+  first_name: '',
+  last_name: '',
+  username: '',
+  email: '',
+  created_at: '',
+  updated_at: '',
+  roles: [],
+  ban: null,
+}]);
+const [storeData, setStoreData] = useState();
+
+  useEffect(() => {
+    const storedUser = localStorage.getItem("userInfo");
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
     }
+    setLoading(false); // Set loading to false after attempting to get user info
+  }, []);
+
+  // Redirect if not logged in or role is undefined, but only after loading is complete
+  useEffect(() => {
+    if (!loading && (user === null || user.role !== "admin")) {
+      // Assuming you only want to show this dashboard to 'admin' roles
+      redirect("/");
+    }
+  }, [user, loading]);
+
+  useEffect(() => {
+    async function fetchData() {
+      setLoading(true); // Set loading to true before the fetch
+
+      try {
+        const token = localStorage.getItem("authToken");
+        const response = await fetch(`${API_BASE_URL}/api/admin/users`, {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const responseData = await response.json();
+        setUserData(responseData);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      } finally {
+        setLoading(false); // Set loading to false after the fetch completes (success or failure)
+      }
+    }
+
+    fetchData();
+  }, []);
+
+  useEffect(() => {
+    async function fetchData() {
+      setLoading(true); // Set loading to true before the fetch
+
+      try {
+        const token = localStorage.getItem("authToken");
+        const response = await fetch(`${API_BASE_URL}/api/admin/stores`, {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const responseData = await response.json();
+        setData(responseData);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      } finally {
+        setLoading(false); // Set loading to false after the fetch completes (success or failure)
+      }
+    }
+
+    fetchData();
+  }, []);
+
+  if (loading) {
+    return <Loading/>; 
+  }
 
   return (
     <div className="container px-4 md:px-6 py-8">
@@ -98,7 +204,7 @@ export default function AdminDashboard() {
               <Users className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{stats.totalUsers}</div>
+              <div className="text-2xl font-bold">{userData.length}</div>
               <p className="text-xs text-muted-foreground">
                 المستخدمين المسجلين
               </p>
