@@ -15,9 +15,10 @@ use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\VerifyEmailController;
 use App\Http\Controllers\Seller\DashboardController;
 use App\Http\Controllers\User\NotificationController;
+use App\Http\Controllers\Admin\AdminCommentController;
 use App\Http\Controllers\Admin\AdminProductController;
-use App\Http\Controllers\Auth\RegisteredUserController;
 
+use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Admin\AdminNotificationController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
@@ -77,7 +78,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/users/{id}', [UserController::class, 'show']);   // عرض الملف الشخصي
     Route::put('/users/{id}', [UserController::class, 'update']); // تعديل الملف الشخصي
     Route::post('/users/change-password', [UserController::class, 'changePassword']);
-
 });
 // راوت للزوار (مش مسجلين) يشوفوا بيانات عامة فقط
 Route::get('/guest/users/{id}', [GuestUserController::class, 'show']);
@@ -100,38 +100,39 @@ Route::middleware('auth:sanctum')->group(function () {
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/reports', [ReportController::class, 'store']);
+
+    Route::get('/notifications', [NotificationController::class, 'index']);
+    Route::patch('/notifications/{id}/read', [NotificationController::class, 'markAsRead']);
+    Route::patch('/notifications/read-all', [NotificationController::class, 'markAllAsRead']);
+    Route::delete('/notifications/{id}', [NotificationController::class, 'destroy']);
 });
 
 
+
 Route::middleware(['auth:sanctum'])->prefix('admin')->group(function () {
+
     Route::post('/notifications/send', [AdminNotificationController::class, 'send']);
-     Route::get('/users', [AdminUsersController::class, 'index']);
+    Route::get('/users', [AdminUsersController::class, 'index']);
     Route::post('/users/{id}/ban', [AdminUsersController::class, 'ban']);
     Route::post('/users/{id}/unban', [AdminUsersController::class, 'unban']);
-});
+    Route::delete('/users/{id}', [AdminUsersController::class, 'destroy']);
 
-Route::middleware('auth:sanctum')->get('/notifications', [NotificationController::class, 'index']);
-Route::middleware('auth:sanctum')->patch('/notifications/{id}/read', [NotificationController::class, 'markAsRead']);
-Route::middleware('auth:sanctum')->patch('/notifications/read-all', [NotificationController::class, 'markAllAsRead']);
-Route::middleware('auth:sanctum')->delete('/notifications/{id}', [NotificationController::class, 'destroy']);
-
-Route::middleware(['auth:sanctum'])->prefix('admin')->group(function () {
     Route::get('/stores', [AdminStoreController::class, 'index']);
     Route::get('/stores/{id}', [AdminStoreController::class, 'show']);
     Route::put('/stores/{id}/ban', [AdminStoreController::class, 'banStore']);
-    Route::put('/stores/{id}/unban', [AdminStoreController::class, 'unbanStore']);
+    Route::put('/stores/{id}/urban', [AdminStoreController::class, 'unbanStore']);
     Route::delete('/stores/{id}', [AdminStoreController::class, 'destroy']);
-     Route::put('/stores/{id}/status', [AdminStoreController::class, 'updateStatus']);
+    Route::put('/stores/{id}/status', [AdminStoreController::class, 'updateStatus']);
 
-     Route::get('/products', [AdminProductController::class, 'index']);
+    Route::get('/products', [AdminProductController::class, 'index']);
     Route::get('/products/{id}', [AdminProductController::class, 'show']);
     Route::delete('/products/{id}', [AdminProductController::class, 'destroy']);
 
-     Route::get('/map', [AdminMapController::class, 'index']);
+    Route::get('/map', [AdminMapController::class, 'index']);
     Route::post('/map', [AdminMapController::class, 'store']);
     Route::put('/map/{id}', [AdminMapController::class, 'update']);
     Route::delete('/map/{id}', [AdminMapController::class, 'destroy']);
 
+    // حذف تعليق
+    Route::delete('/comments/{id}', [AdminCommentController::class, 'destroy']);
 });
-
-Route::get('/map-data/structured', [MapController::class, 'getStructuredMapData']);

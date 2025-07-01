@@ -16,8 +16,8 @@ return new class extends Migration
             $table->foreignId('seller_id')->constrained('users')->onDelete('cascade');
             $table->foreignId('product_id')->constrained('products')->onDelete('cascade');
             $table->bigInteger('views');
-            $table->bigInteger('sales');
-            $table->bigInteger('clicks');
+           $table->bigInteger('sales')->default(0);
+$table->bigInteger('clicks')->default(0);
             $table->date('date');
             $table->timestamps();
         });
