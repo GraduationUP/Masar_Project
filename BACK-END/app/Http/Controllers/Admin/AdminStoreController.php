@@ -8,15 +8,43 @@ use App\Http\Controllers\Controller;
 
 class AdminStoreController extends Controller
 {
-    public function index()
-    {
-        $stores = Store::with('user')->get(); // لو عندك علاقة user
 
-        return response()->json([
-            'status' => true,
-            'data' => $stores
-        ]);
-    }
+  public function index()
+{
+    $stores = Store::with('user')->get();
+
+    $data = $stores->map(function ($store) {
+        return [
+            'id' => $store->id,
+            'user_id' => $store->user_id,
+            'store_name' => $store->store_name,
+            'id_card_photo' => $store->id_card_photo,
+            'phone' => $store->phone,
+            'location_address' => $store->location_address,
+            'active' => $store->status,
+            'is_banned' => $store->status == 0,  
+            'created_at' => $store->created_at->toIso8601String(),
+            'updated_at' => $store->updated_at->toIso8601String(),
+            'latitude' => $store->latitude,
+            'longitude' => $store->longitude,
+            'user' => [
+                'id' => $store->user->id,
+                'first_name' => $store->user->first_name,
+                'last_name' => $store->user->last_name,
+                'username' => $store->user->username,
+                'email' => $store->user->email,
+                'created_at' => $store->user->created_at->toIso8601String(),
+                'updated_at' => $store->user->updated_at->toIso8601String(),
+            ],
+        ];
+    });
+
+    return response()->json([
+        'status' => true,
+        'data' => $data,
+    ]);
+}
+
 
     public function show($id)
     {
