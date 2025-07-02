@@ -33,7 +33,7 @@ import React from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { SuccessAlert } from "@/components/successAlert";
+import { SuccessAlert } from "@/components/customAlert";
 import Loading from "./loading";
 import {
   Dialog,

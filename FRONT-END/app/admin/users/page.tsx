@@ -1,7 +1,7 @@
 "use client";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
-import { SuccessAlert } from "@/components/successAlert";
+import { SuccessAlert } from "@/components/customAlert";
 
 interface NotificationFormData {
   message: string;

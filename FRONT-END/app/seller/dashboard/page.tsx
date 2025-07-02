@@ -111,7 +111,7 @@ export default function SellerDashboard() {
           <div className="flex gap-2">
             {!store.name ? (
               <Button asChild>
-                <Link href="/seller/stores/new">
+                <Link href="/seller/create-store">
                   <StoreIcon className="mr-2 h-4 w-4" />
                   إنشاء متجر
                 </Link>
@@ -183,7 +183,7 @@ export default function SellerDashboard() {
                     أنشئ متجرك لبدء بيع المنتجات.
                   </p>
                   <Button asChild className="mt-4">
-                    <Link href="/seller/stores/new">أنشئ متجر</Link>
+                    <Link href="/seller/create-store">أنشئ متجر</Link>
                   </Button>
                 </CardContent>
               </Card>

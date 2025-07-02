@@ -15,9 +15,8 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import {
-  AlertTriangle,
   BarChart3,
-  Bell,
+  Map,
   MapPin,
   Package,
   Settings,
@@ -25,7 +24,26 @@ import {
   Users,
 } from "lucide-react";
 import Loading from "./loading";
-import { Avatar, AvatarFallback } from "@radix-ui/react-avatar";
+import { CustomAlert } from "@/components/customAlert";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 // TODO : Complete store data
 
@@ -111,11 +129,32 @@ interface serviceData {
   GasStations: [];
 }
 
+interface productData {
+  id: number;
+  store_id: number;
+  name: string;
+  description: string;
+  photo: null;
+  category_id: number;
+  price: string;
+  latitude: null;
+  longitude: null;
+  show_location: number;
+  created_at: string;
+  updated_at: string;
+  store: {
+    id: number;
+    store_name: string;
+  };
+}
+
 export default function AdminDashboard() {
   const [user, setUser] = useState<UserInfo | null>(null);
   const [loading, setLoading] = useState(true);
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
   const [updatedUserData, setUpdatedUserData] = useState([]);
+  const [showSuccessAlert, setShowSuccessAlert] = useState(false);
+  const [showFailAlert, setShowFailAlert] = useState(false);
   const [userData, setUserData] = useState<userData[]>([
     {
       id: 0,
@@ -154,7 +193,26 @@ export default function AdminDashboard() {
     },
   ]);
 
-  const [productData, setProductData] = useState([]);
+  const [productData, setProductData] = useState<productData[]>([
+    {
+      id: 0,
+      store_id: 0,
+      name: "",
+      description: "",
+      photo: null,
+      category_id: 0,
+      price: "",
+      latitude: null,
+      longitude: null,
+      show_location: 0,
+      created_at: "",
+      updated_at: "",
+      store: {
+        id: 0,
+        store_name: "",
+      },
+    },
+  ]);
   const [servicesData, setServicesData] = useState<serviceData>({
     city: "",
     aids: [],
@@ -294,9 +352,33 @@ export default function AdminDashboard() {
     fetchServicesData();
   }, []);
 
-  useEffect(() => {
-    setUpdatedUserData(userData.shift());
-  }, [userData]);
+  useEffect(() => setUpdatedUserData(userData.shift()), [userData]);
+
+  async function handelUserBan(id: number) {
+    try {
+      const token = localStorage.getItem("authToken");
+      const response = await fetch(
+        `${API_BASE_URL}/api/admin/users/${id}/ban`,
+        {
+          method: "GET",
+          headers: {
+            // Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      setShowSuccessAlert(true);
+    } catch (error) {
+      console.error("Error fetching stores data:", error);
+      setShowFailAlert(true);
+    } finally {
+      setLoading(false);
+    }
+  }
 
   if (loading) {
     return <Loading />;
@@ -352,7 +434,9 @@ export default function AdminDashboard() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{storeData.length}</div>
-              <p className="text-xs text-muted-foreground">المتاجر النشطة</p>
+              <p className="text-xs text-muted-foreground">
+                المتاجر النشطة وغير النشطة
+              </p>
             </CardContent>
           </Card>
           <Card>
@@ -372,7 +456,7 @@ export default function AdminDashboard() {
               <CardTitle className="text-sm font-medium">
                 إجمالي الخدمات
               </CardTitle>
-              <Bell className="h-4 w-4 text-muted-foreground" />
+              <Map className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">
@@ -380,7 +464,9 @@ export default function AdminDashboard() {
                   servicesData.GasStations.length +
                   servicesData.markets.length}
               </div>
-              <p className="text-xs text-muted-foreground">الخدمات المتاحة</p>
+              <p className="text-xs text-muted-foreground">
+                الخدمات المتاحة على الخريطة
+              </p>
             </CardContent>
           </Card>
         </div>
@@ -389,13 +475,27 @@ export default function AdminDashboard() {
           <TabsList>
             <TabsTrigger value="users">المستخدمون</TabsTrigger>
             <TabsTrigger value="stores">المتاجر</TabsTrigger>
-            <TabsTrigger value="services">الخدمات</TabsTrigger>
+            <TabsTrigger value="products">البضائع</TabsTrigger>
             <TabsTrigger value="analytics">التحليلات</TabsTrigger>
           </TabsList>
           <TabsContent value="users" className="space-y-4">
             <h2 className="text-xl font-bold tracking-tight">
               إدارة المستخدمين
             </h2>
+            {/* Popups Section :) */}
+            <CustomAlert
+              message="تم تحديث البيانات بنجاح"
+              onClose={() => setShowSuccessAlert(false)}
+              show={showSuccessAlert}
+              success
+            />
+            <CustomAlert
+              message="حدث خطأ ما"
+              onClose={() => setShowFailAlert(false)}
+              show={showFailAlert}
+              success={false}
+            />
+            {/* End of popups section */}
             <Card>
               <CardHeader>
                 <CardTitle>مستخدمو المنصة</CardTitle>
@@ -404,7 +504,7 @@ export default function AdminDashboard() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="min-h-[20rem] flex items-center justify-center">
-                {updatedUserData.length == 0 ? (
+                {userData.length == 0 ? (
                   <div className="flex flex-col items-center text-center">
                     <Users className="h-16 w-16 text-muted-foreground mb-4" />
                     <h3 className="text-lg font-medium">
@@ -420,7 +520,7 @@ export default function AdminDashboard() {
                     {userData.map((user) => (
                       <Card
                         key={user.id}
-                        className="w-full flex justify-between mb-2 items-center"
+                        className="w-full flex flex-col md:flex-row md:justify-between md:items-center md:space-x-2 mb-2 md:mb-0 items-start"
                       >
                         <CardHeader>
                           <CardTitle>
@@ -454,13 +554,116 @@ export default function AdminDashboard() {
                           </div>
                         </CardContent>
                         <CardFooter className="flex gap-2">
-                          <Button variant="outline" size="sm">
-                            حظر
-                          </Button>
-                          <Button variant="destructive" size="sm">
-                            تعطيل الحساب
-                          </Button>
-                          <Button size="sm">إرسال إشعار</Button>
+                          <Dialog>
+                            <DialogTrigger asChild>
+                              <Button variant="outline" size="sm">
+                                حظر
+                              </Button>
+                            </DialogTrigger>
+                            <form>
+                              <DialogContent>
+                                <DialogHeader>
+                                  <DialogTitle>
+                                    حظر المستخدم {user.first_name}{" "}
+                                    {user.last_name}
+                                  </DialogTitle>
+                                  <DialogDescription>
+                                    رجاء قم بتحديد مدة وسبب حظر المستخدم
+                                  </DialogDescription>
+                                </DialogHeader>
+                                <label htmlFor="reason">سبب الحظر</label>
+                                <Textarea
+                                  placeholder="اكتب السبب هنا"
+                                  id="reason"
+                                ></Textarea>
+                                <label htmlFor="duration">مدة الحظر</label>
+                                <Input type="number" id="duration" />
+                                <Select>
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="نوع مدة الحظر" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="minutes">
+                                      دقائق
+                                    </SelectItem>
+                                    <SelectItem value="hours">ساعات</SelectItem>
+                                    <SelectItem value="days">ايام</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                                <DialogFooter>
+                                  <DialogClose asChild>
+                                    <Button variant="secondary">الغاء</Button>
+                                  </DialogClose>
+                                  <Button
+                                    onClick={() => handelUserBan(user.id)}
+                                    type="submit"
+                                  >
+                                    حظر المستخدم
+                                  </Button>
+                                </DialogFooter>
+                              </DialogContent>
+                            </form>
+                          </Dialog>
+                          <Dialog>
+                            <DialogTrigger asChild>
+                              <Button variant="destructive" size="sm">
+                                تعطيل الحساب
+                              </Button>
+                            </DialogTrigger>
+                            <DialogContent>
+                              <DialogHeader>
+                                <DialogTitle>
+                                  تعطيل حساب المستخدم {user.first_name}{" "}
+                                  {user.last_name}
+                                </DialogTitle>
+                                <DialogDescription>
+                                  يرجى الانتباه، تعطيل حساب المستخدم يعني حذفه
+                                  بالكامل هل تريد الاستمرار بهذا الاجراء؟
+                                </DialogDescription>
+                              </DialogHeader>
+                              <DialogFooter>
+                                <DialogClose asChild>
+                                  <Button variant="secondary">الغاء</Button>
+                                </DialogClose>
+                                <Button
+                                  onClick={() => handelUserBlock(user.id)}
+                                  type="submit"
+                                >
+                                  تعطيل الحساب
+                                </Button>
+                              </DialogFooter>
+                            </DialogContent>
+                          </Dialog>
+                          <Dialog>
+                            <form>
+                              <DialogTrigger asChild>
+                                <Button size="sm">إرسال إشعار</Button>
+                              </DialogTrigger>
+                              <DialogContent>
+                                <DialogHeader>
+                                  <DialogTitle>
+                                    ارسال اشعار للمستخدم {user.first_name}{" "}
+                                    {user.last_name}
+                                  </DialogTitle>
+                                  <DialogDescription>
+                                    سيصل الاشعار اليه فقط
+                                  </DialogDescription>
+                                </DialogHeader>
+                                <Textarea placeholder="اكتب الرسالة هنا" />
+                                <DialogFooter>
+                                  <DialogClose asChild>
+                                    <Button variant="secondary">الغاء</Button>
+                                  </DialogClose>
+                                  <Button
+                                    onClick={() => handelUserNotify(user.id)}
+                                    type="submit"
+                                  >
+                                    ارسال الاشعار
+                                  </Button>
+                                </DialogFooter>
+                              </DialogContent>
+                            </form>
+                          </Dialog>
                         </CardFooter>
                       </Card>
                     ))}
@@ -469,7 +672,9 @@ export default function AdminDashboard() {
               </CardContent>
               <CardFooter>
                 <Button asChild className="w-full">
-                  <Link href="/admin/users">إدارة المستخدمين</Link>
+                  <Link href="/admin/users">
+                    ارسال اشعارات لكافة المستخدمين
+                  </Link>
                 </Button>
               </CardFooter>
             </Card>
@@ -479,13 +684,10 @@ export default function AdminDashboard() {
               <h2 className="text-xl font-bold tracking-tight">
                 إدارة المتاجر
               </h2>
-              <Button asChild size="sm" variant="outline">
-                <Link href="/admin/stores">عرض جميع المتاجر</Link>
-              </Button>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {storeData.slice(0, 3).map((store) => (
+              {storeData.map((store) => (
                 <Card key={store.id} className="overflow-hidden">
                   <div className="relative h-32 w-full">
                     <img
@@ -505,34 +707,77 @@ export default function AdminDashboard() {
                     <div className="flex justify-between items-start">
                       <div>
                         <h3 className="font-bold">{store.store_name}</h3>
+                        {store.status === 1 ? (
+                          <Badge>نشط</Badge>
+                        ) : (
+                          <Badge variant="destructive">معطل</Badge>
+                        )}
                       </div>
                     </div>
-                    {/* <div className="flex flex-wrap gap-2 mt-3">
-                      {store.categories.slice(0, 3).map((category) => (
-                        <Badge
-                          key={category}
-                          variant="secondary"
-                          className="text-xs"
-                        >
-                          {category}
-                        </Badge>
-                      ))}
-                    </div> */}
                   </CardContent>
                   <CardFooter className="p-4 pt-0 flex justify-between">
                     <span className="text-xs text-muted-foreground">
                       رقم ملكية المتجر: {store.user.id}
                     </span>
                     <div className="flex gap-2">
-                      <Button asChild size="sm" variant="outline">
-                        <Link href={`/admin/stores/${store.id}`}>
-                          إدارة المتجر
-                        </Link>
-                      </Button>
-                      <Button asChild size="sm" variant="destructive">
-                        <Link href={`/admin/stores/${store.id}/block`}>
-                          حظر
-                        </Link>
+                      <Dialog>
+                        <DialogTrigger asChild>
+                          <Button variant="outline" size="sm">
+                            ادارة المتجر
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent>
+                          <DialogHeader>
+                            <DialogTitle>ادارة المتجر</DialogTitle>
+                            <DialogDescription>
+                              ادارة المتجر صاحب الاسم "{store.store_name}"
+                            </DialogDescription>
+                          </DialogHeader>
+                          <Button
+                            onClick={() => handelStoreDelete(store.id)}
+                            type="submit"
+                            variant={"destructive"}
+                            className="block"
+                          >
+                            حذف
+                          </Button>
+                          <Button
+                            onClick={() => handelStoreBan(store.id)}
+                            type="submit"
+                            variant={"outline"}
+                          >
+                            حظر
+                          </Button>
+                          <div className="flex items-center gap-1">
+                            <Button
+                              onClick={() => handelStoreStatus(store.id)}
+                              type="submit"
+                              variant={"outline"}
+                            >
+                              تغيير الحالة
+                            </Button>
+                            {store.status === 1 && (
+                              <>
+                                <div className="h-2 w-2 rounded-full bg-green-500" />
+                                <span>نشط</span>
+                              </>
+                            )}
+                            {store.status === 0 && (
+                              <>
+                                <div className="h-2 w-2 rounded-full bg-red-500" />
+                                <span>غير نشط</span>
+                              </>
+                            )}
+                          </div>
+                          <DialogFooter>
+                            <DialogClose>
+                              <Button variant={"secondary"}>الغاء</Button>
+                            </DialogClose>
+                          </DialogFooter>
+                        </DialogContent>
+                      </Dialog>
+                      <Button asChild size="sm">
+                        <Link href={`/stores/${store.id}`}>عرض</Link>
                       </Button>
                     </div>
                   </CardFooter>
@@ -540,59 +785,62 @@ export default function AdminDashboard() {
               ))}
             </div>
           </TabsContent>
-          <TabsContent value="services" className="space-y-4">
+          <TabsContent value="products" className="space-y-4">
             <div className="flex items-center justify-between">
               <h2 className="text-xl font-bold tracking-tight">
-                إدارة الخدمات
+                ادارة البضائع
               </h2>
-              <Button asChild size="sm">
-                <Link href="/admin/services/new">
-                  <AlertTriangle className="mr-2 h-4 w-4" />
-                  إضافة خدمة طوارئ
-                </Link>
-              </Button>
             </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {/* {services.slice(0, 3).map((service) => (
-                <Card key={service.id} className="overflow-hidden">
-                  <div className="relative h-32 w-full">
-                    <img
-                      src={service.image || "/placeholder.svg"}
-                      alt={service.name}
-                      className="h-full w-full object-cover"
-                    />
-                    <div className="absolute top-4 left-4">
-                      <Badge className={service.isEmergency ? "bg-red-500" : "bg-green-500"}>
-                        {service.isEmergency ? "طوارئ" : "عادية"}
-                      </Badge>
-                    </div>
+            {productData.map((product) => (
+              <Card
+                key={product.id}
+                className="flex flex-col md:flex-row md:justify-between md:space-x-2 mb-2 md:mb-0 justify-between md:items-center p-4 rounded-lg border border-gray-300"
+              >
+                <CardHeader className="flex items-center justify-between">
+                  <CardTitle className="text-lg font-bold">
+                    <div>{product.name}</div>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-sm font-semibold">تاريخ الإنشاء:</div>
+                  <div className="text-xs text-muted-foreground">
+                    {new Date(product.created_at).toLocaleString()}
                   </div>
-                  <CardContent className="p-4">
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <h3 className="font-bold">{service.name}</h3>
-                        <p className="text-sm text-muted-foreground line-clamp-1">{service.description}</p>
-                      </div>
-                      <Badge variant={service.isOpen ? "default" : "secondary"}>
-                        {service.isOpen ? "مفتوح" : "مغلق"}
-                      </Badge>
-                    </div>
-                    <div className="mt-3">
-                      <Badge variant="outline" className="text-xs">
-                        {service.category}
-                      </Badge>
-                    </div>
-                  </CardContent>
-                  <CardFooter className="p-4 pt-0 flex justify-between">
-                    <span className="text-xs text-muted-foreground">{service.location.address}</span>
-                    <Button asChild size="sm">
-                      <Link href={`/admin/services/${service.id}`}>إدارة</Link>
-                    </Button>
-                  </CardFooter>
-                </Card>
-              ))} */}
-            </div>
+                </CardContent>
+                <CardFooter className="flex gap-2">
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <Button variant="destructive" size="sm">
+                        حذف
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle>حذف البضاعة</DialogTitle>
+                        <DialogDescription>
+                          هل تريد الاستمرار بحذف البضاعة "{product.name}"
+                        </DialogDescription>
+                      </DialogHeader>
+                      <DialogFooter>
+                        <DialogClose asChild>
+                          <Button variant="secondary">الغاء</Button>
+                        </DialogClose>
+                        <Button
+                          onClick={() => handelProductDelete(product.id)}
+                          type="submit"
+                          variant={"destructive"}
+                        >
+                          حذف
+                        </Button>
+                      </DialogFooter>
+                    </DialogContent>
+                  </Dialog>
+                  <Button className="text-sm font-semibold">
+                    <Link href={`/products/${product.id}`}>عرض</Link>
+                  </Button>
+                </CardFooter>
+              </Card>
+            ))}
           </TabsContent>
           <TabsContent value="analytics" className="space-y-4">
             <h2 className="text-xl font-bold tracking-tight">تحليلات المنصة</h2>

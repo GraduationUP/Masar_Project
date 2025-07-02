@@ -24,7 +24,7 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { ChevronLeft, Loader2, Package, Upload } from "lucide-react";
 import { redirect } from "next/navigation";
-import { SuccessAlert } from "@/components/successAlert";
+import { SuccessAlert } from "@/components/customAlert"; // TODO Add custom alert
 
 // Dynamically import Leaflet with ssr: false
 const LeafletMap = lazy(() =>
