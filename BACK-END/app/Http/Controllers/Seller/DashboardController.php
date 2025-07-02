@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Seller;
 
-use App\Models\Analytics;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
@@ -56,9 +55,7 @@ class DashboardController extends Controller
         $totalRatings = $store->ratings()->count();
         $totalComments = $store->comments()->count();
 
-        $productIds = $products->pluck('id');
-        $totalViews = Analytics::whereIn('product_id', $productIds)->sum('views');
-        $totalClicks = Analytics::whereIn('product_id', $productIds)->sum('clicks');
+        
 
         return response()->json([
             'store' => [
@@ -72,13 +69,6 @@ class DashboardController extends Controller
                 'longitude' => $store->longitude,
             ],
 
-            'stats' => [
-                'total_products' => $totalProducts,
-                'total_ratings' => $totalRatings,
-                'total_comments' => $totalComments,
-                'total_views' => $totalViews,
-                'total_clicks' => $totalClicks,
-            ],
 
             'recent_products' => $products->map(function ($product) {
                 return [
