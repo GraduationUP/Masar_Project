@@ -25,18 +25,7 @@ class ProductController extends Controller
     {
         $product = Product::with('store', 'category')->findOrFail($id);
 
-        // تسجيل المشاهدة
-        $sellerId = $product->store->user_id; // تأكد من أن عندك علاقة user في Store أو عدل حسب الواقع
-        $today = Carbon::today()->toDateString();
 
-        $analytics = Analytics::firstOrNew([
-            'seller_id' => $sellerId,
-            'product_id' => $product->id,
-            'date' => $today,
-        ]);
-
-        $analytics->views = $analytics->views + 1;
-        $analytics->save();
 
         return response()->json([
             'status' => true,
