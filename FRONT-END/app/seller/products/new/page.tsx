@@ -24,7 +24,7 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { ChevronLeft, Loader2, Package, Upload } from "lucide-react";
 import { redirect } from "next/navigation";
-import { SuccessAlert } from "@/components/customAlert"; // TODO Add custom alert
+import { CustomAlert } from "@/components/customAlert"; // TODO Add custom alert
 
 // Dynamically import Leaflet with ssr: false
 const LeafletMap = lazy(() =>
@@ -234,10 +234,11 @@ export default function NewProductPage() {
           </div>
         </div>
         <form onSubmit={handleSubmit}>
-          <SuccessAlert
+          <CustomAlert
             message="تم اضافة المنتج بنجاح"
             show={showSuccess}
             onClose={() => setShowSuccess(false)}
+            success
           />
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div className="lg:col-span-2 space-y-6">

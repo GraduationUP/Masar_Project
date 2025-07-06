@@ -1,6 +1,7 @@
 "use client";
 
 // TODO : Solve api issue for the password
+// TODO : Fix page layout
 
 import { FormEvent, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -33,7 +34,7 @@ import React from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { SuccessAlert } from "@/components/customAlert";
+import { CustomAlert } from "@/components/customAlert";
 import Loading from "./loading";
 import {
   Dialog,
@@ -332,19 +333,18 @@ export default function ProfilePage() {
           )}
         </div>
         <div className="flex flex-col md:flex-row gap-8">
-          <SuccessAlert
+          <CustomAlert
             message="تم تحديث البيانات بنجاح"
             show={successAlert}
             onClose={() => setSucssesAlert(false)}
+            success
           />
           {/* Sidebar */}
           <Card className="w-full md:w-1/3 h-fit">
-            <CardContent className="p-6">
-              {ownerData.first_name === "" && (
+            <CardContent className="p-6"> 
                 <div className="flex" title="ابلاغ">
                   {data.store !== null && <Badge>صاحب متجر</Badge>}
                 </div>
-              )}
               {isUser && ownerData.first_name === "" && (
                 <Dialog open={open} onOpenChange={setOpen}>
                   <DialogTrigger asChild>
