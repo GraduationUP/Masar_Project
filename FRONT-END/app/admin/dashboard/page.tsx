@@ -1,5 +1,5 @@
 "use client";
-
+// TODO : Add isSubmitting instead of Loading
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
@@ -101,6 +101,7 @@ interface ProductData {
 export default function AdminDashboard() {
   const [user, setUser] = useState<UserInfo | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
   const [showSuccessAlert, setShowSuccessAlert] = useState(false);
   const [showFailAlert, setShowFailAlert] = useState(false);
@@ -243,16 +244,16 @@ export default function AdminDashboard() {
     fetchServicesData();
   }, []);
 
-  async function handelUserBan(id: number) {
+  async function handelUserBlock(id: number) {
     try {
       const token = localStorage.getItem("authToken");
-      const response = await fetch(
-        `${API_BASE_URL}/api/admin/users/${id}/ban`,
-        {
-          method: "GET",
-          headers: { "Content-Type": "application/json" },
-        }
-      );
+      const response = await fetch(`${API_BASE_URL}/api/admin/users/${id}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
       if (!response.ok)
         throw new Error(`HTTP error! status: ${response.status}`);
       setShowSuccessAlert(true);
@@ -264,9 +265,44 @@ export default function AdminDashboard() {
     }
   }
 
-  async function handelUserBlock(id: number) {
-    console.log(`Blocking user with ID: ${id}`);
-    setShowSuccessAlert(true);
+  async function handelUserBan(
+    id: number,
+    reason: string,
+    durationValue: number,
+    durationUnit: string
+  ) {
+    setLoading(true);
+    try {
+      const token = localStorage.getItem("authToken");
+      const response = await fetch(
+        `${API_BASE_URL}/api/admin/users/${id}/ban`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            reason: reason,
+            duration_value: durationValue,
+            duration_unit: durationUnit,
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error("Error banning user:", errorData);
+        setShowFailAlert(true);
+        return;
+      }
+      setShowSuccessAlert(true);
+    } catch (error) {
+      console.error("Error banning user:", error);
+      setShowFailAlert(true);
+    } finally {
+      setLoading(false);
+    }
   }
 
   async function handelUserNotify(id: number) {
@@ -274,9 +310,25 @@ export default function AdminDashboard() {
     setShowSuccessAlert(true);
   }
 
-  async function handelStoreDelete(id: number) {
-    console.log(`Deleting store with ID: ${id}`);
-    setShowSuccessAlert(true);
+  async function handelStoreDelete(id: number) { // TODO : Test
+    try {
+      const token = localStorage.getItem("authToken");
+      const response = await fetch(`${API_BASE_URL}/api/admin/stores/${id}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (!response.ok)
+        throw new Error(`HTTP error! status: ${response.status}`);
+      setShowSuccessAlert(true);
+    } catch (error) {
+      console.error("Error fetching stores data:", error);
+      setShowFailAlert(true);
+    } finally {
+      setLoading(false);
+    }
   }
 
   async function handelStoreBan(id: number) {

@@ -6,7 +6,7 @@ import {
   CardContent,
   CardFooter,
 } from "@/components/ui/card";
-import { Badge } from "../ui/badge";
+import { Badge } from "@/components/ui/badge";
 import BanUserDialog from "./BanUserDialog";
 import DisableUserDialog from "./DisableUserDialog";
 import SendUserNotificationDialog from "./SendUserNotificationCard";
@@ -42,9 +42,15 @@ interface userData {
   roles: Roles[];
   ban: Ban | null;
 }
+
 interface UserCardProps {
   user: userData;
-  onBan: (id: number) => Promise<void>;
+  onBan: (
+    id: number,
+    reason: string,
+    duration: number,
+    durationType: string
+  ) => Promise<void>; // Updated onBan type
   onBlock: (id: number) => Promise<void>;
   onNotify: (id: number) => Promise<void>;
 }
@@ -67,18 +73,7 @@ const UserCard: React.FC<UserCardProps> = ({
           {user.ban !== null && <Badge variant="destructive">محظور</Badge>}
         </CardTitle>
       </CardHeader>
-      <CardContent>
-        <div>
-          <p className="text-sm font-semibold">البريد الإلكتروني:</p>
-          <p className="text-sm text-muted-foreground">{user.email}</p>
-        </div>
-        <div>
-          <p className="text-sm font-semibold">تاريخ الإنشاء:</p>
-          <p className="text-xs text-muted-foreground">
-            {new Date(user.created_at).toLocaleString()}
-          </p>
-        </div>
-      </CardContent>
+      {/* ... other CardContent */}
       <CardFooter className="flex gap-2">
         <BanUserDialog user={user} onBan={onBan} />
         <DisableUserDialog user={user} onBlock={onBlock} />

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Dialog,
   DialogClose,
@@ -53,10 +53,27 @@ interface userData {
 }
 interface BanUserDialogProps {
   user: userData;
-  onBan: (id: number) => Promise<void>;
+  onBan: (
+    id: number,
+    reason: string,
+    durationValue: number,
+    durationUnit: string
+  ) => Promise<void>;
 }
 
 const BanUserDialog: React.FC<BanUserDialogProps> = ({ user, onBan }) => {
+  const [banReason, setBanReason] = useState("");
+  const [banDuration, setBanDuration] = useState<number | undefined>(undefined);
+  const [banDurationType, setBanDurationType] = useState<string>("");
+
+  const handleBanSubmit = () => {
+    if (banDuration && banDurationType) {
+      onBan(user.id, banReason, banDuration, banDurationType);
+    } else {
+      alert("Please specify the ban duration and type.");
+    }
+  };
+
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -64,7 +81,9 @@ const BanUserDialog: React.FC<BanUserDialogProps> = ({ user, onBan }) => {
           حظر
         </Button>
       </DialogTrigger>
-      <form>
+      <form onSubmit={(e) => e.preventDefault()}>
+        {" "}
+        {/* Prevent default form submission */}
         <DialogContent>
           <DialogHeader>
             <DialogTitle>
@@ -75,10 +94,22 @@ const BanUserDialog: React.FC<BanUserDialogProps> = ({ user, onBan }) => {
             </DialogDescription>
           </DialogHeader>
           <label htmlFor="reason">سبب الحظر</label>
-          <Textarea placeholder="اكتب السبب هنا" id="reason"></Textarea>
+          <Textarea
+            placeholder="اكتب السبب هنا"
+            id="reason"
+            value={banReason}
+            onChange={(e) => setBanReason(e.target.value)}
+          ></Textarea>
           <label htmlFor="duration">مدة الحظر</label>
-          <Input type="number" id="duration" />
-          <Select>
+          <Input
+            type="number"
+            id="duration"
+            value={banDuration}
+            onChange={(e) =>
+              setBanDuration(parseInt(e.target.value) || undefined)
+            }
+          />
+          <Select onValueChange={setBanDurationType}>
             <SelectTrigger>
               <SelectValue placeholder="نوع مدة الحظر" />
             </SelectTrigger>
@@ -92,7 +123,7 @@ const BanUserDialog: React.FC<BanUserDialogProps> = ({ user, onBan }) => {
             <DialogClose asChild>
               <Button variant="secondary">الغاء</Button>
             </DialogClose>
-            <Button onClick={() => onBan(user.id)} type="submit">
+            <Button onClick={handleBanSubmit} type="button">
               حظر المستخدم
             </Button>
           </DialogFooter>

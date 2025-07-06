@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Dialog,
   DialogClose,
@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 
-interface storeUser {
+interface StoreUser {
   id: number;
   first_name: string;
   last_name: string;
@@ -20,8 +20,7 @@ interface storeUser {
   created_at: string;
   updated_at: string;
 }
-
-interface storeData {
+interface StoreData {
   id: number;
   user_id: number;
   store_name: string;
@@ -34,26 +33,145 @@ interface storeData {
   updated_at: string;
   latitude: string | null;
   longitude: string | null;
-  user: storeUser;
+  user: StoreUser;
 }
 interface ManageStoreDialogProps {
-  store: storeData;
+  store: StoreData;
 }
 
 const ManageStoreDialog: React.FC<ManageStoreDialogProps> = ({ store }) => {
-  const handelStoreDelete = (id: number) => {
-    console.log(`Deleting store with ID: ${id}`);
-    // Your delete logic here
+  const [deleteLoading, setDeleteLoading] = useState(false);
+  const [banLoading, setBanLoading] = useState(false);
+  const [unbanLoading, setUnbanLoading] = useState(false);
+  const [statusLoading, setStatusLoading] = useState(false); // New loading state for status
+  const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
+
+  const handelStoreDelete = async (id: number) => {
+    setDeleteLoading(true);
+    try {
+      const token = localStorage.getItem("authToken");
+      const response = await fetch(`${API_BASE_URL}/api/admin/stores/${id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error("Error deleting store:", errorData);
+        alert("Failed to delete store.");
+        return;
+      }
+      alert("Store deleted successfully!");
+      window.location.reload();
+    } catch (error) {
+      console.error("Error deleting store:", error);
+      alert("An unexpected error occurred while deleting the store.");
+    } finally {
+      setDeleteLoading(false);
+    }
   };
 
-  const handelStoreBan = (id: number) => {
-    console.log(`Banning store with ID: ${id}`);
-    // Your ban logic here
+  const handelStoreBan = async (id: number) => {
+    setBanLoading(true);
+    try {
+      const token = localStorage.getItem("authToken");
+      const response = await fetch(
+        `${API_BASE_URL}/api/admin/stores/${id}/ban`,
+        {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error("Error banning store:", errorData);
+        alert("Failed to ban store.");
+        return;
+      }
+      alert("Store banned successfully!");
+      window.location.reload();
+    } catch (error) {
+      console.error("Error banning store:", error);
+      alert("An unexpected error occurred while trying to ban the store.");
+    } finally {
+      setBanLoading(false);
+    }
   };
 
-  const handelStoreStatus = (id: number) => {
-    console.log(`Changing status of store with ID: ${id}`);
-    // Your status change logic here
+  const handelStoreUnban = async (id: number) => {
+    setUnbanLoading(true);
+    try {
+      const token = localStorage.getItem("authToken");
+      const response = await fetch(
+        `${API_BASE_URL}/api/admin/stores/${id}/unban`,
+        {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error("Error unbanning store:", errorData);
+        alert("Failed to unban store.");
+        return;
+      }
+      alert("Store unbanned successfully!");
+      window.location.reload();
+    } catch (error) {
+      console.error("Error unbanning store:", error);
+      alert("An unexpected error occurred while trying to unban the store.");
+    } finally {
+      setUnbanLoading(false);
+    }
+  };
+
+  const handelStoreUpdateStatus = async (id: number, isActive: boolean) => {
+    setStatusLoading(true);
+    try {
+      const token = localStorage.getItem("authToken");
+      const response = await fetch(
+        `${API_BASE_URL}/api/admin/stores/${id}/status`,
+        {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            active: isActive ? 1 : 0, // Assuming your backend uses 1 for active and 0 for inactive
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error("Error updating store status:", errorData);
+        alert(`Failed to ${isActive ? "activate" : "deactivate"} store.`);
+        return;
+      }
+      alert(`Store ${isActive ? "activated" : "deactivated"} successfully!`);
+      window.location.reload();
+    } catch (error) {
+      console.error("Error updating store status:", error);
+      alert(
+        `An unexpected error occurred while trying to ${
+          isActive ? "activate" : "deactivate"
+        } the store.`
+      );
+    } finally {
+      setStatusLoading(false);
+    }
   };
 
   return (
@@ -72,26 +190,45 @@ const ManageStoreDialog: React.FC<ManageStoreDialogProps> = ({ store }) => {
         </DialogHeader>
         <Button
           onClick={() => handelStoreDelete(store.id)}
-          type="submit"
+          type="button"
           variant={"destructive"}
           className="block"
+          disabled={
+            deleteLoading || banLoading || unbanLoading || statusLoading
+          }
         >
-          حذف
+          {deleteLoading ? "جاري الحذف..." : "حذف"}
         </Button>
         <Button
-          onClick={() => handelStoreBan(store.id)}
-          type="submit"
+          onClick={() =>
+            store.is_banned
+              ? handelStoreUnban(store.id)
+              : handelStoreBan(store.id)
+          }
+          type="button"
           variant={"outline"}
+          disabled={
+            deleteLoading || banLoading || unbanLoading || statusLoading
+          }
         >
-          حظر
+          {banLoading || unbanLoading
+            ? store.is_banned
+              ? "جاري الغاء الحظر..."
+              : "جاري الحظر..."
+            : store.is_banned
+            ? "الغاء الحظر"
+            : "حظر"}
         </Button>
         <div className="flex items-center gap-1">
           <Button
-            onClick={() => handelStoreStatus(store.id)}
-            type="submit"
+            onClick={() => handelStoreUpdateStatus(store.id, !store.active)} // Toggle active status
+            type="button"
             variant={"outline"}
+            disabled={
+              deleteLoading || banLoading || unbanLoading || statusLoading
+            }
           >
-            تغيير الحالة
+            {statusLoading ? "جاري تغيير الحالة..." : "تغيير الحالة"}
           </Button>
           {store.active === 1 && (
             <>
@@ -108,7 +245,14 @@ const ManageStoreDialog: React.FC<ManageStoreDialogProps> = ({ store }) => {
         </div>
         <DialogFooter>
           <DialogClose>
-            <Button variant={"secondary"}>الغاء</Button>
+            <Button
+              variant={"secondary"}
+              disabled={
+                deleteLoading || banLoading || unbanLoading || statusLoading
+              }
+            >
+              الغاء
+            </Button>
           </DialogClose>
         </DialogFooter>
       </DialogContent>

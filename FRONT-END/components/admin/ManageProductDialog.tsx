@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Dialog,
   DialogClose,
@@ -38,9 +38,38 @@ interface ManageProductDialogProps {
 const ManageProductDialog: React.FC<ManageProductDialogProps> = ({
   product,
 }) => {
-  const handelProductDelete = (id: number) => {
-    console.log(`Deleting product with ID: ${id}`);
-    // Your delete logic here
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [faliuer, setFailuer] = useState(false);
+  const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
+
+  const handelProductDelete = async (id: number) => {
+    setLoading(true);
+    try {
+      const token = localStorage.getItem("authToken");
+      const response = await fetch(`${API_BASE_URL}/api/admin/products/${id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error("Error deleting product:", errorData);
+        setFailuer(true);
+        return;
+      }
+
+      setSuccess(true);
+      window.location.reload();
+    } catch (error) {
+      console.error("Error deleting product:", error);
+      alert("An unexpected error occurred while deleting the product.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -60,10 +89,11 @@ const ManageProductDialog: React.FC<ManageProductDialogProps> = ({
         </DialogHeader>
         <Button
           onClick={() => handelProductDelete(product.id)}
-          type="submit"
+          type="button"
           variant={"destructive"}
+          disabled={loading}
         >
-          حذف المنتج
+          {loading ? "جاري الحذف..." : "حذف المنتج"}
         </Button>
         <Link
           href={`/products/${product.id}`}
@@ -73,9 +103,17 @@ const ManageProductDialog: React.FC<ManageProductDialogProps> = ({
         </Link>
         <DialogFooter>
           <DialogClose asChild>
-            <Button variant={"secondary"}>الغاء</Button>
+            <Button variant={"secondary"} disabled={loading}>
+              الغاء
+            </Button>
           </DialogClose>
         </DialogFooter>
+        {success && (
+          <p className="text-sm text-green-400">تم حذف المنتج بنجاح</p>
+        )}
+        {faliuer && (
+          <p className="text-sm text-red-400">حدث خطأ ما! حاول مجدداً</p>
+        )}
       </DialogContent>
     </Dialog>
   );

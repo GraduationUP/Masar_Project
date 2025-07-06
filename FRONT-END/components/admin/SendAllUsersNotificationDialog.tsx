@@ -26,7 +26,7 @@ const SendAllUsersNotificationDialog: React.FC<
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button className="w-1/6">ارسال اشعارات لكافة المستخدمين</Button>
+        <Button className="w-fit">ارسال اشعارات لكافة المستخدمين</Button>
       </DialogTrigger>
       <form>
         <DialogContent>

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import {
   Card,
   CardContent,
@@ -42,14 +42,18 @@ interface userData {
   roles: Roles[];
   ban: Ban | null;
 }
-
 interface UserManagementTabProps {
   userData: userData[];
   searchTerm: string;
   userRoleFilter: string;
   userRoleOptions: { value: string; label: string }[];
   handleUsersSearch: (term: string, role: string) => void;
-  handelUserBan: (id: number) => Promise<void>;
+  handelUserBan: (
+    id: number,
+    reason: string,
+    durationValue: number,
+    durationUnit: string
+  ) => Promise<void>;
   handelUserBlock: (id: number) => Promise<void>;
   handelUserNotify: (id: number) => Promise<void>;
 }
