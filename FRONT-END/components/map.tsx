@@ -1,3 +1,4 @@
+// TODO : fix the api issue
 "use client";
 
 import React, { useEffect, useState } from 'react';
@@ -9,6 +10,12 @@ import { Input } from './ui/input';
 import { Search } from 'lucide-react';
 import { Label } from './ui/label';
 import classes from './map.module.css';
+
+interface Props  {
+  length: number;
+  zoomLocation: string;
+  coordinates: [number, number];
+}
 
 // Fix for default marker icons in Leaflet
 delete L.Icon.Default.prototype._getIconUrl;
@@ -36,7 +43,7 @@ const GazaMap = () => {
 
   // Load JSON data
   useEffect(() => {
-    fetch('/mapData.json')
+    fetch('http://127.0.0.1:8000/api/map-data')
       .then((response) => response.json())
       .then((data) => {
         setData(data);
@@ -48,12 +55,13 @@ const GazaMap = () => {
   }
 
   // Filtered data based on search term, ignoring case
-  const filteredAids = data.aids.filter(store => store.name.toLowerCase().includes(searchTerm.toLowerCase()));
-  const filteredMarkets = data.markets.filter(market => market.name.toLowerCase().includes(searchTerm.toLowerCase()));
-  const filteredGasStations = data.GasStations.filter(station => station.name.toLowerCase().includes(searchTerm.toLowerCase()));
+  const filteredAids = data.aids.filter((store: { name: string; }) => store.name.toLowerCase().includes(searchTerm.toLowerCase()));
+  const filteredMarkets = data.markets.filter((market: { name: string; }) => market.name.toLowerCase().includes(searchTerm.toLowerCase()));
+  const filteredGasStations = data.GasStations.filter((station: { name: string; }) => station.name.toLowerCase().includes(searchTerm.toLowerCase()));
 
   return (
     <div>
+      {/* TODO: Add the stores */}
       <Card className="border-border/50 shadow-sm">
         <CardHeader className="pb-3">
           <CardTitle>اعثر على الخدمة التي تحتاجها</CardTitle>
@@ -99,17 +107,17 @@ const GazaMap = () => {
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         />
-        <ZoomToLocation zoomLocation={zoomLocation} />
+        <ZoomToLocation zoomLocation={zoomLocation} length={0} coordinates={[1,1]} />
 
-        {(viewOption === 'all' || viewOption === 'aids') && filteredAids.map((store, index) => (
-          <Marker key={`store-${index}`} position={store.coordinates}>
+        {(viewOption === 'all' || viewOption === 'aids') && filteredAids.map((aid: { coordinates: unknown; name: string | number | bigint | boolean | React.ReactElement<unknown, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | React.ReactPortal | Promise<string | number | bigint | boolean | React.ReactPortal | React.ReactElement<unknown, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | null | undefined> | null | undefined; }, index: any) => (
+          <Marker key={`aid-${index}`} position={aid.coordinates}>
             <Popup>
-              <b>{store.name}</b>
+              <b>{aid.name}</b>
             </Popup>
           </Marker>
         ))}
 
-        {(viewOption === 'all' || viewOption === 'markets') && filteredMarkets.map((market, index) => (
+        {(viewOption === 'all' || viewOption === 'markets') && filteredMarkets.map((market: { coordinates: Props | LatLngExpression[]; name: any; }, index: any) => (
           <React.Fragment key={`market-${index}`}>
             <Polyline positions={market.coordinates} color="blue" weight={3} opacity={0.7} />
             <Marker
@@ -123,7 +131,7 @@ const GazaMap = () => {
           </React.Fragment>
         ))}
 
-        {(viewOption === 'all' || viewOption === 'GasStations') && filteredGasStations.map((station, index) => (
+        {(viewOption === 'all' || viewOption === 'GasStations') && filteredGasStations.map((station: { coordinates: unknown; name: string | number | bigint | boolean | React.ReactElement<unknown, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | React.ReactPortal | Promise<string | number | bigint | boolean | React.ReactPortal | React.ReactElement<unknown, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | null | undefined> | null | undefined; }, index: any) => (
           <Marker
             key={`gas-${index}`}
             position={station.coordinates}
@@ -141,7 +149,7 @@ const GazaMap = () => {
   );
 };
 
-const ZoomToLocation = ({ zoomLocation }) => {
+const ZoomToLocation: React.FC<Props> = ({ zoomLocation }) => {
   const map = useMap();
   useEffect(() => {
     const [latitude, longitude] = zoomLocation.split(',').map(Number);
@@ -153,9 +161,9 @@ const ZoomToLocation = ({ zoomLocation }) => {
 };
 
 // Function to calculate the center of a set of coordinates
-const getCenter = (coordinates) => {
-  const latSum = coordinates.reduce((sum, coord) => sum + coord[0], 0);
-  const lngSum = coordinates.reduce((sum, coord) => sum + coord[1], 0);
+const getCenter: React.FC<Props> = (coordinates) => {
+  const latSum = coordinates.reduce((sum: number, coord: number[]) => sum + coord[0], 0);
+  const lngSum = coordinates.reduce((sum: number, coord: number[]) => sum + coord[1], 0);
   return [latSum / coordinates.length, lngSum / coordinates.length];
 };
 

@@ -1,166 +1,50 @@
-"use client"
+"use client";
 
-import { useEffect, useState } from "react"
-import Link from "next/link"
-import { useParams } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Badge } from "@/components/ui/badge"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Info, Mail, MapPin, MessageSquare, Phone, ShoppingBag, Star } from "lucide-react"
-import { useAuth } from "@/lib/auth-context"
-import dynamic from "next/dynamic"
-import { useRouter } from "next/navigation"
+// TODO : Handele redirect if there was no store
+// TODO : Fix the map issue
 
-// Define your types
-type Product = {
-  id: string
-  name: string
-  description: string
-  price: number
-  image?: string
-  category: string
-  rating?: number
-  storeId: string
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import { useParams } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  Info,
+  Mail,
+  MapPin,
+  MessageSquare,
+  Phone,
+  ShoppingBag,
+  Star,
+} from "lucide-react";
+import dynamic from "next/dynamic";
+import { useRouter } from "next/navigation";
+
+interface StoreData {
+  id: number;
+  name: string;
+  latitude: number;
+  longitude: number;
+  products: {
+    id: number;
+    store_id: number;
+    name: string;
+    description: string | null;
+    photo: string | null;
+    category_id: number;
+    price: string;
+    latitude: number | null;
+    longitude: number | null;
+    show_location: number;
+    created_at: string;
+    updated_at: string;
+  }[];
+  reviews: {}[];
+  comments: {}[];
 }
-
-type Review = {
-  id: string
-  userId: string
-  userName: string
-  userAvatar?: string
-  rating: number
-  comment: string
-  createdAt: string
-  storeId: string
-}
-
-type Store = {
-  id: string
-  name: string
-  description: string
-  categories: string[]
-  logo?: string
-  coverImage?: string
-  rating?: number
-  contactInfo: {
-    phone: string
-    email: string
-    website?: string
-  }
-  location: {
-    address: string
-    lat: number
-    lng: number
-  }
-  openingHours: {
-    monday: string
-    tuesday: string
-    wednesday: string
-    thursday: string
-    friday: string
-    saturday: string
-    sunday: string
-  }
-}
-
-// Mock data arrays
-const mockStores: Store[] = [
-  {
-    id: "1",
-    name: "بنز اند بنز",
-    description: "محل حلو تعال جربه.",
-    categories: ["Clothing", "Accessories", "Footwear"],
-    logo: "/store-logos/fashion-haven.png",
-    coverImage: "/store-covers/fashion-haven.jpg",
-    rating: 4.5,
-    contactInfo: {
-      phone: "+1 (555) 123-4567",
-      email: "info@fashionhaven.com",
-      website: "fashionhaven.com",
-    },
-    location: {
-      address: "123 Fashion St, Trendy District, NY 10001",
-      lat: 40.7128,
-      lng: -74.006,
-    },
-    openingHours: {
-      monday: "9:00 AM - 8:00 PM",
-      tuesday: "9:00 AM - 8:00 PM",
-      wednesday: "9:00 AM - 8:00 PM",
-      thursday: "9:00 AM - 9:00 PM",
-      friday: "9:00 AM - 9:00 PM",
-      saturday: "10:00 AM - 8:00 PM",
-      sunday: "11:00 AM - 6:00 PM",
-    },
-  },
-  // Add more stores as needed
-]
-
-const mockProducts: Product[] = [
-  {
-    id: "101",
-    name: "Premium Denim Jeans",
-    description: "High-quality denim jeans with a perfect fit for all body types.",
-    price: 89.99,
-    image: "/products/jeans.jpg",
-    category: "Clothing",
-    rating: 4.7,
-    storeId: "1",
-  },
-  {
-    id: "102",
-    name: "Leather Crossbody Bag",
-    description: "Elegant leather bag with multiple compartments for your essentials.",
-    price: 129.99,
-    image: "/products/bag.jpg",
-    category: "Accessories",
-    rating: 4.9,
-    storeId: "1",
-  },
-  // Add more products as needed
-]
-
-const mockReviews: Review[] = [
-  {
-    id: "201",
-    userId: "user1",
-    userName: "Alex Johnson",
-    userAvatar: "/avatars/alex.jpg",
-    rating: 5,
-    comment: "Great store with amazing selection and friendly staff!",
-    createdAt: "2023-05-15T10:30:00Z",
-    storeId: "1",
-  },
-  {
-    id: "202",
-    userId: "user2",
-    userName: "Sam Wilson",
-    rating: 4,
-    comment: "Good quality products but a bit pricey.",
-    createdAt: "2023-05-10T14:45:00Z",
-    storeId: "1",
-  },
-  // Add more reviews as needed
-]
-
-// Helper functions to work with the mock data
-const getStoreById = (id: string): Store | undefined => {
-  return mockStores.find(store => store.id === id)
-}
-
-const getProductsByStore = (storeId: string): Product[] => {
-  return mockProducts.filter(product => product.storeId === storeId)
-}
-
-const getReviews = (storeId?: string): Review[] => {
-  if (storeId) {
-    return mockReviews.filter(review => review.storeId === storeId)
-  }
-  return mockReviews
-}
-
 // Dynamically import the map component to avoid SSR issues
 const MapWithNoSSR = dynamic(() => import("@/components/map"), {
   ssr: false,
@@ -169,39 +53,98 @@ const MapWithNoSSR = dynamic(() => import("@/components/map"), {
       <p className="text-muted-foreground">Loading map...</p>
     </div>
   ),
-})
+});
 
 export default function StorePage() {
-  const { id } = useParams()
-  const router = useRouter()
-  const { user } = useAuth()
-  const [store, setStore] = useState<Store | null>(null)
-  const [products, setProducts] = useState<Product[]>([])
-  const [reviews, setReviews] = useState<Review[]>([])
-  const [loading, setLoading] = useState(true)
+  const { id } = useParams();
+  const router = useRouter();
+  const [data, setData] = useState<StoreData | null>(null);
+  const [categories, setCategories] = useState<
+    Array<{ id: number; name: string }>
+  >([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (typeof id === "string") {
-      // Get store details
-      const storeData = getStoreById(id)
-      if (storeData) {
-        setStore(storeData)
+    async function fetchData() {
+      setLoading(true); // Set loading to true before the fetch
 
-        // Get store products
-        const storeProducts = getProductsByStore(id)
-        setProducts(storeProducts)
+      try {
+        const response = await fetch(
+          `http://127.0.0.1:8000/api/guest/stores/${id}`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
 
-        // Get reviews for this store
-        const storeReviews = getReviews(id)
-        setReviews(storeReviews)
-      } else {
-        // Store not found, redirect to 404
-        router.push("/not-found")
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const responseData = await response.json();
+        setData(responseData);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      } finally {
+        setLoading(false);
       }
     }
 
-    setLoading(false)
-  }, [id, router])
+    fetchData();
+  }, []);
+
+  useEffect(() => {
+    async function fetchData() {
+      setLoading(true);
+
+      try {
+        const response = await fetch(
+          `http://127.0.0.1:8000/api/guest/categories`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const responseData = await response.json();
+        if (responseData && Array.isArray(responseData.data)) {
+          setCategories(responseData.data);
+        } else if (Array.isArray(responseData)) {
+          setCategories(responseData);
+        } else {
+          console.error(
+            "Unexpected API response for categories:",
+            responseData
+          );
+          setCategories([]);
+        }
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+        setCategories([]);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchData();
+  }, []);
+
+  const storeCategories = data?.products?.reduce((acc, product) => {
+    if (Array.isArray(categories)) {
+      const category = categories.find((c) => c.id === product.category_id);
+      if (category && !acc.some((c) => c.id === category.id)) {
+        acc.push(category);
+      }
+    }
+    return acc;
+  }, [] as Array<{ id: number; name: string }>);
 
   if (loading) {
     return (
@@ -217,11 +160,7 @@ export default function StorePage() {
           </div>
         </div>
       </div>
-    )
-  }
-
-  if (!store) {
-    return null // Will redirect to not-found in the useEffect
+    );
   }
 
   return (
@@ -229,25 +168,33 @@ export default function StorePage() {
       <div className="flex flex-col gap-8">
         {/* Store Header */}
         <div className="relative h-64 md:h-80 w-full rounded-xl overflow-hidden shadow-md">
-          <img src={store.coverImage || "/placeholder.svg"} alt={store.name} className="h-full w-full object-cover" />
+          <img
+            src={"/storeBanner.svg"}
+            alt={data?.name}
+            className="h-full w-full object-cover"
+          />
           <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/50 to-transparent flex items-end">
             <div className="p-6 flex items-center gap-4">
               <div className="bg-background rounded-full p-1 shadow-lg">
                 <img
-                  src={store.logo || "/placeholder.svg"}
-                  alt={`${store.name} logo`}
+                  src={"/placeholder-store.png"}
+                  alt={`${data?.name} logo`}
                   className="h-20 w-20 rounded-full border-2 border-background"
                 />
               </div>
               <div>
-                <h1 className="text-3xl font-bold">{store.name}</h1>
+                <h1 className="text-3xl font-bold">{data?.name}</h1>
                 <div className="flex items-center gap-2 mt-1">
                   <div className="flex items-center">
                     <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                    <span className="ml-1 text-sm font-medium">{store.rating?.toFixed(1)}</span>
+                    <span className="ml-1 text-sm font-medium">
+                      {/* {store.rating?.toFixed(1)} TODO */}
+                    </span>
                   </div>
                   <span className="text-sm text-muted-foreground">•</span>
-                  <span className="text-sm text-muted-foreground">{store.location.address}</span>
+                  <span className="text-sm text-muted-foreground">
+                    {/* {store.location.address} TODO */}
+                  </span>
                 </div>
               </div>
             </div>
@@ -283,16 +230,22 @@ export default function StorePage() {
               </TabsList>
               <TabsContent value="about" className="space-y-6 animate-fade-in">
                 <div>
-                  <h2 className="text-xl font-bold mb-2">نبذة عن {store.name}</h2>
-                  <p className="text-muted-foreground">{store.description}</p>
+                  <h2 className="text-xl font-bold mb-2">
+                    نبذة عن {data?.name}
+                  </h2>
+                  {/* <p className="text-muted-foreground">{store.description}</p> TODO */}
                 </div>
 
                 <div>
                   <h3 className="text-lg font-bold mb-2">الأقسام</h3>
                   <div className="flex flex-wrap gap-2">
-                    {store.categories.map((category) => (
-                      <Badge key={category} variant="secondary" className="rounded-full">
-                        {category}
+                    {storeCategories?.map((category) => (
+                      <Badge
+                        key={category.id}
+                        variant="secondary"
+                        className="rounded-full"
+                      >
+                        {category.name}
                       </Badge>
                     ))}
                   </div>
@@ -303,19 +256,18 @@ export default function StorePage() {
                   <div className="space-y-2">
                     <div className="flex items-center gap-2">
                       <Phone className="h-4 w-4 text-muted-foreground" />
-                      <span>{store.contactInfo.phone}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Mail className="h-4 w-4 text-muted-foreground" />
-                      <span>{store.contactInfo.email}</span>
+                      {/* <span>{store.contactInfo.phone}</span> TODO */}
                     </div>
                   </div>
                 </div>
               </TabsContent>
-              <TabsContent value="products" className="space-y-6 animate-fade-in">
+              <TabsContent
+                value="products"
+                className="space-y-6 animate-fade-in"
+              >
                 <div>
                   <h2 className="text-xl font-bold mb-4">البضائع</h2>
-                  {products.length === 0 ? (
+                  {data?.products.length === 0 ? (
                     <div className="flex flex-col items-center justify-center py-12 text-center">
                       <ShoppingBag className="h-12 w-12 text-muted-foreground mb-4" />
                       <h3 className="text-lg font-medium">لا يوجد بضائع</h3>
@@ -325,30 +277,40 @@ export default function StorePage() {
                     </div>
                   ) : (
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 staggered-animation">
-                      {products.map((product) => (
+                      {data?.products.map((product) => (
                         <Link href={`/products/${product.id}`} key={product.id}>
                           <Card className="overflow-hidden h-full card-hover">
                             <div className="relative h-48 w-full">
-                              <img
-                                src={product.image || "/placeholder.svg"}
-                                alt={product.name}
-                                className="h-full w-full object-cover"
-                              />
+                              <div className="flex items-center justify-center w-full h-full">
+                                <img
+                                  src={product.photo || "/boxes.png"}
+                                  alt={product.name}
+                                  className="size-1/2 object-cover"
+                                />
+                              </div>
                               <div className="absolute top-4 left-4">
-                                <Badge className="glass-effect text-foreground">{product.category}</Badge>
+                                {storeCategories?.map((category) => (
+                                  <Badge
+                                    key={category.id}
+                                    variant="secondary"
+                                    className="rounded-full"
+                                  >
+                                    {category.name}
+                                  </Badge>
+                                ))}
                               </div>
                             </div>
                             <CardContent className="p-4">
-                              <h3 className="text-lg font-bold">{product.name}</h3>
-                              <p className="text-sm text-muted-foreground line-clamp-2 mt-1">{product.description}</p>
+                              <h3 className="text-lg font-bold">
+                                {product.name}
+                              </h3>
+                              <p className="text-sm text-muted-foreground line-clamp-2 mt-1">
+                                {product.description}
+                              </p>
                               <div className="flex items-center justify-between mt-3">
-                                <span className="font-bold">${product.price.toFixed(2)}</span>
-                                {product.rating && (
-                                  <div className="flex items-center gap-1">
-                                    <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                                    <span className="text-sm font-medium">{product.rating.toFixed(1)}</span>
-                                  </div>
-                                )}
+                                <span className="font-bold">
+                                  ₪{Number(product.price).toFixed(2)} {/* TODO : adjust styles */}
+                                </span>
                               </div>
                             </CardContent>
                           </Card>
@@ -358,33 +320,47 @@ export default function StorePage() {
                   )}
                 </div>
               </TabsContent>
-              <TabsContent value="reviews" className="space-y-6 animate-fade-in">
+              <TabsContent
+                value="reviews"
+                className="space-y-6 animate-fade-in"
+              >
                 <div>
                   <div className="flex items-center justify-between mb-4">
                     <h2 className="text-xl font-bold">التقييمات</h2>
-                    {user && <Button className="rounded-full">اكتب تقييم</Button>}
+                    {/* {user && <Button className="rounded-full">اكتب تقييم</Button>} */}
                   </div>
 
-                  {reviews.length === 0 ? (
+                  {[].length === 0 ? (
                     <div className="flex flex-col items-center justify-center py-12 text-center">
                       <MessageSquare className="h-12 w-12 text-muted-foreground mb-4" />
                       <h3 className="text-lg font-medium">لا تقييمات بعد</h3>
-                      <p className="text-sm text-muted-foreground mt-1">كن اول من يقيم المتجر.</p>
+                      <p className="text-sm text-muted-foreground mt-1">
+                        كن اول من يقيم المتجر.
+                      </p>
                     </div>
                   ) : (
                     <div className="space-y-4">
-                      {reviews.map((review) => (
+                      {" "}
+                      {/* TODO : add reviews */}
+                      {[].map((review) => (
                         <Card key={review.id} className="card-hover">
                           <CardContent className="p-4">
                             <div className="flex items-start gap-4">
                               <Avatar>
-                                <AvatarImage src={review.userAvatar || "/placeholder.svg"} alt={review.userName} />
-                                <AvatarFallback>{review.userName.charAt(0)}</AvatarFallback>
+                                <AvatarImage
+                                  src={"/placeholder.svg"}
+                                  alt={review.userName}
+                                />
+                                <AvatarFallback>
+                                  {review.userName.slice(0, 2)}
+                                </AvatarFallback>
                               </Avatar>
                               <div className="flex-1">
                                 <div className="flex items-center justify-between">
                                   <div className="flex items-center gap-2">
-                                    <h3 className="font-medium">{review.userName}</h3>
+                                    <h3 className="font-medium">
+                                      {review.userName}
+                                    </h3>
                                     <div className="flex">
                                       {Array.from({ length: 5 }).map((_, i) => (
                                         <Star
@@ -399,7 +375,9 @@ export default function StorePage() {
                                     </div>
                                   </div>
                                   <span className="text-xs text-muted-foreground">
-                                    {new Date(review.createdAt).toLocaleDateString()}
+                                    {new Date(
+                                      review.createdAt
+                                    ).toLocaleDateString()}
                                   </span>
                                 </div>
                                 <p className="text-sm mt-2">{review.comment}</p>
@@ -420,21 +398,21 @@ export default function StorePage() {
               <CardContent className="p-4">
                 <h3 className="font-bold mb-2">موقع المتجر</h3>
                 <div className="h-64 rounded-lg overflow-hidden mb-4">
-                  <MapWithNoSSR
-                    center={[store.location.lat, store.location.lng]}
+                  {/* <MapWithNoSSR
+                    center={[data?.latitude, data?.longitude]}
                     zoom={15}
                     markers={[
                       {
-                        position: [store.location.lat, store.location.lng],
-                        title: store.name,
+                        position: [data?.latitude, data?.longitude],
+                        title: data?.name,
                         type: "store",
                       },
                     ]}
-                  />
+                  /> */}
                 </div>
                 <div className="flex items-start gap-2">
                   <MapPin className="h-5 w-5 text-muted-foreground shrink-0 mt-0.5" />
-                  <span>{store.location.address}</span>
+                  {/* <span>{store.location.address}</span> TODO */}
                 </div>
               </CardContent>
             </Card>
@@ -442,5 +420,5 @@ export default function StorePage() {
         </div>
       </div>
     </div>
-  )
+  );
 }

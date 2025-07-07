@@ -1,12 +1,11 @@
 import { cookies } from "next/headers"
 import { redirect } from "next/navigation"
 import type { User, AuthUser } from "./types"
-import mockData from "./db.json"
 
 const SESSION_COOKIE = "auth-session"
 
 export async function getUsers(): Promise<User[]> {
-  return mockData.users
+  // TODO: implement
 }
 
 export async function findUserByEmail(email: string): Promise<User | null> {
@@ -14,19 +13,8 @@ export async function findUserByEmail(email: string): Promise<User | null> {
   return users.find((user) => user.email === email) || null
 }
 
-export async function findUserByUsername(username: string): Promise<User | null> {
-  const users = await getUsers()
-  return users.find((user) => user.username === username) || null
-}
-
 export async function createUser(userData: Omit<User, "id">): Promise<User> {
-  const users = await getUsers()
-  const newUser: User = {
-    ...userData,
-    id: Math.max(...users.map((u) => u.id)) + 1,
-  }
-  // In a real app, you'd save this to a database
-  return newUser
+  // TODO: implement
 }
 
 export async function validateCredentials(email: string, password: string): Promise<AuthUser | null> {
@@ -38,6 +26,7 @@ export async function validateCredentials(email: string, password: string): Prom
       last_name: user.last_name,
       username: user.username,
       email: user.email,
+      role: user.account_type
     }
   }
   return null
@@ -67,8 +56,14 @@ export async function getSession(): Promise<AuthUser | null> {
 }
 
 export async function clearSession() {
-  const cookieStore = await cookies()
-  cookieStore.delete(SESSION_COOKIE)
+  const cookieStore = await cookies();
+  cookieStore.delete(SESSION_COOKIE);
+
+  if (typeof window !== 'undefined') {
+    localStorage.removeItem("tokenType");
+    localStorage.removeItem("userInfo");
+    localStorage.removeItem("authToken");
+  }
 }
 
 export async function requireAuth() {
