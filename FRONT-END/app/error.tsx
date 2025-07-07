@@ -30,7 +30,7 @@ export default function Error({
         <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
           <Button variant="outline" className="rounded-full" onClick={() => reset()}>
             <RefreshCw className="mr-2 h-4 w-4" />
-            Try again
+            حاول مجدداً
           </Button>
           <Button
             asChild
