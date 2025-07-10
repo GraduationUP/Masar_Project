@@ -31,6 +31,7 @@ class DashboardController extends Controller
             ->get()
             ->map(function ($rating) {
                 return [
+                    'id' => $rating->id,
                     'user' => $rating->user->username,
                     'score' => $rating->score,
                     'created_at' => $rating->created_at->toDateTimeString(),
@@ -44,18 +45,19 @@ class DashboardController extends Controller
             ->get()
             ->map(function ($comment) {
                 return [
+                    'id' => $comment->id,
                     'user' => $comment->user->username,
                     'comment' => $comment->content,
                     'created_at' => $comment->created_at->toDateTimeString(),
                 ];
             });
 
-        // 🧮 إحصائيات رقمية
+        //  إحصائيات رقمية
         $totalProducts = $products->count();
         $totalRatings = $store->ratings()->count();
         $totalComments = $store->comments()->count();
 
-        
+
 
         return response()->json([
             'store' => [
