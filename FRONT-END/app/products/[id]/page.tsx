@@ -292,91 +292,9 @@ export default function ProductPage() {
                 </CardContent>
               </Card>
             </TabsContent>
-            <TabsContent value="shipping" className="animate-fade-in">
-              <Card>
-                <CardContent className="p-6">
-                  <h3 className="text-lg font-bold mb-4">
-                    Shipping & Delivery
-                  </h3>
-                  <div className="space-y-4">
-                    <div className="pb-4 border-b">
-                      <h4 className="font-medium mb-2">Delivery Options</h4>
-                      <p className="text-sm text-muted-foreground">
-                        This product is available for pickup from{" "}
-                        {products.data.store_name}. Please check the store's
-                        opening hours for pickup availability.
-                      </p>
-                    </div>
-                    <div className="pb-4 border-b">
-                      <h4 className="font-medium mb-2">Store Hours</h4>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
-                        <div className="flex justify-between">
-                          <span className="text-muted-foreground">Monday</span>
-                          {/* <span>{store.openingHours.monday}</span> */}
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-muted-foreground">Tuesday</span>
-                          {/* <span>{store.openingHours.tuesday}</span> */}
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-muted-foreground">
-                            Wednesday
-                          </span>
-                          {/* <span>{store.openingHours.wednesday}</span> */}
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-muted-foreground">
-                            Thursday
-                          </span>
-                          {/* <span>{store.openingHours.thursday}</span> */}
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-muted-foreground">Friday</span>
-                          {/* <span>{store.openingHours.friday}</span> */}
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-muted-foreground">
-                            Saturday
-                          </span>
-                          {/* <span>{store.openingHours.saturday}</span> */}
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-muted-foreground">Sunday</span>
-                          {/* <span>{store.openingHours.sunday}</span> */}
-                        </div>
-                      </div>
-                    </div>
-                    <div>
-                      <h4 className="font-medium mb-2">Contact Information</h4>
-                      <div className="space-y-2 text-sm">
-                        <div className="flex items-center gap-2">
-                          <MapPin className="h-4 w-4 text-muted-foreground" />
-                          {/* <span>{store.location.address}</span> TODO */}
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Clock className="h-4 w-4 text-muted-foreground" />
-                          <span>
-                            Today:{" "}
-                            {
-                              // store.openingHours[
-                              //   ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"][
-                              //     new Date().getDay()
-                              //   ] as keyof typeof store.openingHours
-                              // ]
-                            }
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-          </Tabs>
-        </div>
-
-        {/* Related Products TODO */}
-        {/* {relatedProducts.length > 0 && (
+            <TabsContent value="related" className="animate-fade-in">
+              {/* Related Products TODO */}
+              {/* {relatedProducts.length > 0 && (
           <div className="mt-12">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-2xl font-bold">Related Products</h2>
@@ -435,6 +353,9 @@ export default function ProductPage() {
             </div>
           </div>
         )} */}
+            </TabsContent>
+          </Tabs>
+        </div>
       </div>
     </div>
   );
