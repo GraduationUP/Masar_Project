@@ -23,6 +23,7 @@ import {
   Loader2,
 } from "lucide-react";
 import dynamic from "next/dynamic";
+import Image from "next/image";
 
 const MapWithNoSSR = dynamic(() => import("@/components/mapWithNoSSR"), {
   ssr: false,
@@ -148,9 +149,11 @@ export default function ProductPage() {
           {/* Product Image */}
           <div className="rounded-xl overflow-hidden shadow-md bg-background">
             <div className="relative aspect-square">
-              <img
-                src={products.data.photo || "/boxes.png"}
-                alt={products.data.name}
+              <Image
+                src={"/boxes.png"}
+                width={500}
+                height={500}
+                alt={products.data.name as string}
                 className="h-full w-full object-cover"
               />
             </div>
@@ -251,7 +254,7 @@ export default function ProductPage() {
                           </span>
                           <span>
                             {new Date(
-                              products.data.created_at
+                              products.data.created_at as string
                             ).toLocaleDateString("en-US", {
                               calendar: "gregory",
                             })}
@@ -262,7 +265,7 @@ export default function ProductPage() {
                     <div>
                       <h3 className="text-lg font-bold mb-4">موقع المنتج</h3>
                       <div className="h-64 rounded-lg overflow-hidden">
-                        {/* <MapWithNoSSR
+                        <MapWithNoSSR
                           center={[
                             products.data.latitude,
                             products.data.longitude,
@@ -274,11 +277,11 @@ export default function ProductPage() {
                                 products.data.latitude,
                                 products.data.longitude,
                               ],
-                              title: products.data.store_name,
+                              title: products.data.store_name as string,
                               type: "store",
                             },
                           ]}
-                        /> TODO */}
+                        />
                       </div>
                       <div className="flex items-center gap-2 mt-2 text-sm text-muted-foreground">
                         <MapPin className="h-4 w-4" />
