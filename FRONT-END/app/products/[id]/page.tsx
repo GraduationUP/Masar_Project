@@ -24,7 +24,6 @@ import {
 } from "lucide-react";
 import dynamic from "next/dynamic";
 
-
 const MapWithNoSSR = dynamic(() => import("@/components/mapWithNoSSR"), {
   ssr: false,
   loading: () => (
@@ -33,7 +32,7 @@ const MapWithNoSSR = dynamic(() => import("@/components/mapWithNoSSR"), {
       <span className="sr-only">جار تحميل الخريطة...</span>
     </div>
   ),
-})
+});
 
 interface Products {
   status: Boolean;
@@ -253,7 +252,9 @@ export default function ProductPage() {
                           <span>
                             {new Date(
                               products.data.created_at
-                            ).toLocaleDateString()}
+                            ).toLocaleDateString("en-US", {
+                              calendar: "gregory",
+                            })}
                           </span>
                         </div>
                       </div>

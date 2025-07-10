@@ -166,13 +166,9 @@ export default function MarketplacePage() {
     } else if (sortBy === "price-high") {
       return Number(b.price) - Number(a.price);
     }
-    // Added a default return for consistency, although not strictly needed here
     return 0;
   });
 
-  // The getStoreName function was trying to find a store by `storeId` within the `products.data` array,
-  // but `products.data` are product items themselves, not stores.
-  // Each product item already contains its store information (`product.store.store_name`).
   const getStoreName = (product: StoreItem) => {
     return product.store ? product.store.store_name : "Unknown Store";
   };

@@ -5,7 +5,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -13,21 +13,35 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   Info,
-  Mail,
   MapPin,
   MessageSquare,
   Phone,
+  Plus,
   ShoppingBag,
   Star,
 } from "lucide-react";
 import dynamic from "next/dynamic";
-import { useRouter } from "next/navigation";
+import Loading from "./loading";
+import Image from "next/image";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger
+} from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
 
 interface StoreData {
   id: number;
   name: string;
   latitude: number;
   longitude: number;
+  location_address: string;
+  phone: string;
   products: {
     id: number;
     store_id: number;
@@ -42,23 +56,27 @@ interface StoreData {
     created_at: string;
     updated_at: string;
   }[];
-  reviews: {}[];
+  ratings: {}[];
   comments: {}[];
 }
 // Dynamically import the map component to avoid SSR issues
-const MapWithNoSSR = dynamic(() => import("@/components/map"), {
+const MapWithNoSSR = dynamic(() => import("@/components/MapWithNoSSR"), {
   ssr: false,
   loading: () => (
     <div className="h-full w-full bg-muted/30 animate-pulse flex items-center justify-center">
-      <p className="text-muted-foreground">Loading map...</p>
+      <p className="text-muted-foreground">جار تحميل الخريطة...</p>
     </div>
   ),
 });
 
 export default function StorePage() {
   const { id } = useParams();
+  const BASE_API_URL = process.env.NEXT_PUBLIC_API_URL;
   const router = useRouter();
   const [data, setData] = useState<StoreData | null>(null);
+  const [content, setContent] = useState("");
+  const [isUser, setIsUser] = useState(Boolean);
+  const [notOwner, setNotOwner] = useState(Boolean);
   const [categories, setCategories] = useState<
     Array<{ id: number; name: string }>
   >([]);
@@ -69,18 +87,16 @@ export default function StorePage() {
       setLoading(true); // Set loading to true before the fetch
 
       try {
-        const response = await fetch(
-          `http://127.0.0.1:8000/api/guest/stores/${id}`,
-          {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-            },
-          }
-        );
+        const response = await fetch(`${BASE_API_URL}/api/guest/stores/${id}`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
 
         if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
+          router.push("/");
+          return;
         }
 
         const responseData = await response.json();
@@ -100,15 +116,12 @@ export default function StorePage() {
       setLoading(true);
 
       try {
-        const response = await fetch(
-          `http://127.0.0.1:8000/api/guest/categories`,
-          {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-            },
-          }
-        );
+        const response = await fetch(`${BASE_API_URL}/api/guest/categories`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
 
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
@@ -146,21 +159,43 @@ export default function StorePage() {
     return acc;
   }, [] as Array<{ id: number; name: string }>);
 
+  const handleAddComment = async () => {
+    try {
+      const Auth_Token = localStorage.getItem("authToken");
+      const response = await fetch(`${BASE_API_URL}/api/stores/${id}/comments`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${Auth_Token}`,
+        },
+        body: JSON.stringify({ content }),
+      });
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const responseData = await response.json();
+      console.log("Comment added successfully:", responseData);
+      window.location.reload();
+    } catch (error) {
+      console.error("Error adding comment:", error);
+    }
+  };
+
+  useEffect(() => {
+    const user = localStorage.getItem("userInfo");
+    const userData = user ? JSON.parse(user) : null;
+    if (userData) {
+      setIsUser(true);
+      if (userData.id !== data?.user_id) { // TODO
+        setNotOwner(true);
+      } else {
+        setNotOwner(false);
+      }
+    }
+  })
+
   if (loading) {
-    return (
-      <div className="container px-4 md:px-6 py-8">
-        <div className="flex flex-col gap-8 animate-pulse">
-          <div className="h-64 bg-muted rounded-lg"></div>
-          <div className="h-8 w-1/3 bg-muted rounded-lg"></div>
-          <div className="h-4 w-2/3 bg-muted rounded-lg"></div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="h-32 bg-muted rounded-lg"></div>
-            <div className="h-32 bg-muted rounded-lg"></div>
-            <div className="h-32 bg-muted rounded-lg"></div>
-          </div>
-        </div>
-      </div>
-    );
+    return <Loading />;
   }
 
   return (
@@ -188,12 +223,12 @@ export default function StorePage() {
                   <div className="flex items-center">
                     <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
                     <span className="ml-1 text-sm font-medium">
-                      {/* {store.rating?.toFixed(1)} TODO */}
+                      {data?.ratings.length} عدد التقييمات
                     </span>
                   </div>
                   <span className="text-sm text-muted-foreground">•</span>
                   <span className="text-sm text-muted-foreground">
-                    {/* {store.location.address} TODO */}
+                    {data?.location_address}
                   </span>
                 </div>
               </div>
@@ -233,7 +268,6 @@ export default function StorePage() {
                   <h2 className="text-xl font-bold mb-2">
                     نبذة عن {data?.name}
                   </h2>
-                  {/* <p className="text-muted-foreground">{store.description}</p> TODO */}
                 </div>
 
                 <div>
@@ -254,9 +288,25 @@ export default function StorePage() {
                 <div>
                   <h3 className="text-lg font-bold mb-2">معلومات التواصل</h3>
                   <div className="space-y-2">
-                    <div className="flex items-center gap-2">
-                      <Phone className="h-4 w-4 text-muted-foreground" />
-                      {/* <span>{store.contactInfo.phone}</span> TODO */}
+                    <div>
+                      <Phone className="h-4 w-4 text-muted-foreground inline" />
+                      <span>{data?.phone}</span>
+                      <a
+                        href={`https://wa.me/${data?.phone.replace(
+                          /\D|\+/g,
+                          ""
+                        )}`}
+                        className="flex items-center gap-2 text-blue-400 hover:underline w-fit"
+                      >
+                        <Image
+                          src="/whatsapp.svg"
+                          alt="whatsapp logo"
+                          className="h-4 w-4"
+                          width={50}
+                          height={50}
+                        />
+                        {data?.name}
+                      </a>
                     </div>
                   </div>
                 </div>
@@ -285,7 +335,7 @@ export default function StorePage() {
                                 <img
                                   src={product.photo || "/boxes.png"}
                                   alt={product.name}
-                                  className="size-1/2 object-cover"
+                                  className="size-1/2 object-contain"
                                 />
                               </div>
                               <div className="absolute top-4 left-4">
@@ -309,7 +359,8 @@ export default function StorePage() {
                               </p>
                               <div className="flex items-center justify-between mt-3">
                                 <span className="font-bold">
-                                  ₪{Number(product.price).toFixed(2)} {/* TODO : adjust styles */}
+                                  ₪{Number(product.price).toFixed(2)}{" "}
+                                  {/* TODO : adjust styles */}
                                 </span>
                               </div>
                             </CardContent>
@@ -327,10 +378,47 @@ export default function StorePage() {
                 <div>
                   <div className="flex items-center justify-between mb-4">
                     <h2 className="text-xl font-bold">التقييمات</h2>
-                    {/* {user && <Button className="rounded-full">اكتب تقييم</Button>} */}
+                    {/* {user && <Button className="rounded-full">اكتب تقييم</Button>} TODO */}
                   </div>
-
-                  {[].length === 0 ? (
+                  {isUser && notOwner && (
+                    <></>
+                  )}
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <Button size="sm">
+                        <Plus />
+                        اضافة تعليق
+                      </Button>
+                    </DialogTrigger>
+                    <form onSubmit={(e) => e.preventDefault()}>
+                      {/* Prevent default form submission */}
+                      <DialogContent>
+                        <DialogHeader>
+                          <DialogTitle>اضف تقييمك للمتجر</DialogTitle>
+                          <DialogDescription>
+                            رجاء قم بالتعبير عن رأيك بالمتجر مع الالتزام بمعايير المنصة
+                          </DialogDescription>
+                        </DialogHeader>
+                        <label htmlFor="content">تعليقك</label>
+                        <Textarea
+                          placeholder="اكتب تعليقك هنا"
+                          id="content"
+                          value={content}
+                          onChange={(e) => setContent(e.target.value)}
+                        ></Textarea>
+                        <DialogFooter>
+                          <DialogClose asChild>
+                            <Button variant="secondary">الغاء</Button>
+                          </DialogClose>
+                          <Button onClick={handleAddComment} type="submit">
+                            تعليق
+                          </Button>
+                        </DialogFooter>
+                      </DialogContent>
+                    </form>
+                  </Dialog>
+                  <br />
+                  {[1].length === 0 ? (
                     <div className="flex flex-col items-center justify-center py-12 text-center">
                       <MessageSquare className="h-12 w-12 text-muted-foreground mb-4" />
                       <h3 className="text-lg font-medium">لا تقييمات بعد</h3>
@@ -340,33 +428,66 @@ export default function StorePage() {
                     </div>
                   ) : (
                     <div className="space-y-4">
-                      {" "}
-                      {/* TODO : add reviews */}
-                      {[].map((review) => (
+                      {/* TODO : add reviews as a user*/}
+                      {data?.comments.map((review) => (
                         <Card key={review.id} className="card-hover">
                           <CardContent className="p-4">
                             <div className="flex items-start gap-4">
                               <Avatar>
                                 <AvatarImage
                                   src={"/placeholder.svg"}
-                                  alt={review.userName}
+                                  alt={review.user_name}
                                 />
                                 <AvatarFallback>
-                                  {review.userName.slice(0, 2)}
+                                  {review.user_name.slice(0, 2)}
                                 </AvatarFallback>
                               </Avatar>
                               <div className="flex-1">
                                 <div className="flex items-center justify-between">
                                   <div className="flex items-center gap-2">
                                     <h3 className="font-medium">
-                                      {review.userName}
+                                      {review.user_name}
+                                    </h3>
+                                  </div>
+                                  <span className="text-xs text-muted-foreground">
+                                    {new Date(
+                                      review.created_at
+                                    ).toLocaleDateString("en-US", {
+                                      calendar: "gregory",
+                                    })}
+                                  </span>
+                                </div>
+                                <p className="text-sm mt-2">{review.content}</p>
+                              </div>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      ))}
+                      {data?.comments.map((review) => (
+                        <Card key={review.id} className="card-hover">
+                          <CardContent className="p-4">
+                            <div className="flex items-start gap-4">
+                              <Avatar>
+                                <AvatarImage
+                                  src={"/placeholder.svg"}
+                                  alt={review.user_name}
+                                />
+                                <AvatarFallback>
+                                  {review.user_name.slice(0, 2)}
+                                </AvatarFallback>
+                              </Avatar>
+                              <div className="flex-1">
+                                <div className="flex items-center justify-between">
+                                  <div className="flex items-center gap-2">
+                                    <h3 className="font-medium">
+                                      {review.user_name}
                                     </h3>
                                     <div className="flex">
                                       {Array.from({ length: 5 }).map((_, i) => (
                                         <Star
                                           key={i}
                                           className={`h-4 w-4 ${
-                                            i < review.rating
+                                            i < review.score
                                               ? "fill-yellow-400 text-yellow-400"
                                               : "text-muted-foreground"
                                           }`}
@@ -376,11 +497,12 @@ export default function StorePage() {
                                   </div>
                                   <span className="text-xs text-muted-foreground">
                                     {new Date(
-                                      review.createdAt
-                                    ).toLocaleDateString()}
+                                      review.created_at
+                                    ).toLocaleDateString("en-US", {
+                                      calendar: "gregory",
+                                    })}
                                   </span>
                                 </div>
-                                <p className="text-sm mt-2">{review.comment}</p>
                               </div>
                             </div>
                           </CardContent>
@@ -398,7 +520,7 @@ export default function StorePage() {
               <CardContent className="p-4">
                 <h3 className="font-bold mb-2">موقع المتجر</h3>
                 <div className="h-64 rounded-lg overflow-hidden mb-4">
-                  {/* <MapWithNoSSR
+                  <MapWithNoSSR
                     center={[data?.latitude, data?.longitude]}
                     zoom={15}
                     markers={[
@@ -408,11 +530,11 @@ export default function StorePage() {
                         type: "store",
                       },
                     ]}
-                  /> */}
+                  />
                 </div>
                 <div className="flex items-start gap-2">
                   <MapPin className="h-5 w-5 text-muted-foreground shrink-0 mt-0.5" />
-                  {/* <span>{store.location.address}</span> TODO */}
+                  <span>{data?.location_address}</span>
                 </div>
               </CardContent>
             </Card>

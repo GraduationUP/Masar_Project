@@ -53,12 +53,16 @@ interface Store {
   coordinates: Coordinates;
 }
 
-interface GazaData {
+export interface GazaData {
   city: string;
   aids: Aid[];
   markets: Market[];
   GasStations: GasStation[];
   stores: Store[];
+}
+
+interface GazaMapProps {
+  data: GazaData;
 }
 
 // Fix for default marker icons in Leaflet
@@ -80,33 +84,10 @@ const GasIcon = new L.Icon({
   className: "gas-station-icon",
 });
 
-const GazaMap = () => {
-  const BASE_API_URL = process.env.NEXT_PUBLIC_API_URL;
-  const [data, setData] = useState<GazaData>({
-    city: "",
-    aids: [],
-    markets: [],
-    GasStations: [],
-    stores: [],
-  });
+const GazaMap: React.FC<GazaMapProps> = ({ data }) => {
   const [viewOption, setViewOption] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
   const [zoomLocation, setZoomLocation] = useState("31.5069,34.4560");
-  const [Loading, setLoading] = useState(true); // Load JSON data
-
-  useEffect(() => {
-    setLoading(true);
-    fetch(`${BASE_API_URL}/api/map-data`)
-      .then((response) => response.json())
-      .then((data) => {
-        setData(data);
-        setLoading(false);
-      });
-  }, []);
-
-  if (Loading) {
-    return <div>جار التحميل...</div>;
-  }
 
   const filteredAids = data.aids.filter((store: { name: string }) =>
     store.name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -121,73 +102,78 @@ const GazaMap = () => {
 
   return (
     <div>
-        {/* TODO: Add the stores */}     
+      {/* TODO: Add the stores */}
       <Card className="border-border/50 shadow-sm">
         <CardHeader className="pb-3">
-           <CardTitle>اعثر على الخدمة التي تحتاجها</CardTitle>    
-          <CardDescription>استكشف المتاجر والخدمات بالقرب منك</CardDescription> 
+          <CardTitle>اعثر على الخدمة التي تحتاجها</CardTitle>{" "}
+          <CardDescription>استكشف المتاجر والخدمات بالقرب منك</CardDescription>
         </CardHeader>
+
         <CardContent className="space-y-4">
           <div className="relative">
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+
             <Input
               type="text"
               placeholder="بحث..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
-             
           </div>
+
           <div className="flex flex-wrap w-full">
             <div className="w-full sm:w-1/2 p-2">
-                <Label htmlFor="category">القسم</Label>   
+              <Label htmlFor="category">القسم</Label>{" "}
               <select
                 id="category"
                 value={viewOption}
                 onChange={(e) => setViewOption(e.target.value)}
                 className="w-full border border-border/50 rounded-md p-2"
               >
-                <option value="all">الكل</option>  
-                <option value="aids">مخازن</option>  
-                <option value="markets">اسواق</option>  
-                <option value="GasStations">نقط غاز</option>   
+                <option value="all">الكل</option>
+                <option value="aids">مخازن</option>
+                <option value="markets">اسواق</option>
+                <option value="GasStations">نقط غاز</option>
               </select>
             </div>
+
             <div className="w-full sm:w-1/2 p-2">
-                <Label htmlFor="location">الموقع</Label>   
+              <Label htmlFor="location">الموقع</Label>
+
               <select
                 id="location"
                 value={zoomLocation}
                 onChange={(e) => setZoomLocation(e.target.value)}
                 className="w-full border border-border/50 rounded-md p-2"
               >
-                <option value="31.5069,34.4560">غزة</option>   
-                <option value="31.2725,34.2586">رفح</option>  
-                <option value="31.3444,34.3031">خانيونس</option>  
-                <option value="31.5281,34.4831">جباليا</option>    
-                <option value="31.5500,34.5000">بيت لاهيا</option>  
-                <option value="31.4189,34.3517">دير البلح</option>   
+                <option value="31.5069,34.4560">غزة</option>
+                <option value="31.2725,34.2586">رفح</option>
+                <option value="31.3444,34.3031">خانيونس</option>
+                <option value="31.5281,34.4831">جباليا</option>
+                <option value="31.5500,34.5000">بيت لاهيا</option>
+                <option value="31.4189,34.3517">دير البلح</option>
               </select>
             </div>
           </div>
         </CardContent>
       </Card>
+
       <MapContainer
         center={[31.5017, 34.4669]}
         zoom={13}
         style={{ height: "500px", width: "100%" }}
       >
-           
         <TileLayer
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         />
+
         <ZoomToLocation
           zoomLocation={zoomLocation}
           length={0}
           coordinates={[1, 1]}
         />
-           
+
         {(viewOption === "all" || viewOption === "aids") &&
           filteredAids.map(
             (
@@ -227,15 +213,13 @@ const GazaMap = () => {
                 key={`aid-${index}`}
                 position={aid.coordinates[0] as [number, number]}
               >
-                {" "}
-                   
                 <Popup>
-                  <b>{aid.name}</b>      
+                  <b>{aid.name}</b>
                 </Popup>
               </Marker>
             )
           )}
-           
+
         {(viewOption === "all" || viewOption === "markets") &&
           filteredMarkets.map(
             (
@@ -243,13 +227,13 @@ const GazaMap = () => {
               index: any
             ) => (
               <React.Fragment key={`market-${index}`}>
-                  
                 <Polyline
                   positions={market.coordinates as L.LatLngExpression[]}
                   color="blue"
                   weight={3}
                   opacity={0.7}
                 />
+
                 <Marker
                   position={getCenter(market.coordinates as number[][])}
                   icon={L.divIcon({
@@ -261,7 +245,7 @@ const GazaMap = () => {
               </React.Fragment>
             )
           )}
-           
+
         {(viewOption === "all" || viewOption === "GasStations") &&
           filteredGasStations.map(
             (
@@ -304,7 +288,7 @@ const GazaMap = () => {
               >
                 <Popup>
                   <div style={{ textAlign: "right" }}>
-                       <h3 style={{ margin: 0 }}>{station.name}</h3> 
+                    <h3 style={{ margin: 0 }}>{station.name}</h3>{" "}
                   </div>
                 </Popup>
               </Marker>

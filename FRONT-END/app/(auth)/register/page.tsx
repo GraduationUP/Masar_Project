@@ -1,7 +1,5 @@
 "use client";
 
-// TODO : add confirm password
-
 import type React from "react";
 
 import { useState } from "react";

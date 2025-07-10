@@ -1,6 +1,4 @@
 "use client";
-// TODO : edit TypeScript rules when the api is edited
-// TODO : add a delete product backend logic
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
@@ -19,16 +17,84 @@ import { Badge } from "@/components/ui/badge";
 import { BarChart3, Package, Plus, Star, StoreIcon, Users } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import Loading from "./loading";
+import Image from "next/image";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
+import { CustomAlert } from "@/components/customAlert";
+
+interface Store {
+  id: number;
+  name: string;
+  owner_phone: string;
+  status: string;
+  created_at: string;
+  average_rating: number;
+  latitude: string;
+  longitude: string;
+}
+
+interface Product {
+  id: number;
+  name: string;
+  price: string;
+  category: string;
+  created_at: string;
+}
+
+interface Data {
+  store: Store;
+  recent_products: Product[];
+  recent_ratings: {
+    user: string;
+    score: number;
+    created_at: string;
+  }[];
+  recent_comments: {
+    user: string;
+    comment: string;
+    created_at: string;
+  }[];
+}
 
 export default function SellerDashboard() {
-  const [data, setData] = useState({
+  const BASE_API_URL = process.env.NEXT_PUBLIC_API_URL;
+  const [open, setOpen] = useState(false);
+  const [successAlert, setSuccessAlert] = useState(false);
+  const [data, setData] = useState<Data>({
     recent_comments: [],
     recent_products: [],
     recent_ratings: [],
-    store: {},
+    store: {
+      id: 0,
+      name: "",
+      owner_phone: "",
+      status: "",
+      created_at: "",
+      average_rating: 0,
+      latitude: "34",
+      longitude: "31",
+    },
   });
   const [user, setUser] = useState(null);
-  const [store, setStore] = useState({});
+  const [store, setStore] = useState<Store>({
+    id: 0,
+    name: "",
+    owner_phone: "",
+    status: "",
+    created_at: "",
+    average_rating: 0,
+    latitude: "34",
+    longitude: "31",
+  });
   const [products, setProducts] = useState<Product[]>([]);
   const [stats, setStats] = useState(0);
 
@@ -36,7 +102,7 @@ export default function SellerDashboard() {
 
   const [activeTab, setActiveTab] = useState("التعليقات");
 
-  const handleTabClick = (tab) => {
+  const handleTabClick = (tab: any) => {
     setActiveTab(tab);
   };
 
@@ -50,7 +116,7 @@ export default function SellerDashboard() {
 
   // Redirect if not logged in or role is undefined, but only after loading is complete
   useEffect(() => {
-    if (!loading && (user === null || user.role !== "seller")) {
+    if (!loading && (user === null || (user as any)?.role !== "seller")) {
       redirect("/");
     }
   }, [user, loading]);
@@ -61,16 +127,13 @@ export default function SellerDashboard() {
 
       try {
         const token = localStorage.getItem("authToken");
-        const response = await fetch(
-          "http://127.0.0.1:8000/api/seller/dashboard",
-          {
-            method: "GET",
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
-          }
-        );
+        const response = await fetch(`${BASE_API_URL}/api/seller/dashboard`, {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        });
 
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
@@ -89,13 +152,39 @@ export default function SellerDashboard() {
   }, []);
 
   useEffect(() => {
-    setStore(data.store);
+    setStore(data.store as Store);
     setProducts(data.recent_products);
     setStats(data.recent_comments.length + data.recent_ratings.length);
-  }, [data]); // Add 'data' to the dependency array
+  }, [data]);
+
+  const handleSendReport = async (id:number) => {
+    try {
+      const token = localStorage.getItem("authToken");
+      const response = await fetch(`${BASE_API_URL}/api/comments/${id}/report`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(
+          errorData?.message || "Failed to send report. Please try again."
+        );
+      }
+      console.log("Report sent successfully:", response);
+      setOpen(false);
+      setSuccessAlert(true);
+    } catch (error: any) {
+      console.error("Error sending report:", error);
+      // You might want to set an error state here to display an error message to the user
+    }
+  };
 
   if (loading) {
-    return <Loading/>;
+    return <Loading />;
   }
 
   return (
@@ -208,22 +297,23 @@ export default function SellerDashboard() {
                     <div className="flex justify-between items-start">
                       <div>
                         <h3 className="font-bold">{store.name}</h3>
-                        <p className="text-sm text-muted-foreground line-clamp-1">
-                          {store.description}
-                        </p>
                       </div>
                       <div className="flex items-center gap-1">
                         <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
                         <span className="text-sm font-medium">
-                          {store.rating?.toFixed(1)}
+                          {store.average_rating?.toFixed(1)}
                         </span>
                       </div>
                     </div>
                     <div className="flex flex-wrap gap-2 mt-3">
                       {data.recent_products
                         .reduce((uniqueCategories, product) => {
-                          if (!uniqueCategories.includes(product.category)) {
-                            uniqueCategories.push(product.category);
+                          if (
+                            !uniqueCategories.includes(
+                              product.category as never
+                            )
+                          ) {
+                            uniqueCategories.push(product.category as never);
                           }
                           return uniqueCategories;
                         }, [])
@@ -244,13 +334,8 @@ export default function SellerDashboard() {
                       منتجات ({products.length})
                     </span>
                     <div className="flex gap-2">
-                      <Button asChild size="sm" variant="outline">
-                        <Link href={`/seller/stores/${data.store.id}`}>
-                          إدارة
-                        </Link>
-                      </Button>
                       <Button asChild size="sm">
-                        <Link href={`/stores/${data.store.id}`}>عرض</Link>
+                        <Link href={`/stores/${store.id}`}>عرض</Link>
                       </Button>
                     </div>
                   </CardFooter>
@@ -292,7 +377,7 @@ export default function SellerDashboard() {
                   <Card key={product.id} className="overflow-hidden">
                     <div className="relative h-40 w-full">
                       <img
-                        src={product.image || "/boxes.png"}
+                        src={"/boxes.png"}
                         alt={product.name}
                         className="h-full w-full object-contain"
                       />
@@ -334,7 +419,7 @@ export default function SellerDashboard() {
                   عرض مؤشرات أداء متجرك من خلال آراء وتقييمات الزبائن
                 </CardDescription>
               </CardHeader>
-              {stats.legnth === 0 ? (
+              {stats === 0 ? (
                 <CardContent className="h-80 flex items-center justify-center">
                   <div className="flex flex-col items-center text-center">
                     <BarChart3 className="h-16 w-16 text-muted-foreground mb-4" />
@@ -384,17 +469,60 @@ export default function SellerDashboard() {
                               key={comment.created_at}
                               className="py-3 border rounded-sm"
                             >
-                              <div className="flex items-start">
-                                <div className="ml-3">
-                                  <div className="flex items-center gap-1">
-                                    <Avatar className="size-8">
-                                      <AvatarFallback>
-                                        {comment.user.slice(0, 2).toUpperCase()}
-                                      </AvatarFallback>
-                                    </Avatar>
-                                    <p className="text-sm font-medium text-gray-900">
-                                      {comment.user}
-                                    </p>
+                              <div className="flex">
+                                <div className="mx-3 w-full">
+                                  <div className="flex justify-between">
+                                    <div className="flex items-center gap-1">
+                                      <Avatar className="size-8">
+                                        <AvatarFallback>
+                                          {comment.user
+                                            .slice(0, 2)
+                                            .toUpperCase()}
+                                        </AvatarFallback>
+                                      </Avatar>
+                                      <p className="text-sm font-medium text-gray-900">
+                                        {comment.user}
+                                      </p>
+                                    </div>
+                                    <Dialog open={open} onOpenChange={setOpen}>
+                                      <DialogTrigger asChild>
+                                        <Button
+                                          variant={"outline"}
+                                          title="ابلاغ"
+                                        >
+                                          <Image
+                                            src={"/reportFlag.svg"}
+                                            alt={"report flag"}
+                                            width={30}
+                                            height={30}
+                                          />
+                                        </Button>
+                                      </DialogTrigger>
+                                      <DialogContent>
+                                        <DialogHeader>
+                                          <DialogTitle>
+                                            الابلاغ عن تعليق مسيء
+                                          </DialogTitle>
+                                          <DialogDescription>
+                                            هل انت متأكد انك تريد الابلاغ عن هذا التعليق؟
+                                          </DialogDescription>
+                                        </DialogHeader>
+                                        <DialogFooter>
+                                          <DialogClose asChild>
+                                            <Button variant="secondary">
+                                              الغاء
+                                            </Button>
+                                          </DialogClose>
+                                          <Button
+                                            onClick={() =>
+                                              handleSendReport(comment.id) // TODO
+                                            }
+                                          >
+                                            ارسال الابلاغ
+                                          </Button>
+                                        </DialogFooter>
+                                      </DialogContent>
+                                    </Dialog>
                                   </div>
 
                                   <p className="text-sm text-gray-600">
