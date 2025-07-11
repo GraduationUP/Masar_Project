@@ -73,18 +73,26 @@ export default function ProfilePage() {
 
   interface Data {
     id: number;
-    name: string;
     first_name: string;
     last_name: string;
     username: string;
     store: Store | null;
-    comments: [];
-    ratings: [];
-    email: string;
   }
 
-  const [ownerData, setOwnerData] = useState<Data>({
-    id: Number,
+  interface OwnerData {
+    id: number;
+    first_name: string;
+    last_name: string;
+    username: string;
+    email: string;
+    role: string;
+    store: Store | null;
+    comments: [];
+    ratings: [];
+  }
+
+  const [ownerData, setOwnerData] = useState<OwnerData>({
+    id: 0,
     first_name: "",
     last_name: "",
     username: "",
@@ -106,7 +114,7 @@ export default function ProfilePage() {
   });
 
   const [data, setData] = useState<Data>({
-    id: Number,
+    id: 0,
     first_name: "",
     last_name: "",
     username: "",
@@ -341,10 +349,10 @@ export default function ProfilePage() {
           />
           {/* Sidebar */}
           <Card className="w-full md:w-1/3 h-fit">
-            <CardContent className="p-6"> 
-                <div className="flex" title="ابلاغ">
-                  {data.store !== null && <Badge>صاحب متجر</Badge>}
-                </div>
+            <CardContent className="p-6">
+              <div className="flex" title="ابلاغ">
+                {ownerData.role === 'seller'  && <Badge>صاحب متجر</Badge>}
+              </div>
               {isUser && ownerData.first_name === "" && (
                 <Dialog open={open} onOpenChange={setOpen}>
                   <DialogTrigger asChild>
@@ -815,11 +823,11 @@ export default function ProfilePage() {
                   </CardContent>
                   <CardFooter className="p-4 pt-0 flex justify-between">
                     <div className="flex gap-2">
-                      <Button asChild size="sm" variant="outline">
-                        <Link href={`/seller/stores/${data.store?.id}`}>
-                          إدارة
-                        </Link>
-                      </Button>
+                      {ownerData.first_name !== "" && (
+                        <Button asChild size="sm" variant="outline">
+                          <Link href={`/seller/dashboard`}>إدارة</Link>
+                        </Button>
+                      )}
                       <Button asChild size="sm">
                         <Link href={`/stores/${data.store?.id}`}>عرض</Link>
                       </Button>
