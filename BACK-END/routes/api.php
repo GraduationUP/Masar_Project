@@ -19,6 +19,7 @@ use App\Http\Controllers\Admin\AdminCommentController;
 use App\Http\Controllers\Admin\AdminProductController;
 
 use App\Http\Controllers\Auth\RegisteredUserController;
+use App\Http\Controllers\User\FeedbackStatusController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Admin\AdminNotificationController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
@@ -136,3 +137,6 @@ Route::middleware(['auth:sanctum'])->prefix('admin')->group(function () {
     // حذف تعليق
     Route::delete('/comments/{id}', [AdminCommentController::class, 'destroy']);
 });
+
+
+Route::middleware('auth:sanctum')->get('/store/{store}/feedback-status', [FeedbackStatusController::class, 'check']);
