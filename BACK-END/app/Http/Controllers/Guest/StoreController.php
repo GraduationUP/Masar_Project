@@ -42,6 +42,9 @@ class StoreController extends Controller
             ];
         })->values();
 
+        // حساب متوسط التقييم
+        $averageRating = $store->ratings->avg('score');
+
         return response()->json([
             'id' => $store->id,
             'seller_id' => $store->user_id,
@@ -51,7 +54,7 @@ class StoreController extends Controller
             'location_address' => $store->location_address,
             'phone' => $store->phone,
 
-
+            'average_rating' => round($averageRating, 2), // تقريب لـ رقمين بعد الفاصلة
             'products' => $store->products,
             'feedback' => $feedback,
         ]);

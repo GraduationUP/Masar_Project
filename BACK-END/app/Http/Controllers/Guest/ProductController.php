@@ -37,6 +37,7 @@ class ProductController extends Controller
                 'photo' => $product->photo,
                 'store_id' => $product->store_id,
                 'store_name' => $product->store?->store_name,
+                'store_phone' => $product->store?->phone,
                 'category_name' => $product->category?->name,
                 'latitude' => $product->latitude,
                 'longitude' => $product->longitude,
