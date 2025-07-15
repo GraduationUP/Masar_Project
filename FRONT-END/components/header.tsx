@@ -14,15 +14,24 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Bell, Menu, Moon, Search, Sun } from "lucide-react";
+import { Bell, Menu, Moon, Search, Sun, Check, AlertTriangle } from "lucide-react";
 import { useTheme } from "next-themes";
 import { Badge } from "@/components/ui/badge";
 import Image from "next/image";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { UserInfo } from "@/lib/types";
 
+interface Notifications {
+  id: number;
+  message: string;
+  type_name: string;
+  is_read: boolean;
+  sent_at: string;
+}
+
 export default function Header() {
   const { theme, setTheme } = useTheme();
+  const [notifications, setNotifications] = useState<Notifications[]>([]);
   const pathname = usePathname();
   const [isMounted, setIsMounted] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
@@ -135,17 +144,40 @@ export default function Header() {
 
           {isLoggedIn ? (
             <>
-              <Button
-                variant="ghost"
-                size="icon"
-                aria-label="Notifications"
-                className="relative rounded-full"
-              >
-                <Bell className="h-5 w-5" />
-                <Badge className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 flex items-center justify-center">
-                  3
-                </Badge>
-              </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    aria-label="Notifications"
+                    className="relative rounded-full"
+                  >
+                    <Bell className="h-5 w-5" />
+                    {notifications.length !== 0 && (
+                      <Badge className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 flex items-center justify-center">
+                        {notifications.length}
+                      </Badge>
+                    )}
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-56 mt-1" align="end">
+                  {notifications.map((notification) => (
+                    <DropdownMenuItem key={notification.id}>
+                      <span className="flex items-center gap-1">
+                        {notification.type_name === "report" ? (
+                          <AlertTriangle className="h-5 w-5" />
+                        ) : (
+                          <Check className="h-5 w-5" />
+                        )}
+                        {notification.message}
+                      </span>
+                      <span className="text-xs text-muted-foreground">
+                        {new Date(notification.sent_at).toLocaleString()}
+                      </span>
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
 
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -154,7 +186,9 @@ export default function Header() {
                     className="relative h-8 w-8 rounded-full overflow-hidden ring-2 ring-background"
                   >
                     <Avatar className="h-8 w-8">
-                      <AvatarFallback>{userInfo?.name?.substring(0, 2)}</AvatarFallback>
+                      <AvatarFallback>
+                        {userInfo?.name?.substring(0, 2)}
+                      </AvatarFallback>
                     </Avatar>
                   </Button>
                 </DropdownMenuTrigger>
@@ -188,7 +222,10 @@ export default function Header() {
                     </DropdownMenuItem>
                   )}
                   <DropdownMenuItem asChild>
-                    <Link href={`/profile/${userInfo?.id}`} className="cursor-pointer">
+                    <Link
+                      href={`/profile/${userInfo?.id}`}
+                      className="cursor-pointer"
+                    >
                       الملف الشخصي
                     </Link>
                   </DropdownMenuItem>
