@@ -21,13 +21,17 @@ class FeedbackStatusController extends Controller
             ], 404);
         }
 
-        $hasRated = $store->ratings()->where('user_id', $user->id)->exists();
-        $hasCommented = $store->comments()->where('user_id', $user->id)->exists();
+        $hasRated = $store->ratings()
+            ->where('user_id', $user->id)
+            ->first()?->score ?? null;
+
+        $hasCommented = $store->comments()
+            ->where('user_id', $user->id)
+            ->first()?->content ?? null;
 
         return response()->json([
-
-            'rated' => $hasRated,
-            'commented' => $hasCommented,
+            'score' => $hasRated,
+            'content' => $hasCommented,
         ]);
     }
 }

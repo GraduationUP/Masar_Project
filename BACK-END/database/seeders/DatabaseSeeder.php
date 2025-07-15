@@ -79,6 +79,8 @@ class DatabaseSeeder extends Seeder
             CategorySeeder::class,
             FakeUsersAndDataSeeder::class,
             ServicesSeeder::class,
-        ]);
+    NotificationTypesSeeder::class,
+]);
+        
     }
 }

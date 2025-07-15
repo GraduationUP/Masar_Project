@@ -60,14 +60,14 @@ class AdminMapController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'type' => 'required|in:store,market,warehouse,aid,gas_station',
-            'coordinates' => 'required|json',
+            'coordinates' => 'required|array',
             'status' => 'boolean',
         ]);
 
         $service = Service::create([
             'name' => $request->name,
             'type' => $request->type,
-            'coordinates' => $request->coordinates,
+            'coordinates' => json_encode($request->coordinates),
             'status' => $request->status ?? true,
         ]);
 
@@ -92,7 +92,13 @@ class AdminMapController extends Controller
             'status' => 'sometimes|boolean',
         ]);
 
-        $service->update($request->only(['name', 'type', 'coordinates', 'status']));
+        $data = $request->only(['name', 'type', 'status']);
+
+        if ($request->has('coordinates')) {
+            $data['coordinates'] = json_encode($request->coordinates);
+        }
+
+        $service->update($data);
 
         return response()->json([
             'message' => 'Service updated successfully.',
