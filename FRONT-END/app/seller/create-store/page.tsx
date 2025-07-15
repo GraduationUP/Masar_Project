@@ -4,6 +4,7 @@ import { Suspense, useState, lazy } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Loader } from "lucide-react";
 
 const LeafletMap = lazy(() =>
   import("@/components/LeafletMap").then((module) => ({
@@ -74,11 +75,15 @@ export default function CreateStorePage() {
     }));
   };
 
+  const showStates = () => {
+    console.log(storeData);
+  }
+
   return (
     <div className="flex justify-center items-center h-screen bg-gray-100">
-      <Card className="w-96 p-6">
+      <Card className="container mx-6">
         <CardContent>
-          <h3 className="mb-4">انشاء متجرك الخاص</h3>
+          <h3 className="mb-4 text-xl">انشاء متجرك الخاص</h3>
           <form onSubmit={handleCreateStore} className="space-y-4">
             <div>
               <label htmlFor="store_name">اسم المتجر:</label>
@@ -111,7 +116,7 @@ export default function CreateStorePage() {
               />
             </div>
             <label>اختر موقع المنتج</label>
-            <Suspense fallback={<>جار تحميل الخريطة...</>}>
+            <Suspense fallback={<Loader/>}>
               <LeafletMap
                 latitude={storeData.latitude}
                 longitude={storeData.longitude}
@@ -146,6 +151,7 @@ export default function CreateStorePage() {
           </form>
         </CardContent>
       </Card>
+      <Button onClick={showStates}>اطبع</Button>
     </div>
   );
 }

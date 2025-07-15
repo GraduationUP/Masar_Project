@@ -136,7 +136,7 @@ export default function SellerDashboard() {
         });
 
         if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
+          return
         }
 
         const responseData = await response.json();

@@ -181,7 +181,7 @@ export default function ProductPage() {
             <div className="pt-4 border-t">
               <div className="flex items-baseline justify-between">
                 <span className="text-3xl font-bold">
-                  ${Number(products.data.price).toFixed(2)}
+                  ₪{Number(products.data.price).toFixed(2)}
                 </span>
               </div>
             </div>

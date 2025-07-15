@@ -143,15 +143,7 @@ export default function AdminMapPage() {
 
   const handelAddService = async () => {
     const token = localStorage.getItem("authToken");
-    let formattedCoordinates: string | Coordinates[] = coordinates;
-    if (type !== "market") {
-      formattedCoordinates = JSON.stringify(
-        coordinates.length > 0 ? [coordinates[0]] : [[]]
-      );
-    } else {
-      formattedCoordinates = JSON.stringify(coordinates);
-    }
-
+    let formattedCoordinates = `${coordinates}`;
     try {
       const response = await fetch(`${API_BASE_URL}/api/admin/map`, {
         method: "POST",
@@ -177,6 +169,10 @@ export default function AdminMapPage() {
       console.error("Error adding service:", error);
     }
   };
+
+  const showStates = () => {
+    console.log({name, type, coordinates, status})
+  }
 
   if (!mapData) return <Loading />;
   return (
@@ -291,6 +287,7 @@ export default function AdminMapPage() {
               )}
               {fail && <p className="text-red-500">حدث خطأ ما حاول مجدداً</p>}
             </form>
+            <Button onClick={showStates}>print</Button>
           </DialogContent>
         </Dialog>
       </div>
