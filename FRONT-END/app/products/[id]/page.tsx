@@ -10,20 +10,13 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import {
-  Clock,
   MapPin,
-  MessageSquare,
-  ShoppingBag,
-  Star,
-  StoreIcon,
-  Share2,
   ChevronRight,
-  Plus,
-  Minus,
   Loader2,
 } from "lucide-react";
 import dynamic from "next/dynamic";
 import Image from "next/image";
+import Loading from "./loading";
 
 const MapWithNoSSR = dynamic(() => import("@/components/mapWithNoSSR"), {
   ssr: false,
@@ -38,19 +31,20 @@ const MapWithNoSSR = dynamic(() => import("@/components/mapWithNoSSR"), {
 interface Products {
   status: Boolean;
   data: {
-    id: Number;
-    store_id: Number;
-    name: String;
-    description: String;
-    price: String;
-    photo: String;
-    store_name: String;
-    category_name: String;
+    id: number;
+    store_id: number;
+    name: string;
+    description: string;
+    price: string;
+    photo: string;
+    store_name: string;
+    store_phone: string;
+    category_name: string;
     latitude: any;
     longitude: any;
     show_location: any;
-    created_at: String;
-    location_address: String;
+    created_at: string;
+    location_address: string;
   };
 }
 
@@ -66,6 +60,7 @@ export default function ProductPage() {
       price: "",
       photo: "",
       store_name: "",
+      store_phone: "",
       category_name: "",
       latitude: 0,
       longitude: 0,
@@ -94,26 +89,7 @@ export default function ProductPage() {
   }, []);
 
   if (loading) {
-    return (
-      <div className="container px-4 md:px-6 py-8">
-        <div className="flex flex-col gap-8 animate-pulse">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div className="h-96 bg-muted rounded-lg"></div>
-            <div className="space-y-4">
-              <div className="h-8 w-3/4 bg-muted rounded-lg"></div>
-              <div className="h-6 w-1/4 bg-muted rounded-lg"></div>
-              <div className="h-4 w-full bg-muted rounded-lg"></div>
-              <div className="h-4 w-5/6 bg-muted rounded-lg"></div>
-              <div className="h-10 w-full bg-muted rounded-lg mt-8"></div>
-              <div className="flex gap-4 mt-4">
-                <div className="h-10 w-1/2 bg-muted rounded-lg"></div>
-                <div className="h-10 w-1/2 bg-muted rounded-lg"></div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
+    return <Loading />
   }
 
   return (
@@ -164,16 +140,6 @@ export default function ProductPage() {
             <div>
               <Badge className="mb-2">{products.data.category_name}</Badge>
               <h1 className="text-3xl font-bold">{products.data.name}</h1>
-              <div className="flex items-center gap-2 mt-2">
-                <span className="text-sm text-muted-foreground">•</span>
-                {/* <Link
-                  href={`/stores/${store.id}`}
-                  className="flex items-center gap-1 text-sm text-muted-foreground hover:text-primary transition-colors"
-                >
-                  <StoreIcon className="h-3.5 w-3.5" />
-                  <span>{store.name}</span>
-                </Link> TODO */}
-              </div>
             </div>
 
             <p className="text-muted-foreground">{products.data.description}</p>
@@ -183,6 +149,12 @@ export default function ProductPage() {
                 <span className="text-3xl font-bold">
                   ₪{Number(products.data.price).toFixed(2)}
                 </span>
+                <Link href={`https://wa.me/00${products.data.store_phone.replace(/^\+/, "").replace(/-/g, "")}`}>
+                <Button variant={"outline"} className="rounded-full">
+                  اطلب الآن
+                  <Image src={"/whatsapp.svg"} alt="whatsapp" width={20} height={20}/>
+                </Button>
+                </Link>
               </div>
             </div>
 

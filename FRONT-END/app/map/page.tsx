@@ -60,11 +60,9 @@ export default function AdminMapPage() {
   useEffect(() => {
     async function fetchStoresData() {
       try {
-        const token = localStorage.getItem("authToken");
-        const response = await fetch(`${API_BASE_URL}/api/admin/map`, {
+        const response = await fetch(`${API_BASE_URL}/api/map-data`, {
           method: "GET",
           headers: {
-            Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
           },
         });

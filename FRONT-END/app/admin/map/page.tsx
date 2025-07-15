@@ -33,7 +33,7 @@ const LeafletMap = dynamic(() =>
 );
 
 // Dynamically import the map component to avoid SSR issues
-const GazaMap = dynamic(() => import("@/components/map"), {
+const GazaMap = dynamic(() => import("@/components/AdminMap"), {
   ssr: false,
   loading: () => (
     <div className="h-full w-full bg-muted/30 animate-pulse flex items-center justify-center">
