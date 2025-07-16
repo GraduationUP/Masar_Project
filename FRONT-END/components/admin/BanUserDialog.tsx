@@ -7,7 +7,6 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
@@ -51,6 +50,7 @@ interface userData {
   roles: Roles[];
   ban: Ban | null;
 }
+
 interface BanUserDialogProps {
   user: userData;
   onBan: (
@@ -59,9 +59,16 @@ interface BanUserDialogProps {
     durationValue: number,
     durationUnit: string
   ) => Promise<void>;
+  open: boolean; // Add this prop
+  onOpenChange: (open: boolean) => void; // Add this prop
 }
 
-const BanUserDialog: React.FC<BanUserDialogProps> = ({ user, onBan }) => {
+const BanUserDialog: React.FC<BanUserDialogProps> = ({
+  user,
+  onBan,
+  open,
+  onOpenChange,
+}) => {
   const [banReason, setBanReason] = useState("");
   const [banDuration, setBanDuration] = useState<number | undefined>(undefined);
   const [banDurationType, setBanDurationType] = useState<string>("");
@@ -69,21 +76,15 @@ const BanUserDialog: React.FC<BanUserDialogProps> = ({ user, onBan }) => {
   const handleBanSubmit = () => {
     if (banDuration && banDurationType) {
       onBan(user.id, banReason, banDuration, banDurationType);
+      onOpenChange(false); // Call onOpenChange to close the dialog
     } else {
       alert("Please specify the ban duration and type.");
     }
   };
 
   return (
-    <Dialog>
-      <DialogTrigger asChild>
-        <Button variant="outline" size="sm">
-          حظر
-        </Button>
-      </DialogTrigger>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <form onSubmit={(e) => e.preventDefault()}>
-        {" "}
-        {/* Prevent default form submission */}
         <DialogContent>
           <DialogHeader>
             <DialogTitle>

@@ -305,9 +305,40 @@ export default function AdminDashboard() {
     }
   }
 
-  async function handelUserNotify(id: number) {
-    console.log(`Sending notification to user with ID: ${id}`);
-    setShowSuccessAlert(true);
+  async function handelUserNotify(
+    type: string,
+    message: string,
+    target: string,
+    target_id: number
+  ) {
+    try {
+      const token = localStorage.getItem("authToken");
+      const response = await fetch(`${API_BASE_URL}/api/admin/notifications/send`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          type: type,
+          message: message,
+          target: "user",
+          target_id: target_id,
+        }),
+      });
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error("Error sending notification:", errorData);
+        setShowFailAlert(true);
+        return;
+      }
+      setShowSuccessAlert(true);
+    } catch (error) {
+      console.error("Error sending notification:", error);
+      setShowFailAlert(true);
+    } finally {
+      setLoading(false);
+    }
   }
 
   async function handelStoreDelete(id: number) { // TODO : Test

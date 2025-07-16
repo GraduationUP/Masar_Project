@@ -7,7 +7,6 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 
@@ -46,19 +45,23 @@ interface userData {
 interface DisableUserDialogProps {
   user: userData;
   onBlock: (id: number) => Promise<void>;
+  open: boolean; // Add this prop
+  onOpenChange: (open: boolean) => void; // Add this prop
 }
 
 const DisableUserDialog: React.FC<DisableUserDialogProps> = ({
   user,
   onBlock,
+  open,
+  onOpenChange,
 }) => {
+  const handleDisable = async () => {
+    await onBlock(user.id);
+    onOpenChange(false); // Call onOpenChange to close the dialog
+  };
+
   return (
-    <Dialog>
-      <DialogTrigger asChild>
-        <Button variant="destructive" size="sm">
-          تعطيل الحساب
-        </Button>
-      </DialogTrigger>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>
@@ -73,7 +76,7 @@ const DisableUserDialog: React.FC<DisableUserDialogProps> = ({
           <DialogClose asChild>
             <Button variant="secondary">الغاء</Button>
           </DialogClose>
-          <Button onClick={() => onBlock(user.id)} type="submit">
+          <Button onClick={handleDisable} type="button">
             تعطيل الحساب
           </Button>
         </DialogFooter>
