@@ -14,7 +14,15 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Bell, Menu, Moon, Search, Sun, Check, AlertTriangle } from "lucide-react";
+import {
+  Bell,
+  Menu,
+  Moon,
+  Search,
+  Sun,
+  Check,
+  AlertTriangle,
+} from "lucide-react";
 import { useTheme } from "next-themes";
 import { Badge } from "@/components/ui/badge";
 import Image from "next/image";
@@ -172,7 +180,12 @@ export default function Header() {
                         {notification.message}
                       </span>
                       <span className="text-xs text-muted-foreground">
-                        {new Date(notification.sent_at).toLocaleString()}
+                        {new Date(notification.sent_at).toLocaleString(
+                          "en-US",
+                          {
+                            calendar: "gregory",
+                          }
+                        )}
                       </span>
                     </DropdownMenuItem>
                   ))}
