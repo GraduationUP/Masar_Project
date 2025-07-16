@@ -63,6 +63,7 @@ interface BanUserDialogProps {
 
 const BanUserDialog: React.FC<BanUserDialogProps> = ({ user, onBan }) => {
   const [banReason, setBanReason] = useState("");
+  const [open, setOpen] = useState(false);
   const [banDuration, setBanDuration] = useState<number | undefined>(undefined);
   const [banDurationType, setBanDurationType] = useState<string>("");
 
@@ -75,14 +76,13 @@ const BanUserDialog: React.FC<BanUserDialogProps> = ({ user, onBan }) => {
   };
 
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button variant="outline" size="sm">
           حظر
         </Button>
       </DialogTrigger>
       <form onSubmit={(e) => e.preventDefault()}>
-        {" "}
         {/* Prevent default form submission */}
         <DialogContent>
           <DialogHeader>

@@ -65,7 +65,6 @@ const ManageStoreDialog: React.FC<ManageStoreDialogProps> = ({ store }) => {
         return;
       }
       alert("Store deleted successfully!");
-      window.location.reload();
     } catch (error) {
       console.error("Error deleting store:", error);
       alert("An unexpected error occurred while deleting the store.");
@@ -96,7 +95,6 @@ const ManageStoreDialog: React.FC<ManageStoreDialogProps> = ({ store }) => {
         return;
       }
       alert("Store banned successfully!");
-      window.location.reload();
     } catch (error) {
       console.error("Error banning store:", error);
       alert("An unexpected error occurred while trying to ban the store.");
@@ -127,7 +125,6 @@ const ManageStoreDialog: React.FC<ManageStoreDialogProps> = ({ store }) => {
         return;
       }
       alert("Store unbanned successfully!");
-      window.location.reload();
     } catch (error) {
       console.error("Error unbanning store:", error);
       alert("An unexpected error occurred while trying to unban the store.");
@@ -161,7 +158,6 @@ const ManageStoreDialog: React.FC<ManageStoreDialogProps> = ({ store }) => {
         return;
       }
       alert(`Store ${isActive ? "activated" : "deactivated"} successfully!`);
-      window.location.reload();
     } catch (error) {
       console.error("Error updating store status:", error);
       alert(

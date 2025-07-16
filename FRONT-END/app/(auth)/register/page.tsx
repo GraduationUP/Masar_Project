@@ -2,7 +2,7 @@
 
 import type React from "react";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -17,10 +17,12 @@ import {
 } from "@/components/ui/card";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { RegistrationResponse } from "@/lib/types";
-import { redirect } from "next/navigation";
+import { redirect, useRouter } from "next/navigation";
 
 export default function RegisterPage() {
   const [role, setRole] = useState<"user" | "seller">("user");
+  const router = useRouter();
+  const BASE_API_URL = process.env.NEXT_PUBLIC_API_URL;
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [username, setUsername] = useState("");
@@ -30,7 +32,13 @@ export default function RegisterPage() {
   const [registrationMessage, setRegistrationMessage] = useState("");
   const [registrationError, setRegistrationError] = useState("");
   const [onFocus, setOnFocues] = useState(false);
-  const isAnyFieldEmpty = [firstName, lastName, username, email, password].every(field => field === "");
+  const isAnyFieldEmpty = [
+    firstName,
+    lastName,
+    username,
+    email,
+    password,
+  ].every((field) => field === "");
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target;
@@ -70,7 +78,7 @@ export default function RegisterPage() {
     };
 
     try {
-      const response = await fetch("http://127.0.0.1:8000/api/register", {
+      const response = await fetch(`${BASE_API_URL}/api/register`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -94,6 +102,12 @@ export default function RegisterPage() {
       redirect("/login");
     }
   };
+
+  useEffect(() => {
+    if (localStorage.getItem("authToken")) {
+      router.push("/");
+    }
+  });
 
   return (
     <div className="container flex items-center justify-center min-h-[calc(100vh-8rem)] py-12">

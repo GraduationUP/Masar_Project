@@ -52,7 +52,12 @@ interface UserCardProps {
     durationType: string
   ) => Promise<void>; // Updated onBan type
   onBlock: (id: number) => Promise<void>;
-  onNotify: (id: number) => Promise<void>;
+  onNotify: (
+    type: string,
+    message: string,
+    target: string,
+    target_id: number
+  ) => Promise<void>;
 }
 
 const UserCard: React.FC<UserCardProps> = ({

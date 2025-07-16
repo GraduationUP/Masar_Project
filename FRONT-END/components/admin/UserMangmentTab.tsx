@@ -55,7 +55,12 @@ interface UserManagementTabProps {
     durationUnit: string
   ) => Promise<void>;
   handelUserBlock: (id: number) => Promise<void>;
-  handelUserNotify: (id: number) => Promise<void>;
+  handelUserNotify: (
+    type: string,
+    message: string,
+    target: string,
+    target_id: number
+  ) => Promise<void>;
 }
 
 const UserManagementTab: React.FC<UserManagementTabProps> = ({

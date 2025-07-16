@@ -22,6 +22,10 @@ import {
   Sun,
   Check,
   AlertTriangle,
+  UserCheck,
+  Megaphone,
+  Shield,
+  Star,
 } from "lucide-react";
 import { useTheme } from "next-themes";
 import { Badge } from "@/components/ui/badge";
@@ -38,6 +42,7 @@ interface Notifications {
 }
 
 export default function Header() {
+  const BASE_API_URL = process.env.NEXT_PUBLIC_API_URL;
   const { theme, setTheme } = useTheme();
   const [notifications, setNotifications] = useState<Notifications[]>([]);
   const pathname = usePathname();
@@ -62,6 +67,19 @@ export default function Header() {
       } catch (error) {
         console.error("Error parsing userInfo from localStorage:", error);
       }
+    }
+  }, []);
+
+  useEffect(() => {
+    const token = localStorage.getItem("authToken");
+    if (token) {
+      fetch(`${BASE_API_URL}/api/notifications`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+        .then((res) => res.json())
+        .then((data) => setNotifications(data.notifications));
     }
   }, []);
 
@@ -172,11 +190,31 @@ export default function Header() {
                   {notifications.map((notification) => (
                     <DropdownMenuItem key={notification.id}>
                       <span className="flex items-center gap-1">
-                        {notification.type_name === "report" ? (
-                          <AlertTriangle className="h-5 w-5" />
-                        ) : (
-                          <Check className="h-5 w-5" />
-                        )}
+                        {(() => {
+                          switch (notification.type_name) {
+                            case "report":
+                              return <AlertTriangle className="h-5 w-5" />;
+                            case "notification":
+                            case "maintenance":
+                            case "update":
+                              return <Bell className="h-5 w-5" />;
+                            case "account_approved":
+                            case "account_suspended":
+                              return <UserCheck className="h-5 w-5" />;
+                            case "promotion":
+                            case "feedback_request":
+                            case "policy_update":
+                              return <Megaphone className="h-5 w-5" />;
+                            case "general_announcement":
+                            case "security_alert":
+                              return <Shield className="h-5 w-5" />;
+                            case "rating":
+                            case "comment":
+                              return <Star className="h-5 w-5" />;
+                            default:
+                              return <Check className="h-5 w-5" />;
+                          }
+                        })()}
                         {notification.message}
                       </span>
                       <span className="text-xs text-muted-foreground">
@@ -227,9 +265,6 @@ export default function Header() {
                         href={`/${userInfo?.role}/dashboard`}
                         className="cursor-pointer flex items-center"
                       >
-                        <span className="h-4 w-4 mr-2 rounded-full bg-primary/20 flex items-center justify-center">
-                          <span className="h-1.5 w-1.5 rounded-full bg-primary"></span>
-                        </span>
                         لوحة التحكم
                       </Link>
                     </DropdownMenuItem>
