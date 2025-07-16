@@ -28,7 +28,7 @@ const SendAllUsersNotificationDialog: React.FC<
       <DialogTrigger asChild>
         <Button className="w-fit">ارسال اشعارات لكافة المستخدمين</Button>
       </DialogTrigger>
-      <form>
+      <form onSubmit={(e) => e.preventDefault()}>
         <DialogContent>
           <DialogTitle>ارسال اشعارات لكافة المستخدمين</DialogTitle>
           <DialogDescription>

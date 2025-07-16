@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import BanUserDialog from "./BanUserDialog";
 import DisableUserDialog from "./DisableUserDialog";
 import SendUserNotificationDialog from "./SendUserNotificationCard";
+import { Button } from "@/components/ui/button";
 
 interface Roles {
   id: number;
@@ -50,7 +51,7 @@ interface UserCardProps {
     reason: string,
     duration: number,
     durationType: string
-  ) => Promise<void>; // Updated onBan type
+  ) => Promise<void>;
   onBlock: (id: number) => Promise<void>;
   onNotify: (
     type: string,
@@ -58,6 +59,18 @@ interface UserCardProps {
     target: string,
     target_id: number
   ) => Promise<void>;
+  // Props to control Ban Dialog
+  openBanDialog: (user: userData) => void;
+  isBanDialogOpen: boolean;
+  closeBanDialog: () => void;
+  // Props to control Disable Dialog
+  openDisableDialog: (user: userData) => void;
+  isDisableDialogOpen: boolean;
+  closeDisableDialog: () => void;
+  // Props to control Send Notification Dialog
+  openSendNotificationDialog: (user: userData) => void;
+  isSendNotificationDialogOpen: boolean;
+  closeSendNotificationDialog: () => void;
 }
 
 const UserCard: React.FC<UserCardProps> = ({
@@ -65,6 +78,15 @@ const UserCard: React.FC<UserCardProps> = ({
   onBan,
   onBlock,
   onNotify,
+  openBanDialog,
+  isBanDialogOpen,
+  closeBanDialog,
+  openDisableDialog,
+  isDisableDialogOpen,
+  closeDisableDialog,
+  openSendNotificationDialog,
+  isSendNotificationDialogOpen,
+  closeSendNotificationDialog,
 }) => {
   return (
     <Card className="w-full flex flex-col md:flex-row md:justify-between md:items-center md:space-x-2 mb-2 md:mb-0 items-start">
@@ -80,9 +102,39 @@ const UserCard: React.FC<UserCardProps> = ({
       </CardHeader>
       {/* ... other CardContent */}
       <CardFooter className="flex gap-2">
-        <BanUserDialog user={user} onBan={onBan} />
-        <DisableUserDialog user={user} onBlock={onBlock} />
-        <SendUserNotificationDialog user={user} onNotify={onNotify} />
+        <Button variant="outline" size="sm" onClick={() => openBanDialog(user)}>
+          حظر
+        </Button>
+        {isBanDialogOpen && (
+          <BanUserDialog
+            user={user}
+            onBan={onBan}
+            open={isBanDialogOpen}
+            onOpenChange={closeBanDialog}
+          />
+        )}
+        <Button variant="destructive" size="sm" onClick={() => openDisableDialog(user)}>
+          تعطيل الحساب
+        </Button>
+        {isDisableDialogOpen && (
+          <DisableUserDialog
+            user={user}
+            onBlock={onBlock}
+            open={isDisableDialogOpen}
+            onOpenChange={closeDisableDialog}
+          />
+        )}
+        <Button size="sm" onClick={() => openSendNotificationDialog(user)}>
+          إرسال إشعار
+        </Button>
+        {isSendNotificationDialogOpen && (
+          <SendUserNotificationDialog
+            user={user}
+            onNotify={onNotify}
+            open={isSendNotificationDialogOpen}
+            onOpenChange={closeSendNotificationDialog}
+          />
+        )}
       </CardFooter>
     </Card>
   );

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Dialog,
   DialogClose,
@@ -7,7 +7,6 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
@@ -58,20 +57,27 @@ interface SendUserNotificationDialogProps {
     target: string,
     target_id: number
   ) => Promise<void>;
+  open: boolean; // Add this prop
+  onOpenChange: (open: boolean) => void; // Add this prop
 }
 
 const SendUserNotificationDialog: React.FC<SendUserNotificationDialogProps> = ({
   user,
   onNotify,
+  open,
+  onOpenChange,
 }) => {
-  const [message, setMessage] = React.useState("");
-  const [type, setType] = React.useState("");
-  const [target, setTarget] = React.useState("");
+  const [message, setMessage] = useState(""); // Use useState from React
+  const [type, setType] = useState("");   // Use useState from React
+  // const [target, setTarget] = useState(""); // 'target' seems to be hardcoded, so no need for state here
+
+  const handleSendNotification = async () => {
+    await onNotify(type, message, "user", user.id); // Target is "user"
+    onOpenChange(false); // Call onOpenChange to close the dialog
+  };
+
   return (
-    <Dialog>
-      <DialogTrigger asChild>
-        <Button size="sm">إرسال إشعار</Button>
-      </DialogTrigger>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>
@@ -90,7 +96,7 @@ const SendUserNotificationDialog: React.FC<SendUserNotificationDialogProps> = ({
               <option value="" disabled>
                 اختر نوع الاشعار
               </option>
-              <option value="report">تقرير</option>
+              <option value="report">ابلاغ</option>
               <option value="notification">إشعار</option>
               <option value="maintenance">صيانة</option>
               <option value="update">تحديث</option>
@@ -116,8 +122,8 @@ const SendUserNotificationDialog: React.FC<SendUserNotificationDialogProps> = ({
               <Button variant="secondary">الغاء</Button>
             </DialogClose>
             <Button
-              type="submit"
-              onClick={() => onNotify(type, message, target, user.id)}
+              type="button" // Changed type to button to prevent form submission causing unexpected behavior
+              onClick={handleSendNotification}
             >
               ارسال الاشعار
             </Button>
