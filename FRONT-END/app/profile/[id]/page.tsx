@@ -141,8 +141,12 @@ export default function ProfilePage() {
   const [passwordFromData, setPasswordFormData] = useState({
     current_password: "",
     password: "",
-    confirm_password: "",
+    password_confirmation: "",
   });
+
+  const handlePrint = () => {
+    console.log(passwordFromData);
+  }
 
   // For the page owner
   useEffect(() => {
@@ -253,7 +257,7 @@ export default function ProfilePage() {
       setPasswordFormData({
         current_password: "",
         password: "",
-        confirm_password: "",
+        password_confirmation: "",
       });
       setSucssesAlert(true);
       setShowFormError(false);
@@ -340,7 +344,7 @@ export default function ProfilePage() {
             </div>
           )}
         </div>
-        <div className="flex flex-col md:flex-row gap-8">
+        <div className={"flex flex-col md:flex-row gap-8"}>
           <CustomAlert
             message="تم تحديث البيانات بنجاح"
             show={successAlert}
@@ -351,7 +355,7 @@ export default function ProfilePage() {
           <Card className="w-full md:w-1/3 h-fit">
             <CardContent className="p-6">
               <div className="flex" title="ابلاغ">
-                {ownerData.role === 'seller'  && <Badge>صاحب متجر</Badge>}
+                {ownerData.role === "seller" && <Badge>صاحب متجر</Badge>}
               </div>
               {isUser && ownerData.first_name === "" && (
                 <Dialog open={open} onOpenChange={setOpen}>
@@ -421,13 +425,8 @@ export default function ProfilePage() {
                 <h2 className="text-xl font-bold mt-2">
                   {data.first_name} {data.last_name}
                 </h2>
-                <p className="text-sm text-muted-foreground mt-2">
-                  عضو منذ ابريل 2023
-                </p>
               </div>
-
               <Separator className="my-6" />
-
               <div className="space-y-4">
                 <div className="flex items-center gap-3">
                   <Star className="h-5 w-5 text-muted-foreground" />
@@ -452,7 +451,7 @@ export default function ProfilePage() {
           </Card>
 
           {/* Main Content */}
-          <div className="flex-grow space-y-6 w-full md:w-2/3">
+          <div className={`flex-grow space-y-6 w-full md:w-2/3`}>
             {ownerData.first_name !== "" && (
               <Tabs defaultValue="account" className="w-full">
                 <TabsList className="grid w-full grid-cols-4 rounded-lg mb-6">
@@ -615,6 +614,7 @@ export default function ProfilePage() {
                             id="current-password"
                             type="password"
                             className="rounded-lg"
+                            value={passwordFromData.current_password}
                             onChange={(e) =>
                               setPasswordFormData({
                                 ...passwordFromData,
@@ -630,6 +630,7 @@ export default function ProfilePage() {
                               id="new-password"
                               type="password"
                               className="rounded-lg"
+                              value={passwordFromData.password}
                               onChange={(e) =>
                                 setPasswordFormData({
                                   ...passwordFromData,
@@ -646,16 +647,17 @@ export default function ProfilePage() {
                               id="confirm-password"
                               type="password"
                               className="rounded-lg"
+                              value={passwordFromData.password_confirmation}
                               onChange={(e) =>
                                 setPasswordFormData({
                                   ...passwordFromData,
-                                  confirm_password: e.target.value,
+                                  password_confirmation: e.target.value,
                                 })
                               }
                               onFocus={() => {
                                 if (
                                   passwordFromData.password !==
-                                  passwordFromData.confirm_password
+                                  passwordFromData.password_confirmation
                                 ) {
                                   setShowErrorMessage(true);
                                 }
@@ -664,7 +666,7 @@ export default function ProfilePage() {
                             />
                             {showErrorMessage &&
                               passwordFromData.password !==
-                                passwordFromData.confirm_password && (
+                                passwordFromData.password_confirmation && (
                                 <p className="text-xs text-muted-foreground text-red-600">
                                   الكلمة الجديدة غير متطابقة
                                 </p>

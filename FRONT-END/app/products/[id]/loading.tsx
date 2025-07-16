@@ -64,13 +64,13 @@ export default function Loading() {
           <Tabs defaultValue="details" className="w-full">
             <TabsList className="grid w-full grid-cols-3 rounded-lg mb-6">
               <TabsTrigger value="details" disabled>
-                Details
+                ...
               </TabsTrigger>
               <TabsTrigger value="reviews" disabled>
-                Reviews
+                ...
               </TabsTrigger>
               <TabsTrigger value="shipping" disabled>
-                Shipping
+                ...
               </TabsTrigger>
             </TabsList>
             <Card>

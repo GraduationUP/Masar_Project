@@ -94,6 +94,13 @@ const ActiveStoreIcon = new L.Icon({
   popupAnchor: [0, -32],
 });
 
+const InactiveStoreIcon = new L.Icon({
+  iconUrl: "/images/unactive_store.svg",
+  iconSize: [32, 32],
+  iconAnchor: [16, 32],
+  popupAnchor: [0, -32],
+});
+
 const GazaMap: React.FC<GazaMapProps> = ({ data }) => {
   const [viewOption, setViewOption] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
@@ -318,7 +325,7 @@ const GazaMap: React.FC<GazaMapProps> = ({ data }) => {
                   store.coordinates[0] as number,
                   store.coordinates[1] as number,
                 ]}
-                icon={ActiveStoreIcon}
+                icon={store.staus ? ActiveStoreIcon : InactiveStoreIcon}
               >
                 <Popup>
                   <div>{store.name}</div>
