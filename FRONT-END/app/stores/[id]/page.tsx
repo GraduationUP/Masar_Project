@@ -19,6 +19,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { CustomAlert } from "@/components/customAlert";
 import Header from "@/components/main_layout/header";
 
+interface userFeedback {
+  score: number | null;
+  content: string | null;
+}
+
 interface Feedback {
   user_name: string;
   score: number;
@@ -72,10 +77,46 @@ export default function StorePage() {
   const [success, setSuccess] = useState(false);
   const [failure, setFailure] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [openUserUpdate, setOpenUserUpdate] = useState(false);
   const [categories, setCategories] = useState<
     Array<{ id: number; name: string }>
   >([]);
   const [loading, setLoading] = useState(true);
+  const [userfeedback, setUserFeedback] = useState<userFeedback>({
+    score: null,
+    content: null,
+  });
+
+  useEffect(() => {
+    async function fetchData() {
+      setLoading(true); // Set loading to true before the fetch
+      try {
+        const Auth_Token = localStorage.getItem("authToken");
+        const response = await fetch(
+          `${BASE_API_URL}/api/store/${id}/feedback-status`,
+          {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${Auth_Token}`,
+            },
+          }
+        );
+
+        if (!response.ok) {
+          return;
+        }
+
+        const responseData = await response.json();
+        console.log("Feedback status:", responseData);
+        setUserFeedback(responseData);
+      } catch (error) {
+        console.error("Error:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchData();
+  }, [id, BASE_API_URL]);
 
   useEffect(() => {
     async function fetchData() {
@@ -220,6 +261,58 @@ export default function StorePage() {
       }
     }
   });
+
+  const handleUpdateComment = async (id: number, content: string) => {
+    setSubmitting(true);
+    try {
+      const Auth_Token = localStorage.getItem("authToken");
+      const response = await fetch(`${BASE_API_URL}/api/comments/${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${Auth_Token}`,
+        },
+        body: JSON.stringify({ content }),
+      });
+      if (!response.ok) {
+        setFailure(true);
+        setSubmitting(false);
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const responseData = await response.json();
+      console.log("Comment edited successfully:", responseData);
+      setSuccess(true);
+      setSubmitting(false);
+    } catch (error) {
+      console.error("Error editing comment:", error);
+    }
+  };
+
+  const handelRatingUpdate = async (id: number, score: number) => {
+    setSubmitting(true);
+    try {
+      const Auth_Token = localStorage.getItem("authToken");
+      const response = await fetch(`${BASE_API_URL}/api/ratings/${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${Auth_Token}`,
+        },
+        body: JSON.stringify({ score }),
+      });
+      if (!response.ok) {
+        setFailure(true);
+        setSubmitting(false);
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const responseData = await response.json();
+      console.log("Rating edited successfully:", responseData);
+      setSuccess(true);
+      setSubmitting(false);
+    } catch (error) {
+      console.error("Error editing rating:", error);
+    }
+  };
 
   if (loading) {
     return <Loading />;
@@ -416,43 +509,178 @@ export default function StorePage() {
                     </div>
                     {isUser && notOwner && (
                       <>
-                        <div className="flex">
-                          <StarRating
-                            score={score}
-                            setScore={setScore}
-                            starSize={"30px"}
-                          />
-                          {submitting ? (
-                            <Button variant={"secondary"} disabled>
-                              ارسال
-                            </Button>
-                          ) : (
-                            <Button variant={"link"} onClick={handelRatingSend}>
-                              ارسال
-                            </Button>
-                          )}
-                        </div>
-                        <form onSubmit={(e) => e.preventDefault()}>
-                          <label htmlFor="content">تعليقك</label>
-                          <Textarea
-                            placeholder="اكتب تعليقك هنا"
-                            id="content"
-                            value={content}
-                            onChange={(e) => setContent(e.target.value)}
-                            className="mb-2"
-                          ></Textarea>
+                        {userfeedback.score === null && (
+                          <div className="flex">
+                            <StarRating
+                              score={score}
+                              setScore={setScore}
+                              starSize={"30px"}
+                            />
+                            {submitting ? (
+                              <Button variant={"secondary"} disabled>
+                                ارسال
+                              </Button>
+                            ) : (
+                              <Button
+                                variant={"link"}
+                                onClick={handelRatingSend}
+                              >
+                                ارسال
+                              </Button>
+                            )}
+                          </div>
+                        )}
+                        {userfeedback.content === null && (
+                          <form onSubmit={(e) => e.preventDefault()}>
+                            <label htmlFor="content">تعليقك</label>
+                            <Textarea
+                              placeholder="اكتب تعليقك هنا"
+                              id="content"
+                              value={content}
+                              onChange={(e) => setContent(e.target.value)}
+                              className="mb-2"
+                            ></Textarea>
 
-                          {submitting ? (
-                            <Button variant={"secondary"} disabled>
-                              تعليق
-                            </Button>
-                          ) : (
-                            <Button onClick={handleAddComment} type="submit">
-                              تعليق
-                            </Button>
-                          )}
-                        </form>
+                            {submitting ? (
+                              <Button variant={"secondary"} disabled>
+                                تعليق
+                              </Button>
+                            ) : (
+                              <Button onClick={handleAddComment} type="submit">
+                                تعليق
+                              </Button>
+                            )}
+                          </form>
+                        )}
                       </>
+                    )}
+
+                    {openUserUpdate && (
+                      <>
+                        {userfeedback.score !== null && (
+                          <div className="flex">
+                            <StarRating
+                              score={score}
+                              setScore={setScore}
+                              starSize={"30px"}
+                            />
+                            {submitting ? (
+                              <Button variant={"secondary"} disabled>
+                                تحديث
+                              </Button>
+                            ) : (
+                              <Button
+                                variant={"link"}
+                                onClick={handelRatingUpdate(
+                                  userfeedback.id, //TODO
+                                  score
+                                )}
+                              >
+                                تحديث
+                              </Button>
+                            )}
+                          </div>
+                        )}
+                        {userfeedback.content !== null && (
+                          <form onSubmit={(e) => e.preventDefault()}>
+                            <label htmlFor="content">تعليقك</label>
+                            <Textarea
+                              placeholder={userfeedback.content || ""}
+                              id="content"
+                              value={content}
+                              onChange={(e) => setContent(e.target.value)}
+                              className="mb-2"
+                            ></Textarea>
+
+                            {submitting ? (
+                              <Button variant={"secondary"} disabled>
+                                تحديث
+                              </Button>
+                            ) : (
+                              <Button
+                                onClick={handleUpdateComment(
+                                  userfeedback.id, //TODO
+                                  content)}
+                                type="submit"
+                              >
+                                تحديث
+                              </Button>
+                            )}
+                          </form>
+                        )}
+                      </>
+                    )}
+                    {(userfeedback.content || userfeedback.score) && (
+                      <Card className="card-hover">
+                        <span className="text-xs text-muted-foreground pt-4 pl-4">
+                          مراجعتك الشخصية
+                        </span>
+                        <CardContent className="p-4">
+                          <div className="flex justify-between gap-4">
+                            <div className="flex gap-2">
+                              <Avatar>
+                                <AvatarFallback>
+                                  {JSON.parse(
+                                    localStorage.getItem("userInfo") || "{}"
+                                  ).name?.slice(0, 2)}
+                                </AvatarFallback>
+                              </Avatar>
+                              <div className="flex">
+                                <div className="flex flex-col">
+                                  <div className="flex items-center">
+                                    <h3 className="font-medium">
+                                      {
+                                        JSON.parse(
+                                          localStorage.getItem("userInfo") ||
+                                            "{}"
+                                        ).name
+                                      }
+                                    </h3>
+                                    <div className="flex">
+                                      {userfeedback.score !== null &&
+                                        Array.from({ length: 5 }).map(
+                                          (_, i) => (
+                                            <Star
+                                              key={i}
+                                              className={`h-4 w-4 ${
+                                                i < (userfeedback.score ?? 0)
+                                                  ? "fill-yellow-400 text-yellow-400"
+                                                  : "text-muted-foreground"
+                                              }`}
+                                            />
+                                          )
+                                        )}
+                                    </div>
+                                  </div>
+                                  {userfeedback.content !== null && (
+                                    <p className="text-sm mt-2">
+                                      {userfeedback.content}
+                                    </p>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                            <div className="flex gap-1">
+                              <Button
+                                variant={"link"}
+                                onClick={() => setOpenUserUpdate(true)}
+                              >
+                                تعديل
+                              </Button>
+                              {userfeedback.content && (
+                                <Button variant={"destructive"}>
+                                  حذف التعليق
+                                </Button>
+                              )}
+                              {userfeedback.score && (
+                                <Button variant={"destructive"}>
+                                  حذف التقييم
+                                </Button>
+                              )}
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
                     )}
                     <CustomAlert
                       show={success}

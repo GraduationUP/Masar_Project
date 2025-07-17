@@ -18,9 +18,11 @@ import {
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { RegistrationResponse } from "@/lib/types";
 import { redirect, useRouter } from "next/navigation";
+import { set } from "react-hook-form";
 
 export default function RegisterPage() {
   const [role, setRole] = useState<"user" | "seller">("user");
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
   const BASE_API_URL = process.env.NEXT_PUBLIC_API_URL;
   const [firstName, setFirstName] = useState("");
@@ -64,6 +66,7 @@ export default function RegisterPage() {
   };
 
   const handleSubmit = async (event: React.FormEvent) => {
+    setIsSubmitting(true);
     event.preventDefault();
     setRegistrationMessage("");
     setRegistrationError("");
@@ -90,6 +93,7 @@ export default function RegisterPage() {
       if (response.ok) {
         const data: RegistrationResponse = await response.json();
         setRegistrationMessage(data.message);
+        setIsSubmitting(false);
         // Optionally redirect the user or clear the form
       } else {
         const errorData = await response.json();
@@ -98,6 +102,7 @@ export default function RegisterPage() {
     } catch (error) {
       setRegistrationError("An unexpected error occurred");
       console.error("Error during registration:", error);
+      setIsSubmitting(false);
     } finally {
       redirect("/login");
     }
@@ -212,15 +217,13 @@ export default function RegisterPage() {
             </div>
           </CardContent>
           <CardFooter className="flex flex-col gap-4">
-            {!isAnyFieldEmpty && password === confirmPassword ? (
-              <Button type="submit" className="w-full">
-                انشاء حساب
-              </Button>
-            ) : (
-              <div className="bg-secondary text-secondary-foreground hover:bg-secondary/80 w-full py-2 rounded-md text-center">
-                انشاء حساب
-              </div>
-            )}
+            <Button
+              type="submit"
+              className="w-full"
+              disabled={isAnyFieldEmpty || password !== confirmPassword || isSubmitting}
+            >
+              {isSubmitting ? "جاري انشاء الحساب..." : "انشاء حساب"}
+            </Button>
             <p className="text-center text-sm text-muted-foreground">
               لديك حساب بالفعل?{" "}
               <Link href="/login" className="text-primary hover:underline">

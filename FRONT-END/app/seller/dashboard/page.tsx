@@ -28,7 +28,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Textarea } from "@/components/ui/textarea";
 import { CustomAlert } from "@/components/customAlert";
 import Header from "@/components/main_layout/header";
 
@@ -60,6 +59,7 @@ interface Data {
     created_at: string;
   }[];
   recent_comments: {
+    id: number;
     user: string;
     comment: string;
     created_at: string;
@@ -183,7 +183,6 @@ export default function SellerDashboard() {
       setSuccessAlert(true);
     } catch (error: any) {
       console.error("Error sending report:", error);
-      // You might want to set an error state here to display an error message to the user
     }
   };
 
@@ -194,6 +193,12 @@ export default function SellerDashboard() {
   return (
     <>
       <Header />
+      <CustomAlert
+        message="تم ارسال البيانات بنجاح"
+        show={successAlert}
+        onClose={() => setSuccessAlert(false)}
+        success
+      />
       <div className="container px-4 md:px-6 py-8">
         <div className="flex flex-col gap-8">
           <div className="flex flex-col md:flex-row gap-4 md:items-center md:justify-between">
@@ -528,9 +533,8 @@ export default function SellerDashboard() {
                                               </Button>
                                             </DialogClose>
                                             <Button
-                                              onClick={
-                                                () =>
-                                                  handleSendReport(comment.id) // TODO
+                                              onClick={() =>
+                                                handleSendReport(comment.id)
                                               }
                                             >
                                               ارسال الابلاغ

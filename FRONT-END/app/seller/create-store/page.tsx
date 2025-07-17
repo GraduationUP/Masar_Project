@@ -83,7 +83,7 @@ export default function CreateStorePage() {
   return (
     <>
       <Header />
-      <div className="flex justify-center items-center h-screen bg-gray-100">
+      <div className="flex justify-center items-center min-h-screen bg-gray-100">
         <Card className="container mx-6">
           <CardContent>
             <h3 className="mb-4 text-xl">انشاء متجرك الخاص</h3>
@@ -121,9 +121,9 @@ export default function CreateStorePage() {
               <label>اختر موقع المنتج</label>
               <Suspense fallback={<Loader />}>
                 <LeafletMap
-                  latitude={storeData.latitude}
-                  longitude={storeData.longitude}
-                  onLocationChange={handleLocationChange}
+                  latitude={parseFloat(storeData.latitude)}
+                  longitude={parseFloat(storeData.longitude)}
+                  onLocationChange={(lat: number, lng: number) => handleLocationChange(`${lat}`, `${lng}`)}
                 />
               </Suspense>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
