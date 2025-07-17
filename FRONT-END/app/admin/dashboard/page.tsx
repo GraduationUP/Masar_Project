@@ -12,6 +12,7 @@ import AdminOverviewCards from "@/components/admin/AdminOverViewCards";
 import UserManagementTab from "@/components/admin/UserMangmentTab";
 import StoreManagementTab from "@/components/admin/StoreManagmentTab";
 import ProductManagementTab from "@/components/admin/ProductManagmentTab";
+import Header from "@/components/main_layout/header";
 
 // Import your interfaces here
 interface Roles {
@@ -313,19 +314,22 @@ export default function AdminDashboard() {
   ) {
     try {
       const token = localStorage.getItem("authToken");
-      const response = await fetch(`${API_BASE_URL}/api/admin/notifications/send`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          type: type,
-          message: message,
-          target: "user",
-          target_id: target_id,
-        }),
-      });
+      const response = await fetch(
+        `${API_BASE_URL}/api/admin/notifications/send`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            type: type,
+            message: message,
+            target: "user",
+            target_id: target_id,
+          }),
+        }
+      );
       if (!response.ok) {
         const errorData = await response.json();
         console.error("Error sending notification:", errorData);
@@ -341,7 +345,8 @@ export default function AdminDashboard() {
     }
   }
 
-  async function handelStoreDelete(id: number) { // TODO : Test
+  async function handelStoreDelete(id: number) {
+    // TODO : Test
     try {
       const token = localStorage.getItem("authToken");
       const response = await fetch(`${API_BASE_URL}/api/admin/stores/${id}`, {
@@ -401,86 +406,89 @@ export default function AdminDashboard() {
   }
 
   return (
-    <div className="container px-4 md:px-6 py-8">
-      <div className="flex flex-col gap-8">
-        <div className="flex flex-col md:flex-row gap-4 md:items-center md:justify-between">
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">
-              لوحة التحكم للإداري
-            </h1>
-            <p className="text-muted-foreground">إدارة منصة مسار</p>
+    <>
+      <Header />
+      <div className="container px-4 md:px-6 py-8">
+        <div className="flex flex-col gap-8">
+          <div className="flex flex-col md:flex-row gap-4 md:items-center md:justify-between">
+            <div>
+              <h1 className="text-3xl font-bold tracking-tight">
+                لوحة التحكم للإداري
+              </h1>
+              <p className="text-muted-foreground">إدارة منصة مسار</p>
+            </div>
+            <div className="flex gap-2">
+              <Button asChild variant="outline">
+                <Link href="/admin/settings">
+                  <Settings className="mr-2 h-4 w-4" />
+                  إعدادات المنصة
+                </Link>
+              </Button>
+              <Button asChild>
+                <Link href="/admin/map">
+                  <MapPin className="mr-2 h-4 w-4" />
+                  إدارة الخريطة
+                </Link>
+              </Button>
+            </div>
           </div>
-          <div className="flex gap-2">
-            <Button asChild variant="outline">
-              <Link href="/admin/settings">
-                <Settings className="mr-2 h-4 w-4" />
-                إعدادات المنصة
-              </Link>
-            </Button>
-            <Button asChild>
-              <Link href="/admin/map">
-                <MapPin className="mr-2 h-4 w-4" />
-                إدارة الخريطة
-              </Link>
-            </Button>
-          </div>
+
+          <AdminOverviewCards
+            userCount={userData.length}
+            storeCount={storeData.length}
+            productCount={productData.length}
+            servicesCount={servicesCount}
+          />
+
+          <Tabs defaultValue="users">
+            <TabsList>
+              <TabsTrigger value="users">المستخدمون</TabsTrigger>
+              <TabsTrigger value="stores">المتاجر</TabsTrigger>
+              <TabsTrigger value="products">البضائع</TabsTrigger>
+            </TabsList>
+            <TabsContent value="users" className="space-y-4">
+              <CustomAlert
+                message="تم تحديث البيانات بنجاح"
+                onClose={() => setShowSuccessAlert(false)}
+                show={showSuccessAlert}
+                success
+              />
+              <CustomAlert
+                message="حدث خطأ ما"
+                onClose={() => setShowFailAlert(false)}
+                show={showFailAlert}
+                success={false}
+              />
+              <UserManagementTab
+                userData={userData}
+                searchTerm={searchTerm}
+                userRoleFilter={userRoleFilter}
+                userRoleOptions={userRoleOptions}
+                handleUsersSearch={handleUsersSearch}
+                handelUserBan={handelUserBan}
+                handelUserBlock={handelUserBlock}
+                handelUserNotify={handelUserNotify}
+              />
+            </TabsContent>
+            <TabsContent value="stores" className="space-y-4">
+              <StoreManagementTab
+                storeData={storeData}
+                searchTerm={searchTerm}
+                storeStatusFilter={storeStatusFilter}
+                storeStatusOptions={storeStatusOptions}
+                handleStoresSearch={handleStoresSearch}
+              />
+            </TabsContent>
+            <TabsContent value="products" className="space-y-4">
+              <ProductManagementTab
+                productData={productData}
+                searchTerm={searchTerm}
+                handleProductSearch={handleProductSearch}
+              />
+            </TabsContent>
+          </Tabs>
         </div>
-
-        <AdminOverviewCards
-          userCount={userData.length}
-          storeCount={storeData.length}
-          productCount={productData.length}
-          servicesCount={servicesCount}
-        />
-
-        <Tabs defaultValue="users">
-          <TabsList>
-            <TabsTrigger value="users">المستخدمون</TabsTrigger>
-            <TabsTrigger value="stores">المتاجر</TabsTrigger>
-            <TabsTrigger value="products">البضائع</TabsTrigger>
-          </TabsList>
-          <TabsContent value="users" className="space-y-4">
-            <CustomAlert
-              message="تم تحديث البيانات بنجاح"
-              onClose={() => setShowSuccessAlert(false)}
-              show={showSuccessAlert}
-              success
-            />
-            <CustomAlert
-              message="حدث خطأ ما"
-              onClose={() => setShowFailAlert(false)}
-              show={showFailAlert}
-              success={false}
-            />
-            <UserManagementTab
-              userData={userData}
-              searchTerm={searchTerm}
-              userRoleFilter={userRoleFilter}
-              userRoleOptions={userRoleOptions}
-              handleUsersSearch={handleUsersSearch}
-              handelUserBan={handelUserBan}
-              handelUserBlock={handelUserBlock}
-              handelUserNotify={handelUserNotify}
-            />
-          </TabsContent>
-          <TabsContent value="stores" className="space-y-4">
-            <StoreManagementTab
-              storeData={storeData}
-              searchTerm={searchTerm}
-              storeStatusFilter={storeStatusFilter}
-              storeStatusOptions={storeStatusOptions}
-              handleStoresSearch={handleStoresSearch}
-            />
-          </TabsContent>
-          <TabsContent value="products" className="space-y-4">
-            <ProductManagementTab
-              productData={productData}
-              searchTerm={searchTerm}
-              handleProductSearch={handleProductSearch}
-            />
-          </TabsContent>
-        </Tabs>
       </div>
-    </div>
+    </>
   );
 }

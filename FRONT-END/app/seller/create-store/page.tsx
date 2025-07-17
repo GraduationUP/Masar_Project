@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Loader } from "lucide-react";
+import Header from "@/components/main_layout/header";
 
 const LeafletMap = lazy(() =>
   import("@/components/LeafletMap").then((module) => ({
@@ -77,81 +78,84 @@ export default function CreateStorePage() {
 
   const showStates = () => {
     console.log(storeData);
-  }
+  };
 
   return (
-    <div className="flex justify-center items-center h-screen bg-gray-100">
-      <Card className="container mx-6">
-        <CardContent>
-          <h3 className="mb-4 text-xl">انشاء متجرك الخاص</h3>
-          <form onSubmit={handleCreateStore} className="space-y-4">
-            <div>
-              <label htmlFor="store_name">اسم المتجر:</label>
-              <Input
-                type="text"
-                id="store_name"
-                name="store_name"
-                value={storeData.store_name}
-                onChange={handleChange}
-              />
-            </div>
-            <div>
-              <label htmlFor="phone">الهاتف الجوال</label>
-              <Input
-                type="text"
-                id="phone"
-                name="phone"
-                value={storeData.phone}
-                onChange={handleChange}
-              />
-            </div>
-            <div>
-              <label htmlFor="location_address">العنوان</label>
-              <Input
-                type="text"
-                id="location_address"
-                name="location_address"
-                value={storeData.location_address}
-                onChange={handleChange}
-              />
-            </div>
-            <label>اختر موقع المنتج</label>
-            <Suspense fallback={<Loader/>}>
-              <LeafletMap
-                latitude={storeData.latitude}
-                longitude={storeData.longitude}
-                onLocationChange={handleLocationChange}
-              />
-            </Suspense>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
+    <>
+      <Header />
+      <div className="flex justify-center items-center h-screen bg-gray-100">
+        <Card className="container mx-6">
+          <CardContent>
+            <h3 className="mb-4 text-xl">انشاء متجرك الخاص</h3>
+            <form onSubmit={handleCreateStore} className="space-y-4">
               <div>
-                <label htmlFor="latitude">Latitude:</label>
+                <label htmlFor="store_name">اسم المتجر:</label>
                 <Input
-                  type="number"
-                  id="latitude"
-                  value={storeData.latitude}
-                  readOnly
-                  className="rounded-lg"
+                  type="text"
+                  id="store_name"
+                  name="store_name"
+                  value={storeData.store_name}
+                  onChange={handleChange}
                 />
               </div>
               <div>
-                <label htmlFor="longitude">Longitude:</label>
+                <label htmlFor="phone">الهاتف الجوال</label>
                 <Input
-                  type="number"
-                  id="longitude"
-                  value={storeData.longitude}
-                  readOnly
-                  className="rounded-lg"
+                  type="text"
+                  id="phone"
+                  name="phone"
+                  value={storeData.phone}
+                  onChange={handleChange}
                 />
               </div>
-            </div>
-            <Button type="submit" className="w-full">
-             انشئ متجراً
-            </Button>
-          </form>
-        </CardContent>
-      </Card>
-      <Button onClick={showStates}>اطبع</Button>
-    </div>
+              <div>
+                <label htmlFor="location_address">العنوان</label>
+                <Input
+                  type="text"
+                  id="location_address"
+                  name="location_address"
+                  value={storeData.location_address}
+                  onChange={handleChange}
+                />
+              </div>
+              <label>اختر موقع المنتج</label>
+              <Suspense fallback={<Loader />}>
+                <LeafletMap
+                  latitude={storeData.latitude}
+                  longitude={storeData.longitude}
+                  onLocationChange={handleLocationChange}
+                />
+              </Suspense>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
+                <div>
+                  <label htmlFor="latitude">Latitude:</label>
+                  <Input
+                    type="number"
+                    id="latitude"
+                    value={storeData.latitude}
+                    readOnly
+                    className="rounded-lg"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="longitude">Longitude:</label>
+                  <Input
+                    type="number"
+                    id="longitude"
+                    value={storeData.longitude}
+                    readOnly
+                    className="rounded-lg"
+                  />
+                </div>
+              </div>
+              <Button type="submit" className="w-full">
+                انشئ متجراً
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
+        <Button onClick={showStates}>اطبع</Button>
+      </div>
+    </>
   );
 }

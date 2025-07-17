@@ -25,6 +25,7 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
+import Header from "@/components/main_layout/header";
 
 const LeafletMap = dynamic(() =>
   import("@/components/LeafletMap").then((module) => ({
@@ -171,127 +172,130 @@ export default function AdminMapPage() {
   };
 
   const showStates = () => {
-    console.log({name, type, coordinates, status})
-  }
+    console.log({ name, type, coordinates, status });
+  };
 
   if (!mapData) return <Loading />;
   return (
-    <div className="container px-4 md:px-6 py-8 section-padding">
-      <div className="flex flex-col gap-4 mb-8">
-        <h1 className="text-3xl font-bold tracking-tight md:text-4xl">
-          خريطة الخدمات التفاعلية للأدمن
-        </h1>
-        <Dialog>
-          <DialogTrigger asChild>
-            <Button size="sm">
-              <Plus className="mr-2 h-4 w-4" />
-              اضافة خدمة
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <form
-              onSubmit={async (e) => {
-                e.preventDefault();
-                await handelAddService();
-              }}
-              className="grid gap-4 py-2"
-            >
-              <DialogHeader>
-                <DialogTitle>إضافة خدمة الى الخريطة</DialogTitle>
-                <DialogDescription>
-                  قم بتحديد الاسم والنوع والاحداثيات واضف الحالة للخدمة
-                </DialogDescription>
-              </DialogHeader>
-              <div className="grid gap-4 py-2">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+    <>
+      <Header />
+      <div className="container px-4 md:px-6 py-8 section-padding">
+        <div className="flex flex-col gap-4 mb-8">
+          <h1 className="text-3xl font-bold tracking-tight md:text-4xl">
+            خريطة الخدمات التفاعلية للأدمن
+          </h1>
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button size="sm">
+                <Plus className="mr-2 h-4 w-4" />
+                اضافة خدمة
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <form
+                onSubmit={async (e) => {
+                  e.preventDefault();
+                  await handelAddService();
+                }}
+                className="grid gap-4 py-2"
+              >
+                <DialogHeader>
+                  <DialogTitle>إضافة خدمة الى الخريطة</DialogTitle>
+                  <DialogDescription>
+                    قم بتحديد الاسم والنوع والاحداثيات واضف الحالة للخدمة
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="grid gap-4 py-2">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                    <div className="grid gap-1">
+                      <Label htmlFor="name">اسم الخدمة</Label>
+                      <Input
+                        placeholder="اكتب الاسم هنا"
+                        id="name"
+                        value={name}
+                        onChange={handleNameChange}
+                      />
+                    </div>
+                    <div className="grid gap-1">
+                      <Label htmlFor="type">نوع الخدمة</Label>
+                      <Select onValueChange={handleTypeChange}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="نوع الخدمة" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="market">سوق</SelectItem>
+                          <SelectItem value="aids">مركز مساعدات</SelectItem>
+                          <SelectItem value="GasStations">محطة غاز</SelectItem>
+                          <SelectItem value="stores">محل تجاري</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+
                   <div className="grid gap-1">
-                    <Label htmlFor="name">اسم الخدمة</Label>
-                    <Input
-                      placeholder="اكتب الاسم هنا"
-                      id="name"
-                      value={name}
-                      onChange={handleNameChange}
+                    <Label htmlFor="location">الاحداثيات</Label>
+                    <Suspense fallback={<>جار تحميل الخريطة...</>}>
+                      <div className="relative border rounded-md">
+                        <LeafletMap
+                          latitude={currentLatitude}
+                          longitude={currentLongitude}
+                          onLocationChange={handleLocationChange}
+                        />
+                      </div>
+                    </Suspense>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2">
+                      <div>
+                        <Label htmlFor="latitude">Latitude:</Label>
+                        <Input
+                          type="number"
+                          id="latitude"
+                          value={currentLatitude}
+                          readOnly
+                          className="rounded-lg"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="longitude">Longitude:</Label>
+                        <Input
+                          type="number"
+                          id="longitude"
+                          value={currentLongitude}
+                          readOnly
+                          className="rounded-lg"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center space-x-2 ltr">
+                    <Switch
+                      id="location-status"
+                      checked={isLocationEnabled}
+                      onCheckedChange={handleStatusChange}
                     />
-                  </div>
-                  <div className="grid gap-1">
-                    <Label htmlFor="type">نوع الخدمة</Label>
-                    <Select onValueChange={handleTypeChange}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="نوع الخدمة" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="market">سوق</SelectItem>
-                        <SelectItem value="aids">مركز مساعدات</SelectItem>
-                        <SelectItem value="GasStations">محطة غاز</SelectItem>
-                        <SelectItem value="stores">محل تجاري</SelectItem>
-                      </SelectContent>
-                    </Select>
+                    <Label htmlFor="location-status">مفعل</Label>
                   </div>
                 </div>
-
-                <div className="grid gap-1">
-                  <Label htmlFor="location">الاحداثيات</Label>
-                  <Suspense fallback={<>جار تحميل الخريطة...</>}>
-                    <div className="relative border rounded-md">
-                      <LeafletMap
-                        latitude={currentLatitude}
-                        longitude={currentLongitude}
-                        onLocationChange={handleLocationChange}
-                      />
-                    </div>
-                  </Suspense>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2">
-                    <div>
-                      <Label htmlFor="latitude">Latitude:</Label>
-                      <Input
-                        type="number"
-                        id="latitude"
-                        value={currentLatitude}
-                        readOnly
-                        className="rounded-lg"
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="longitude">Longitude:</Label>
-                      <Input
-                        type="number"
-                        id="longitude"
-                        value={currentLongitude}
-                        readOnly
-                        className="rounded-lg"
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex items-center space-x-2 ltr">
-                  <Switch
-                    id="location-status"
-                    checked={isLocationEnabled}
-                    onCheckedChange={handleStatusChange}
-                  />
-                  <Label htmlFor="location-status">مفعل</Label>
-                </div>
-              </div>
-              <DialogFooter>
-                <DialogClose asChild>
-                  <Button variant="secondary" type="button">
-                    الغاء
-                  </Button>
-                </DialogClose>
-                <Button type="submit">اضافة الخدمة</Button>
-              </DialogFooter>
-              {success && (
-                <p className="text-green-500">تم اضافة الخدمة بنجاح</p>
-              )}
-              {fail && <p className="text-red-500">حدث خطأ ما حاول مجدداً</p>}
-            </form>
-            <Button onClick={showStates}>print</Button>
-          </DialogContent>
-        </Dialog>
+                <DialogFooter>
+                  <DialogClose asChild>
+                    <Button variant="secondary" type="button">
+                      الغاء
+                    </Button>
+                  </DialogClose>
+                  <Button type="submit">اضافة الخدمة</Button>
+                </DialogFooter>
+                {success && (
+                  <p className="text-green-500">تم اضافة الخدمة بنجاح</p>
+                )}
+                {fail && <p className="text-red-500">حدث خطأ ما حاول مجدداً</p>}
+              </form>
+              <Button onClick={showStates}>print</Button>
+            </DialogContent>
+          </Dialog>
+        </div>
+        <GazaMap data={mapData} />
       </div>
-      <GazaMap data={mapData} />
-    </div>
+    </>
   );
 }

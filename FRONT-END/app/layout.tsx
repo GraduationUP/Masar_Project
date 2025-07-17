@@ -4,7 +4,6 @@ import { Inter } from "next/font/google"
 import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
 import { Toaster } from "@/components/ui/toaster"
-import Header from "@/components/main_layout/header"
 import Footer from "@/components/main_layout/Footer"
 
 // TODO : some how add a loading to the header component
@@ -27,7 +26,6 @@ export default async function RootLayout({
       <body className={inter.className}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
             <div className="flex min-h-screen flex-col">
-              <Header />
               <main className="flex-1">{children}</main>
               <Footer />
             </div>
