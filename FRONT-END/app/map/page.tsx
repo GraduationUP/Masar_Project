@@ -4,6 +4,7 @@ import dynamic from "next/dynamic";
 import { Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import Loading from "./loading";
+import Header from "@/components/main_layout/header";
 
 // Dynamically import the map component to avoid SSR issues
 const GazaMap = dynamic(() => import("@/components/map"), {
@@ -79,18 +80,19 @@ export default function AdminMapPage() {
 
   if (!mapData) return <Loading />;
   return (
-    <div className="container px-4 md:px-6 py-8 section-padding">
-      
-      <div className="flex flex-col gap-4 mb-8">
-        
-        <h1 className="text-3xl font-bold tracking-tight md:text-4xl">
-          خريطة الخدمات التفاعلية
-        </h1>
-        <p className="text-muted-foreground text-lg">
-          استكشف الخدمات والمتاجر في محيطك
-        </p>
+    <>
+      <Header />
+      <div className="container px-4 md:px-6 py-8 section-padding">
+        <div className="flex flex-col gap-4 mb-8">
+          <h1 className="text-3xl font-bold tracking-tight md:text-4xl">
+            خريطة الخدمات التفاعلية
+          </h1>
+          <p className="text-muted-foreground text-lg">
+            استكشف الخدمات والمتاجر في محيطك
+          </p>
+        </div>
+        <GazaMap data={mapData} />
       </div>
-      <GazaMap data={mapData} />
-    </div>
+    </>
   );
 }

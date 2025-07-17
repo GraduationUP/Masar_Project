@@ -189,42 +189,88 @@ export default function Header() {
                 <DropdownMenuContent className="w-56 mt-1" align="end">
                   {notifications.map((notification) => (
                     <DropdownMenuItem key={notification.id}>
-                      <span className="flex items-center gap-1">
-                        {(() => {
-                          switch (notification.type_name) {
-                            case "report":
-                              return <AlertTriangle className="h-5 w-5" />;
-                            case "notification":
-                            case "maintenance":
-                            case "update":
-                              return <Bell className="h-5 w-5" />;
-                            case "account_approved":
-                            case "account_suspended":
-                              return <UserCheck className="h-5 w-5" />;
-                            case "promotion":
-                            case "feedback_request":
-                            case "policy_update":
-                              return <Megaphone className="h-5 w-5" />;
-                            case "general_announcement":
-                            case "security_alert":
-                              return <Shield className="h-5 w-5" />;
-                            case "rating":
-                            case "comment":
-                              return <Star className="h-5 w-5" />;
-                            default:
-                              return <Check className="h-5 w-5" />;
-                          }
-                        })()}
-                        {notification.message}
-                      </span>
-                      <span className="text-xs text-muted-foreground">
-                        {new Date(notification.sent_at).toLocaleString(
-                          "en-US",
-                          {
-                            calendar: "gregory",
-                          }
-                        )}
-                      </span>
+                      <div className="flex items-start justify-between">
+                        <div className="flex items-start gap-2 w-10/12">
+                          {(() => {
+                            switch (notification.type_name) {
+                              case "report":
+                                return (
+                                  <AlertTriangle className="h-5 w-5 text-warning" />
+                                );
+                              case "notification":
+                              case "maintenance":
+                              case "update":
+                                return <Bell className="h-5 w-5 text-info" />;
+                              case "account_approved":
+                              case "account_suspended":
+                                return (
+                                  <UserCheck className="h-5 w-5 text-success" />
+                                );
+                              case "promotion":
+                              case "feedback_request":
+                              case "policy_update":
+                                return (
+                                  <Megaphone className="h-5 w-5 text-accent" />
+                                );
+                              case "general_announcement":
+                              case "security_alert":
+                                return (
+                                  <Shield className="h-5 w-5 text-alert" />
+                                );
+                              case "rating":
+                              case "comment":
+                                return (
+                                  <Star className="h-5 w-5 text-highlight" />
+                                );
+                              default:
+                                return <Check className="h-5 w-5 text-muted" />;
+                            }
+                          })()}
+                          <div className="flex flex-col space-y-0.5 flex-1 overflow-hidden">
+                            <span className="font-semibold truncate">
+                              {{
+                                report: "ابلاغ",
+                                notification: "إشعار",
+                                maintenance: "صيانة",
+                                update: "تحديث",
+                                account_approved: "تأكيد الحساب",
+                                account_suspended: "تعليق الحساب",
+                                promotion: "ترويج",
+                                feedback_request: "طلب ملاحظات",
+                                policy_update: "تحديث سياسة",
+                                general_announcement: "إعلان عام",
+                                security_alert: "تنبيه أمني",
+                                rating: "تقييم",
+                                comment: "تعليق",
+                              }[notification.type_name] || "موافق"}
+                            </span>
+                            <span className="text-sm" style={{ wordBreak: 'break-word', whiteSpace: 'normal' }}>
+                              {notification.message}
+                            </span>
+                            {/* Added truncate here as well */}
+                          </div>
+                        </div>
+                        <div className="text-xs text-gray-400" style={{ direction: "rtl" }}>
+                          {new Date(notification.sent_at).toLocaleTimeString(
+                            "en-US",
+                            {
+                              // Using Arabic (Palestinian) locale for time
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            }
+                          )}
+                          {" - "}
+                          {new Date(notification.sent_at).toLocaleDateString(
+                            "en-US",
+                            {
+                              // Using Arabic (Palestinian) locale for date
+                              year: "numeric",
+                              month: "numeric",
+                              day: "numeric",
+                            }
+                          )}
+                        </div>
+                      </div>
                     </DropdownMenuItem>
                   ))}
                 </DropdownMenuContent>

@@ -1,4 +1,4 @@
-import { Button } from "./ui/button";
+import { Button } from "../ui/button";
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 import FeaturedStores from "./featured-stores";

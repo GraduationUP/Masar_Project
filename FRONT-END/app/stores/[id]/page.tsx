@@ -11,18 +11,18 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import StarRating from "@/components/starRating";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import {
-  MapPin,
-  MessageSquare,
-  Phone,
-  ShoppingBag,
-  Star,
-} from "lucide-react";
+import { MapPin, MessageSquare, Phone, ShoppingBag, Star } from "lucide-react";
 import dynamic from "next/dynamic";
 import Loading from "./loading";
 import Image from "next/image";
 import { Textarea } from "@/components/ui/textarea";
 import { CustomAlert } from "@/components/customAlert";
+import Header from "@/components/main_layout/header";
+
+interface userFeedback {
+  score: number | null;
+  content: string | null;
+}
 
 interface Feedback {
   user_name: string;
@@ -77,10 +77,46 @@ export default function StorePage() {
   const [success, setSuccess] = useState(false);
   const [failure, setFailure] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [openUserUpdate, setOpenUserUpdate] = useState(false);
   const [categories, setCategories] = useState<
     Array<{ id: number; name: string }>
   >([]);
   const [loading, setLoading] = useState(true);
+  const [userfeedback, setUserFeedback] = useState<userFeedback>({
+    score: null,
+    content: null,
+  });
+
+  useEffect(() => {
+    async function fetchData() {
+      setLoading(true); // Set loading to true before the fetch
+      try {
+        const Auth_Token = localStorage.getItem("authToken");
+        const response = await fetch(
+          `${BASE_API_URL}/api/store/${id}/feedback-status`,
+          {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${Auth_Token}`,
+            },
+          }
+        );
+
+        if (!response.ok) {
+          return;
+        }
+
+        const responseData = await response.json();
+        console.log("Feedback status:", responseData);
+        setUserFeedback(responseData);
+      } catch (error) {
+        console.error("Error:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchData();
+  }, [id, BASE_API_URL]);
 
   useEffect(() => {
     async function fetchData() {
@@ -226,339 +262,534 @@ export default function StorePage() {
     }
   });
 
+  const handleUpdateComment = async (id: number, content: string) => {
+    setSubmitting(true);
+    try {
+      const Auth_Token = localStorage.getItem("authToken");
+      const response = await fetch(`${BASE_API_URL}/api/comments/${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${Auth_Token}`,
+        },
+        body: JSON.stringify({ content }),
+      });
+      if (!response.ok) {
+        setFailure(true);
+        setSubmitting(false);
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const responseData = await response.json();
+      console.log("Comment edited successfully:", responseData);
+      setSuccess(true);
+      setSubmitting(false);
+    } catch (error) {
+      console.error("Error editing comment:", error);
+    }
+  };
+
+  const handelRatingUpdate = async (id: number, score: number) => {
+    setSubmitting(true);
+    try {
+      const Auth_Token = localStorage.getItem("authToken");
+      const response = await fetch(`${BASE_API_URL}/api/ratings/${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${Auth_Token}`,
+        },
+        body: JSON.stringify({ score }),
+      });
+      if (!response.ok) {
+        setFailure(true);
+        setSubmitting(false);
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const responseData = await response.json();
+      console.log("Rating edited successfully:", responseData);
+      setSuccess(true);
+      setSubmitting(false);
+    } catch (error) {
+      console.error("Error editing rating:", error);
+    }
+  };
+
   if (loading) {
     return <Loading />;
   }
 
   return (
-    <div className="container px-4 md:px-6 py-8">
-      <div className="flex flex-col gap-8">
-        {/* Store Header */}
-        <div className="relative h-64 md:h-80 w-full rounded-xl overflow-hidden shadow-md">
-          <img
-            src={"/storeBanner.svg"}
-            alt={data?.name}
-            className="h-full w-full object-cover"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/50 to-transparent flex items-end">
-            <div className="p-6 flex items-center gap-4">
-              <div className="bg-background rounded-full p-1 shadow-lg">
-                <img
-                  src={"/placeholder-store.png"}
-                  alt={`${data?.name} logo`}
-                  className="h-20 w-20 rounded-full border-2 border-background"
-                />
-              </div>
-              <div>
-                <h1 className="text-3xl font-bold">{data?.name}</h1>
-                <div className="flex items-center gap-2 mt-1">
-                  <div className="flex items-center">
-                    {[...Array(5).keys()].map((i) => (
-                      <Star
-                        key={i}
-                        className={`h-4 w-4 ${
-                          i < Math.floor(data?.average_rating as number)
-                            ? "fill-yellow-400 text-yellow-400"
-                            : "fill-muted-foreground text-muted-foreground"
-                        }`}
-                      />
-                    ))}
+    <>
+      <Header />
+      <div className="container px-4 md:px-6 py-8">
+        <div className="flex flex-col gap-8">
+          {/* Store Header */}
+          <div className="relative h-64 md:h-80 w-full rounded-xl overflow-hidden shadow-md">
+            <img
+              src={"/storeBanner.svg"}
+              alt={data?.name}
+              className="h-full w-full object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/50 to-transparent flex items-end">
+              <div className="p-6 flex items-center gap-4">
+                <div className="bg-background rounded-full p-1 shadow-lg">
+                  <img
+                    src={"/placeholder-store.png"}
+                    alt={`${data?.name} logo`}
+                    className="h-20 w-20 rounded-full border-2 border-background"
+                  />
+                </div>
+                <div>
+                  <h1 className="text-3xl font-bold">{data?.name}</h1>
+                  <div className="flex items-center gap-2 mt-1">
+                    <div className="flex items-center">
+                      {[...Array(5).keys()].map((i) => (
+                        <Star
+                          key={i}
+                          className={`h-4 w-4 ${
+                            i < Math.floor(data?.average_rating as number)
+                              ? "fill-yellow-400 text-yellow-400"
+                              : "fill-muted-foreground text-muted-foreground"
+                          }`}
+                        />
+                      ))}
+                    </div>
+                    <span className="text-sm text-muted-foreground">•</span>
+                    <span className="text-sm text-muted-foreground">
+                      {data?.location_address}
+                    </span>
                   </div>
-                  <span className="text-sm text-muted-foreground">•</span>
-                  <span className="text-sm text-muted-foreground">
-                    {data?.location_address}
-                  </span>
                 </div>
               </div>
             </div>
           </div>
-        </div>
 
-        {/* Action Buttons */}
-        <div className="flex flex-wrap gap-4">
-          <Button variant="outline" className="gap-2 rounded-full">
-            <Image
-              src="/whatsapp.svg"
-              alt="whatsapp logo"
-              className="h-4 w-4"
-              width={50}
-              height={50}
-            />
-            <Link
-              href={`https://wa.me/${data?.phone.replace(/\D|\+/g, "")}`}
-              target="_blank"
-            >
-              Whatsapp
-            </Link>
-          </Button>
-          <Button className="gap-2 ml-auto rounded-full bg-gradient-to-r from-blue-400 to-blue-500 hover:from-blue-500 hover:to-blue-600">
-            <ShoppingBag className="h-4 w-4" />
-            <span>تصفح البضائع</span>
-          </Button>
-        </div>
-
-        {/* Store Content */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2">
-            <Tabs defaultValue="about" className="w-full">
-              <TabsList className="grid w-full grid-cols-3 rounded-lg mb-6">
-                <TabsTrigger value="about" className="rounded-md">
-                  نبذة
-                </TabsTrigger>
-                <TabsTrigger value="products" className="rounded-md">
-                  البضائع
-                </TabsTrigger>
-                <TabsTrigger value="reviews" className="rounded-md">
-                  التقييمات
-                </TabsTrigger>
-              </TabsList>
-              <TabsContent value="about" className="space-y-6 animate-fade-in">
-                <div>
-                  <h2 className="text-xl font-bold mb-2">
-                    نبذة عن {data?.name}
-                  </h2>
-                </div>
-
-                <div>
-                  <h3 className="text-lg font-bold mb-2">الأقسام</h3>
-                  <div className="flex flex-wrap gap-2">
-                    {storeCategories?.map((category) => (
-                      <Badge
-                        key={category.id}
-                        variant="secondary"
-                        className="rounded-full"
-                      >
-                        {category.name}
-                      </Badge>
-                    ))}
-                  </div>
-                </div>
-
-                <div>
-                  <h3 className="text-lg font-bold mb-2">معلومات التواصل</h3>
-                  <div className="space-y-2">
-                    <div>
-                      <Phone className="h-4 w-4 text-muted-foreground inline" />
-                      <span>{data?.phone}</span>
-                    </div>
-                  </div>
-                </div>
-              </TabsContent>
-              <TabsContent
-                value="products"
-                className="space-y-6 animate-fade-in"
+          {/* Action Buttons */}
+          <div className="flex flex-wrap gap-4">
+            <Button variant="outline" className="gap-2 rounded-full">
+              <Image
+                src="/whatsapp.svg"
+                alt="whatsapp logo"
+                className="h-4 w-4"
+                width={50}
+                height={50}
+              />
+              <Link
+                href={`https://wa.me/${data?.phone.replace(/\D|\+/g, "")}`}
+                target="_blank"
               >
-                <div>
-                  <h2 className="text-xl font-bold mb-4">البضائع</h2>
-                  {data?.products.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center py-12 text-center">
-                      <ShoppingBag className="h-12 w-12 text-muted-foreground mb-4" />
-                      <h3 className="text-lg font-medium">لا يوجد بضائع</h3>
-                      <p className="text-sm text-muted-foreground mt-1">
-                        هذا المتجر لا يحتوي على بضائع بعد.
-                      </p>
+                Whatsapp
+              </Link>
+            </Button>
+            <Button className="gap-2 ml-auto rounded-full bg-gradient-to-r from-blue-400 to-blue-500 hover:from-blue-500 hover:to-blue-600">
+              <ShoppingBag className="h-4 w-4" />
+              <span>تصفح البضائع</span>
+            </Button>
+          </div>
+
+          {/* Store Content */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div className="lg:col-span-2">
+              <Tabs defaultValue="about" className="w-full">
+                <TabsList className="grid w-full grid-cols-3 rounded-lg mb-6">
+                  <TabsTrigger value="about" className="rounded-md">
+                    نبذة
+                  </TabsTrigger>
+                  <TabsTrigger value="products" className="rounded-md">
+                    البضائع
+                  </TabsTrigger>
+                  <TabsTrigger value="reviews" className="rounded-md">
+                    التقييمات
+                  </TabsTrigger>
+                </TabsList>
+                <TabsContent
+                  value="about"
+                  className="space-y-6 animate-fade-in"
+                >
+                  <div>
+                    <h2 className="text-xl font-bold mb-2">
+                      نبذة عن {data?.name}
+                    </h2>
+                  </div>
+
+                  <div>
+                    <h3 className="text-lg font-bold mb-2">الأقسام</h3>
+                    <div className="flex flex-wrap gap-2">
+                      {storeCategories?.map((category) => (
+                        <Badge
+                          key={category.id}
+                          variant="secondary"
+                          className="rounded-full"
+                        >
+                          {category.name}
+                        </Badge>
+                      ))}
                     </div>
-                  ) : (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 staggered-animation">
-                      {data?.products.map((product) => (
-                        <Link href={`/products/${product.id}`} key={product.id}>
-                          <Card className="overflow-hidden h-full card-hover">
-                            <div className="relative h-48 w-full">
-                              <div className="flex items-center justify-center w-full h-full">
-                                <img
-                                  src={product.photo || "/boxes.png"}
-                                  alt={product.name}
-                                  className="size-1/2 object-contain"
-                                />
+                  </div>
+
+                  <div>
+                    <h3 className="text-lg font-bold mb-2">معلومات التواصل</h3>
+                    <div className="space-y-2">
+                      <div>
+                        <Phone className="h-4 w-4 text-muted-foreground inline" />
+                        <span>{data?.phone}</span>
+                      </div>
+                    </div>
+                  </div>
+                </TabsContent>
+                <TabsContent
+                  value="products"
+                  className="space-y-6 animate-fade-in"
+                >
+                  <div>
+                    <h2 className="text-xl font-bold mb-4">البضائع</h2>
+                    {data?.products.length === 0 ? (
+                      <div className="flex flex-col items-center justify-center py-12 text-center">
+                        <ShoppingBag className="h-12 w-12 text-muted-foreground mb-4" />
+                        <h3 className="text-lg font-medium">لا يوجد بضائع</h3>
+                        <p className="text-sm text-muted-foreground mt-1">
+                          هذا المتجر لا يحتوي على بضائع بعد.
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 staggered-animation">
+                        {data?.products.map((product) => (
+                          <Link
+                            href={`/products/${product.id}`}
+                            key={product.id}
+                          >
+                            <Card className="overflow-hidden h-full card-hover">
+                              <div className="relative h-48 w-full">
+                                <div className="flex items-center justify-center w-full h-full">
+                                  <img
+                                    src={product.photo || "/boxes.png"}
+                                    alt={product.name}
+                                    className="size-1/2 object-contain"
+                                  />
+                                </div>
+                                <div className="absolute top-4 left-4">
+                                  {storeCategories?.map((category) => (
+                                    <Badge
+                                      key={category.id}
+                                      variant="secondary"
+                                      className="rounded-full"
+                                    >
+                                      {category.name}
+                                    </Badge>
+                                  ))}
+                                </div>
                               </div>
-                              <div className="absolute top-4 left-4">
-                                {storeCategories?.map((category) => (
-                                  <Badge
-                                    key={category.id}
-                                    variant="secondary"
-                                    className="rounded-full"
-                                  >
-                                    {category.name}
-                                  </Badge>
-                                ))}
+                              <CardContent className="p-4">
+                                <h3 className="text-lg font-bold">
+                                  {product.name}
+                                </h3>
+                                <p className="text-sm text-muted-foreground line-clamp-2 mt-1">
+                                  {product.description}
+                                </p>
+                                <div className="flex items-center justify-between mt-3">
+                                  <span className="font-bold">
+                                    ₪{Number(product.price).toFixed(2)}{" "}
+                                  </span>
+                                </div>
+                              </CardContent>
+                            </Card>
+                          </Link>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </TabsContent>
+                <TabsContent
+                  value="reviews"
+                  className="space-y-6 animate-fade-in"
+                >
+                  <div>
+                    <div className="flex items-center justify-between mb-4">
+                      <h2 className="text-xl font-bold">التقييمات</h2>
+                    </div>
+                    {isUser && notOwner && (
+                      <>
+                        {userfeedback.score === null && (
+                          <div className="flex">
+                            <StarRating
+                              score={score}
+                              setScore={setScore}
+                              starSize={"30px"}
+                            />
+                            {submitting ? (
+                              <Button variant={"secondary"} disabled>
+                                ارسال
+                              </Button>
+                            ) : (
+                              <Button
+                                variant={"link"}
+                                onClick={handelRatingSend}
+                              >
+                                ارسال
+                              </Button>
+                            )}
+                          </div>
+                        )}
+                        {userfeedback.content === null && (
+                          <form onSubmit={(e) => e.preventDefault()}>
+                            <label htmlFor="content">تعليقك</label>
+                            <Textarea
+                              placeholder="اكتب تعليقك هنا"
+                              id="content"
+                              value={content}
+                              onChange={(e) => setContent(e.target.value)}
+                              className="mb-2"
+                            ></Textarea>
+
+                            {submitting ? (
+                              <Button variant={"secondary"} disabled>
+                                تعليق
+                              </Button>
+                            ) : (
+                              <Button onClick={handleAddComment} type="submit">
+                                تعليق
+                              </Button>
+                            )}
+                          </form>
+                        )}
+                      </>
+                    )}
+
+                    {openUserUpdate && (
+                      <>
+                        {userfeedback.score !== null && (
+                          <div className="flex">
+                            <StarRating
+                              score={score}
+                              setScore={setScore}
+                              starSize={"30px"}
+                            />
+                            {submitting ? (
+                              <Button variant={"secondary"} disabled>
+                                تحديث
+                              </Button>
+                            ) : (
+                              <Button
+                                variant={"link"}
+                                onClick={handelRatingUpdate(
+                                  userfeedback.id, //TODO
+                                  score
+                                )}
+                              >
+                                تحديث
+                              </Button>
+                            )}
+                          </div>
+                        )}
+                        {userfeedback.content !== null && (
+                          <form onSubmit={(e) => e.preventDefault()}>
+                            <label htmlFor="content">تعليقك</label>
+                            <Textarea
+                              placeholder={userfeedback.content || ""}
+                              id="content"
+                              value={content}
+                              onChange={(e) => setContent(e.target.value)}
+                              className="mb-2"
+                            ></Textarea>
+
+                            {submitting ? (
+                              <Button variant={"secondary"} disabled>
+                                تحديث
+                              </Button>
+                            ) : (
+                              <Button
+                                onClick={handleUpdateComment(
+                                  userfeedback.id, //TODO
+                                  content)}
+                                type="submit"
+                              >
+                                تحديث
+                              </Button>
+                            )}
+                          </form>
+                        )}
+                      </>
+                    )}
+                    {(userfeedback.content || userfeedback.score) && (
+                      <Card className="card-hover">
+                        <span className="text-xs text-muted-foreground pt-4 pl-4">
+                          مراجعتك الشخصية
+                        </span>
+                        <CardContent className="p-4">
+                          <div className="flex justify-between gap-4">
+                            <div className="flex gap-2">
+                              <Avatar>
+                                <AvatarFallback>
+                                  {JSON.parse(
+                                    localStorage.getItem("userInfo") || "{}"
+                                  ).name?.slice(0, 2)}
+                                </AvatarFallback>
+                              </Avatar>
+                              <div className="flex">
+                                <div className="flex flex-col">
+                                  <div className="flex items-center">
+                                    <h3 className="font-medium">
+                                      {
+                                        JSON.parse(
+                                          localStorage.getItem("userInfo") ||
+                                            "{}"
+                                        ).name
+                                      }
+                                    </h3>
+                                    <div className="flex">
+                                      {userfeedback.score !== null &&
+                                        Array.from({ length: 5 }).map(
+                                          (_, i) => (
+                                            <Star
+                                              key={i}
+                                              className={`h-4 w-4 ${
+                                                i < (userfeedback.score ?? 0)
+                                                  ? "fill-yellow-400 text-yellow-400"
+                                                  : "text-muted-foreground"
+                                              }`}
+                                            />
+                                          )
+                                        )}
+                                    </div>
+                                  </div>
+                                  {userfeedback.content !== null && (
+                                    <p className="text-sm mt-2">
+                                      {userfeedback.content}
+                                    </p>
+                                  )}
+                                </div>
                               </div>
                             </div>
+                            <div className="flex gap-1">
+                              <Button
+                                variant={"link"}
+                                onClick={() => setOpenUserUpdate(true)}
+                              >
+                                تعديل
+                              </Button>
+                              {userfeedback.content && (
+                                <Button variant={"destructive"}>
+                                  حذف التعليق
+                                </Button>
+                              )}
+                              {userfeedback.score && (
+                                <Button variant={"destructive"}>
+                                  حذف التقييم
+                                </Button>
+                              )}
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    )}
+                    <CustomAlert
+                      show={success}
+                      onClose={() => setSuccess(false)}
+                      message="تم الارسال بنجاح"
+                      success
+                    />
+                    <CustomAlert
+                      show={failure}
+                      onClose={() => setFailure(false)}
+                      message="حدث خطأ ما حاول مجدداً!"
+                      success={false}
+                    />
+                    <br />
+                    {data?.feedback.length === 0 ? (
+                      <div className="flex flex-col items-center justify-center py-12 text-center">
+                        <MessageSquare className="h-12 w-12 text-muted-foreground mb-4" />
+                        <h3 className="text-lg font-medium">لا تقييمات بعد</h3>
+                        <p className="text-sm text-muted-foreground mt-1">
+                          كن اول من يقيم المتجر.
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="space-y-4">
+                        {data?.feedback.map((review) => (
+                          <Card key={review.user_name} className="card-hover">
                             <CardContent className="p-4">
-                              <h3 className="text-lg font-bold">
-                                {product.name}
-                              </h3>
-                              <p className="text-sm text-muted-foreground line-clamp-2 mt-1">
-                                {product.description}
-                              </p>
-                              <div className="flex items-center justify-between mt-3">
-                                <span className="font-bold">
-                                  ₪{Number(product.price).toFixed(2)}{" "}
+                              <div className="flex justify-between gap-4">
+                                <div className="flex gap-2">
+                                  <Avatar>
+                                    <AvatarFallback>
+                                      {review.user_name.slice(0, 2)}
+                                    </AvatarFallback>
+                                  </Avatar>
+                                  <div className="flex">
+                                    <div className="flex flex-col">
+                                      <div className="flex items-center">
+                                        <h3 className="font-medium">
+                                          {review.user_name}
+                                        </h3>
+                                        <div className="flex">
+                                          {review.score !== null &&
+                                            Array.from({ length: 5 }).map(
+                                              (_, i) => (
+                                                <Star
+                                                  key={i}
+                                                  className={`h-4 w-4 ${
+                                                    i < review.score
+                                                      ? "fill-yellow-400 text-yellow-400"
+                                                      : "text-muted-foreground"
+                                                  }`}
+                                                />
+                                              )
+                                            )}
+                                        </div>
+                                      </div>
+                                      <p className="text-sm mt-2">
+                                        {review.content}
+                                      </p>
+                                    </div>
+                                  </div>
+                                </div>
+                                <span className="text-xs text-muted-foreground">
+                                  {new Date(
+                                    review.created_at
+                                  ).toLocaleDateString("en-US", {
+                                    calendar: "gregory",
+                                  })}
                                 </span>
                               </div>
                             </CardContent>
                           </Card>
-                        </Link>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </TabsContent>
-              <TabsContent
-                value="reviews"
-                className="space-y-6 animate-fade-in"
-              >
-                <div>
-                  <div className="flex items-center justify-between mb-4">
-                    <h2 className="text-xl font-bold">التقييمات</h2>
-                  </div>
-                  {isUser && notOwner && (
-                    <>
-                      <div className="flex">
-                        <StarRating
-                          score={score}
-                          setScore={setScore}
-                          starSize={"30px"}
-                        />
-                        {submitting ? (
-                          <Button variant={"secondary"} disabled>
-                            ارسال
-                          </Button>
-                        ) : (
-                          <Button variant={"link"} onClick={handelRatingSend}>
-                            ارسال
-                          </Button>
-                        )}
+                        ))}
                       </div>
-                      <form onSubmit={(e) => e.preventDefault()}>
-                        <label htmlFor="content">تعليقك</label>
-                        <Textarea
-                          placeholder="اكتب تعليقك هنا"
-                          id="content"
-                          value={content}
-                          onChange={(e) => setContent(e.target.value)}
-                          className="mb-2"
-                        ></Textarea>
+                    )}
+                  </div>
+                </TabsContent>
+              </Tabs>
+            </div>
 
-                        {submitting ? (
-                          <Button variant={"secondary"} disabled>
-                            تعليق
-                          </Button>
-                        ) : (
-                          <Button onClick={handleAddComment} type="submit">
-                            تعليق
-                          </Button>
-                        )}
-                      </form>
-                    </>
-                  )}
-                  <CustomAlert
-                    show={success}
-                    onClose={() => setSuccess(false)}
-                    message="تم الارسال بنجاح"
-                    success
-                  />
-                  <CustomAlert
-                    show={failure}
-                    onClose={() => setFailure(false)}
-                    message="حدث خطأ ما حاول مجدداً!"
-                    success={false}
-                  />
-                  <br />
-                  {data?.feedback.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center py-12 text-center">
-                      <MessageSquare className="h-12 w-12 text-muted-foreground mb-4" />
-                      <h3 className="text-lg font-medium">لا تقييمات بعد</h3>
-                      <p className="text-sm text-muted-foreground mt-1">
-                        كن اول من يقيم المتجر.
-                      </p>
-                    </div>
-                  ) : (
-                    <div className="space-y-4">
-                      {data?.feedback.map((review) => (
-                        <Card key={review.user_name} className="card-hover">
-                          <CardContent className="p-4">
-                            <div className="flex justify-between gap-4">
-                              <div className="flex gap-2">
-                                <Avatar>
-                                  <AvatarFallback>
-                                    {review.user_name.slice(0, 2)}
-                                  </AvatarFallback>
-                                </Avatar>
-                                <div className="flex">
-                                  <div className="flex flex-col">
-                                    <div className="flex items-center">
-                                      <h3 className="font-medium">
-                                        {review.user_name}
-                                      </h3>
-                                      <div className="flex">
-                                        {review.score !== null &&
-                                          Array.from({ length: 5 }).map(
-                                            (_, i) => (
-                                              <Star
-                                                key={i}
-                                                className={`h-4 w-4 ${
-                                                  i < review.score
-                                                    ? "fill-yellow-400 text-yellow-400"
-                                                    : "text-muted-foreground"
-                                                }`}
-                                              />
-                                            )
-                                          )}
-                                      </div>
-                                    </div>
-                                    <p className="text-sm mt-2">
-                                      {review.content}
-                                    </p>
-                                  </div>
-                                </div>
-                              </div>
-                              <span className="text-xs text-muted-foreground">
-                                {new Date(review.created_at).toLocaleDateString(
-                                  "en-US",
-                                  {
-                                    calendar: "gregory",
-                                  }
-                                )}
-                              </span>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </TabsContent>
-            </Tabs>
-          </div>
-
-          <div className="space-y-6">
-            <Card className="card-hover">
-              <CardContent className="p-4">
-                <h3 className="font-bold mb-2">موقع المتجر</h3>
-                <div className="h-64 rounded-lg overflow-hidden mb-4">
-                  {data && (
-                    <MapWithNoSSR
-                      center={[data.latitude, data.longitude]}
-                      zoom={15}
-                      markers={[
-                        {
-                          position: [data.latitude, data.longitude],
-                          title: data.name,
-                          type: "store",
-                        },
-                      ]}
-                    />
-                  )}
-                </div>
-                <div className="flex items-start gap-2">
-                  <MapPin className="h-5 w-5 text-muted-foreground shrink-0 mt-0.5" />
-                  <span>{data?.location_address}</span>
-                </div>
-              </CardContent>
-            </Card>
+            <div className="space-y-6">
+              <Card className="card-hover">
+                <CardContent className="p-4">
+                  <h3 className="font-bold mb-2">موقع المتجر</h3>
+                  <div className="h-64 rounded-lg overflow-hidden mb-4">
+                    {data && (
+                      <MapWithNoSSR
+                        center={[data.latitude, data.longitude]}
+                        zoom={15}
+                        markers={[
+                          {
+                            position: [data.latitude, data.longitude],
+                            title: data.name,
+                            type: "store",
+                          },
+                        ]}
+                      />
+                    )}
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <MapPin className="h-5 w-5 text-muted-foreground shrink-0 mt-0.5" />
+                    <span>{data?.location_address}</span>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }
