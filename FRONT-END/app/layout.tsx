@@ -4,8 +4,8 @@ import { Inter } from "next/font/google"
 import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
 import { Toaster } from "@/components/ui/toaster"
-import Header from "@/components/header"
-import Footer from "@/components/Footer"
+import Header from "@/components/main_layout/header"
+import Footer from "@/components/main_layout/Footer"
 
 // TODO : some how add a loading to the header component
 
