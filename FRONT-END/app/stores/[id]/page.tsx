@@ -289,6 +289,7 @@ export default function StorePage() {
       setSubmitting(false);
     } catch (error) {
       console.error("Error editing comment:", error);
+      setFailure(true);
     }
   };
 
@@ -315,6 +316,7 @@ export default function StorePage() {
       setSubmitting(false);
     } catch (error) {
       console.error("Error editing rating:", error);
+      setFailure(true);
     }
   };
 
@@ -340,7 +342,7 @@ export default function StorePage() {
       window.location.reload();
     } catch (error) {
       console.error("Error deleting product:", error);
-      alert("An unexpected error occurred while deleting the product.");
+      setFailure(true);
     } finally {
       setSubmitting(false);
     }
@@ -368,7 +370,7 @@ export default function StorePage() {
       window.location.reload();
     } catch (error) {
       console.error("Error deleting product:", error);
-      alert("An unexpected error occurred while deleting the product.");
+      setFailure(true);
     } finally {
       setSubmitting(false);
     }
@@ -729,12 +731,12 @@ export default function StorePage() {
                                 تعديل
                               </Button>
                               {userfeedback.content && (
-                                <Button variant={"destructive"} onClick={() => handelRatingDelete(userfeedback.content_id as number)}>
+                                <Button variant={"destructive"} onClick={() => handelCommentDelete(userfeedback.content_id as number)}>
                                   حذف التعليق
                                 </Button>
                               )}
                               {userfeedback.score && (
-                                <Button variant={"destructive"} onClick={() => handelCommentDelete(userfeedback.score_id as number)}>
+                                <Button variant={"destructive"} onClick={() => handelRatingDelete(userfeedback.score_id as number)}>
                                   حذف التقييم
                                 </Button>
                               )}
