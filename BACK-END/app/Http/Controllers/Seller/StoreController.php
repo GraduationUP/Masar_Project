@@ -16,8 +16,8 @@ class StoreController extends Controller
         $user = Auth::user();
 
         if (!$user->hasRole('admin') && !$user->hasRole('seller')) {
-    return response()->json(['message' => 'Unauthorized. Only sellers can create stores.'], 403);
-}
+            return response()->json(['message' => 'Unauthorized. Only sellers can create stores.'], 403);
+        }
 
         if ($user->store) {
             return response()->json(['message' => 'You already have a store.'], 400);
@@ -45,9 +45,9 @@ class StoreController extends Controller
     {
         $user = Auth::user();
 
-          if (!$user->hasRole('admin') && !$user->hasRole('seller')) {
-        return response()->json(['message' => 'Unauthorized. Only sellers can view store.'], 403);
-    }
+        if (!$user->hasRole('admin') && !$user->hasRole('seller')) {
+            return response()->json(['message' => 'Unauthorized. Only sellers can view store.'], 403);
+        }
 
         $store = $user->store;
 
@@ -55,54 +55,59 @@ class StoreController extends Controller
             return response()->json(['message' => 'No store found.'], 404);
         }
 
-        return response()->json(['store' => $store]);
+        // إضافة رابط الصورة الكامل
+        $storeData = $store->toArray();
+        $storeData['id_card_photo_url'] = $store->id_card_photo
+            ? asset('storage/' . $store->id_card_photo)
+            : null;
+
+        return response()->json(['store' => $storeData]);
     }
 
-public function update(StoreRequest $request): JsonResponse
-{
-    $user = Auth::user();
 
-    if (!$user->hasRole('seller')) {
-        return response()->json(['message' => 'Unauthorized. Only sellers can update stores.'], 403);
+    public function update(StoreRequest $request): JsonResponse
+    {
+        $user = Auth::user();
+
+        if (!$user->hasRole('seller')) {
+            return response()->json(['message' => 'Unauthorized. Only sellers can update stores.'], 403);
+        }
+
+        $store = $user->store;
+
+        if (!$store) {
+            return response()->json(['message' => 'No store found.'], 404);
+        }
+
+        $data = $request->only(['store_name', 'phone', 'location_address', 'latitude', 'longitude']);
+
+        if ($request->hasFile('id_card_photo')) {
+            $data['id_card_photo'] = $request->file('id_card_photo')->store('id_cards', 'public');
+        }
+
+        $store->fill($data)->save();
+
+        return response()->json([
+            'message' => 'Store updated successfully!',
+            'store' => $store,
+        ]);
     }
+    public function destroy(): JsonResponse
+    {
+        $user = Auth::user();
 
-    $store = $user->store;
+        if (!$user->hasRole('admin') && !$user->hasRole('seller')) {
+            return response()->json(['message' => 'Unauthorized.'], 403);
+        }
 
-    if (!$store) {
-        return response()->json(['message' => 'No store found.'], 404);
+        $store = $user->store;
+
+        if (!$store) {
+            return response()->json(['message' => 'No store found.'], 404);
+        }
+
+        $store->delete();
+
+        return response()->json(['message' => 'Store deleted successfully.']);
     }
-
-$data = $request->only(['store_name', 'phone', 'location_address', 'latitude', 'longitude']);
-
-    if ($request->hasFile('id_card_photo')) {
-        $data['id_card_photo'] = $request->file('id_card_photo')->store('id_cards', 'public');
-    }
-
-    $store->fill($data)->save();
-
-    return response()->json([
-        'message' => 'Store updated successfully!',
-        'store' => $store,
-    ]);
-}
-public function destroy(): JsonResponse
-{
-    $user = Auth::user();
-
-    if (!$user->hasRole('admin') && !$user->hasRole('seller')) {
-        return response()->json(['message' => 'Unauthorized.'], 403);
-    }
-
-    $store = $user->store;
-
-    if (!$store) {
-        return response()->json(['message' => 'No store found.'], 404);
-    }
-
-    $store->delete();
-
-    return response()->json(['message' => 'Store deleted successfully.']);
-}
-
-
 }

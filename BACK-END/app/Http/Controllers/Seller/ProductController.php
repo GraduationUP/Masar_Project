@@ -21,10 +21,18 @@ class ProductController extends Controller
             return response()->json(['message' => 'Store not found.'], 404);
         }
 
+        $products = $store->products()->with('category')->get();
+
+        $products->transform(function ($product) {
+            $product->photo_url = $product->photo ? asset('storage/' . $product->photo) : null;
+            return $product;
+        });
+
         return response()->json([
-            'products' => $store->products()->with('category')->get()
+            'products' => $products
         ]);
     }
+
 
     public function store(ProductRequest $request)
     {
@@ -50,7 +58,7 @@ class ProductController extends Controller
                 'category_id' => $request->category_id,
                 'price' => $request->price,
                 'latitude' => $request->latitude ?? 31.41,     // تعويض بقيمة افتراضية لو null
-    'longitude' => $request->longitude ?? 34.39,   // تعويض بقيمة افتراضية لو nu
+                'longitude' => $request->longitude ?? 34.39,   // تعويض بقيمة افتراضية لو nu
                 'show_location' => $request->show_location ?? true,
             ]);
 
@@ -58,14 +66,14 @@ class ProductController extends Controller
                 'message' => 'Product created successfully',
                 'product' => $product,
             ], 201);
-      } catch (\Exception $e) {
-    return response()->json([
-        'message' => 'Failed to create product',
-        'error' => $e->getMessage(),
-        'trace' => $e->getTrace(), // أضف هذا مؤقتًا لتفاصيل أعمق
-    ], 500);
-}
-}
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Failed to create product',
+                'error' => $e->getMessage(),
+                'trace' => $e->getTrace(), // أضف هذا مؤقتًا لتفاصيل أعمق
+            ], 500);
+        }
+    }
 
 
 
