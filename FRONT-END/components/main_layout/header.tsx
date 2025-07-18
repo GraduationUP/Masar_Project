@@ -26,6 +26,8 @@ import {
   Megaphone,
   Shield,
   Star,
+  CheckCheck,
+  Trash2,
 } from "lucide-react";
 import { useTheme } from "next-themes";
 import { Badge } from "@/components/ui/badge";
@@ -107,6 +109,71 @@ export default function Header() {
     redirect("/");
   }
 
+  const markAsRead = async (id: number) => {
+    const token = localStorage.getItem("authToken");
+    if (token) {
+      try {
+        const response = await fetch(`${BASE_API_URL}/api/notifications/${id}/read`, {
+          method: 'PATCH',
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        if (response.ok) {
+          setNotifications(notifications.map(n =>
+            n.id === id ? { ...n, is_read: true } : n
+          ));
+        } else {
+          console.error("Failed to mark notification as read");
+        }
+      } catch (error) {
+        console.error("Error marking notification as read:", error);
+      }
+    }
+  };
+
+  const markAllAsRead = async () => {
+    const token = localStorage.getItem("authToken");
+    if (token) {
+      try {
+        const response = await fetch(`${BASE_API_URL}/api/notifications/read-all`, {
+          method: 'PUPATCH',
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        if (response.ok) {
+          setNotifications(notifications.map(n => ({ ...n, is_read: true })));
+        } else {
+          console.error("Failed to mark all notifications as read");
+        }
+      } catch (error) {
+        console.error("Error marking all notifications as read:", error);
+      }
+    }
+  };
+
+  const deleteAllNotifications = async () => { // TODO
+    const token = localStorage.getItem("authToken");
+    if (token) {
+      try {
+        const response = await fetch(`${BASE_API_URL}/api/notifications`, {
+          method: 'DELETE',
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        if (response.ok) {
+          setNotifications([]);
+        } else {
+          console.error("Failed to delete all notifications");
+        }
+      } catch (error) {
+        console.error("Error deleting all notifications:", error);
+      }
+    }
+  };
+
   return (
     <header
       className={`sticky top-0 z-50 w-full transition-all duration-300 ${
@@ -181,15 +248,23 @@ export default function Header() {
                     <Bell className="h-5 w-5" />
                     {notifications.length !== 0 && (
                       <Badge className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 flex items-center justify-center">
-                        {notifications.length}
+                        {notifications.filter(n => !n.is_read).length}
                       </Badge>
                     )}
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className="w-56 mt-1" align="end">
-                  {notifications.map((notification) => (
-                    <DropdownMenuItem key={notification.id}>
-                      <div className="flex items-start justify-between">
+                  <DropdownMenuLabel>الإشعارات</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  {notifications.length === 0 ? (
+                    <DropdownMenuItem disabled>لا يوجد إشعارات</DropdownMenuItem>
+                  ) : (
+                    notifications.map((notification) => (
+                      <DropdownMenuItem
+                        key={notification.id}
+                        className="flex items-start justify-between"
+                        onClick={() => markAsRead(notification.id)}
+                      >
                         <div className="flex items-start gap-2 w-10/12">
                           {(() => {
                             switch (notification.type_name) {
@@ -250,6 +325,7 @@ export default function Header() {
                             {/* Added truncate here as well */}
                           </div>
                         </div>
+                        {!notification.is_read && <Check className="h-4 w-4 ml-2 text-primary" />}
                         <div className="text-xs text-gray-400" style={{ direction: "rtl" }}>
                           {new Date(notification.sent_at).toLocaleTimeString(
                             "en-US",
@@ -270,9 +346,27 @@ export default function Header() {
                             }
                           )}
                         </div>
-                      </div>
-                    </DropdownMenuItem>
-                  ))}
+                      </DropdownMenuItem>
+                    ))
+                  )}
+                  {notifications.filter(n => !n.is_read).length > 0 && (
+                    <>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem onClick={markAllAsRead}>
+                        <CheckCheck className="h-4 w-4 mr-2" />
+                        تعليم الكل كمقروء
+                      </DropdownMenuItem>
+                    </>
+                  )}
+                  {notifications.length > 0 && (
+                    <>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem onClick={deleteAllNotifications} className="text-destructive focus:bg-destructive focus:text-destructive-foreground">
+                        <Trash2 className="h-4 w-4 mr-2" />
+                        حذف الكل
+                      </DropdownMenuItem>
+                    </>
+                  )}
                 </DropdownMenuContent>
               </DropdownMenu>
 
