@@ -2,15 +2,15 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Models\User;
 use App\Models\Type;
+use App\Models\User;
 use App\Models\Notification;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 
 class AdminNotificationController extends Controller
 {
-
     public function send(Request $request)
     {
         $request->validate([
@@ -22,9 +22,14 @@ class AdminNotificationController extends Controller
 
         $type = Type::where('type', $request->type)->firstOrFail();
 
-        // حالة إرسال لبائع معيّن
+        // حالة إرسال لمستخدم معيّن
         if ($request->target === 'user') {
             $user = User::findOrFail($request->target_id);
+
+            // منع إرسال إشعار لنفسه
+            if ($user->id === Auth::id()) {
+                return response()->json(['error' => 'لا يمكنك إرسال إشعار لنفسك'], 403);
+            }
 
             Notification::create([
                 'user_id' => $user->id,
@@ -46,6 +51,11 @@ class AdminNotificationController extends Controller
         $users = $usersQuery->get();
 
         foreach ($users as $user) {
+            // تجاهل الأدمن نفسه
+            if ($user->id === Auth::id()) {
+                continue;
+            }
+
             Notification::create([
                 'user_id' => $user->id,
                 'message' => $request->message,

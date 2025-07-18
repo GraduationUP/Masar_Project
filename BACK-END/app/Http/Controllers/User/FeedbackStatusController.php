@@ -21,17 +21,19 @@ class FeedbackStatusController extends Controller
             ], 404);
         }
 
-        $hasRated = $store->ratings()
+        $rating = $store->ratings()
             ->where('user_id', $user->id)
-            ->first()?->score ?? null;
+            ->first();
 
-        $hasCommented = $store->comments()
+        $comment = $store->comments()
             ->where('user_id', $user->id)
-            ->first()?->content ?? null;
+            ->first();
 
         return response()->json([
-            'score' => $hasRated,
-            'content' => $hasCommented,
+            'score' => $rating?->score,
+            'score_id' => $rating?->id,
+            'content' => $comment?->content,
+            'content_id' => $comment?->id,
         ]);
     }
 }
