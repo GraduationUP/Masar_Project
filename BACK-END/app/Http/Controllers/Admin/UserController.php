@@ -16,7 +16,12 @@ class UserController extends Controller
      */
     public function index()
     {
-        $users = User::with(['roles:id,name', 'ban.admin'])->get();
+        $users = User::where('id', '!=', Auth::id())
+            ->whereDoesntHave('roles', function ($query) {
+                $query->where('name', 'admin');
+            })
+            ->with(['roles:id,name', 'ban.admin'])
+            ->get();
 
         // إزالة المفتاح pivot من كل دور
         $users->each(function ($user) {
@@ -38,6 +43,11 @@ class UserController extends Controller
             return response()->json(['error' => 'غير مصرح لك بالحظر'], 403);
         }
 
+        // منع الأدمن من حظر نفسه
+        if (Auth::id() == $id) {
+            return response()->json(['error' => ' يا غبي لا يمكنك حظر نفسك'], 403);
+        }
+
         // البحث عن المستخدم
         $user = User::findOrFail($id);
 
@@ -51,13 +61,11 @@ class UserController extends Controller
             return response()->json(['message' => 'المستخدم محظور مسبقًا'], 422);
         }
 
-
         $request->validate([
             'reason' => 'required|string|max:1000',
             'duration_value' => 'required|integer|min:1',
             'duration_unit' => 'required|string|in:minutes,hours,days',
         ]);
-
 
         $durationValue = $request->input('duration_value');
         $durationUnit = $request->input('duration_unit');
@@ -82,7 +90,6 @@ class UserController extends Controller
             'reason' => $request->reason,
             'banned_by' => Auth::id(),
             'expires_at' => $expiresAt,
-
         ]);
 
         // إذا المستخدم بائع، يتم إيقاف متجره تلقائيًا
@@ -92,6 +99,7 @@ class UserController extends Controller
 
         return response()->json(['message' => 'تم حظر المستخدم بنجاح']);
     }
+
 
     /**
      * فك الحظر عن مستخدم
@@ -136,4 +144,3 @@ class UserController extends Controller
         ]);
     }
 }
-
