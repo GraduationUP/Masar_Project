@@ -224,9 +224,9 @@ export default function AdminMapPage() {
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="market">سوق</SelectItem>
-                          <SelectItem value="aids">مركز مساعدات</SelectItem>
+                          <SelectItem value="aid">مركز مساعدات</SelectItem>
                           <SelectItem value="gas_station">محطة غاز</SelectItem>
-                          <SelectItem value="stores">محل تجاري</SelectItem>
+                          <SelectItem value="store">محل تجاري</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>

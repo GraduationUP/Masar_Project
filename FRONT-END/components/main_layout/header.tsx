@@ -43,6 +43,58 @@ interface Notifications {
   sent_at: string;
 }
 
+interface Product {
+  id: number;
+  store_id: number;
+  name: string;
+  description: string;
+  photo: string | null;
+  category_id: number;
+  price: string;
+  latitude: number;
+  longitude: number;
+  show_location: number;
+  created_at: string;
+  updated_at: string;
+  photo_url: string | null;
+  store: {
+    id: number;
+    user_id: number;
+    store_name: string;
+    id_card_photo: string;
+    phone: string;
+    location_address: string;
+    status: number;
+    created_at: string;
+    updated_at: string;
+    latitude: number | null;
+    longitude: number | null;
+    id_card_photo_url: string;
+  };
+}
+interface productsData {
+  status: boolean;
+  data: Product[];
+}
+interface Store {
+  id: number;
+  user_id: number;
+  store_name: string;
+  id_card_photo: string;
+  phone: string;
+  location_address: string;
+  status: number;
+  created_at: string;
+  updated_at: string;
+  latitude: string;
+  longitude: string;
+}
+
+interface storesData {
+  status: boolean;
+  data: Store[];
+}
+
 export default function Header() {
   const BASE_API_URL = process.env.NEXT_PUBLIC_API_URL;
   const { theme, setTheme } = useTheme();
@@ -183,6 +235,58 @@ export default function Header() {
       }
     }
   };
+  const [searchTerm, setSearchTerm] = useState("");
+  const [suggestions, setSuggestions] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  useEffect(() => {
+    const fetchSuggestions = async () => {
+      if (!searchTerm.trim()) {
+        setSuggestions([]);
+        return;
+      }
+
+      setIsLoading(true);
+      const storesResponse = await fetch(
+        `${BASE_API_URL}/api/guest/stores?search=${searchTerm}`
+      );
+      const storesData = await storesResponse.json();
+
+      const productsResponse = await fetch(
+        `${BASE_API_URL}/api/guest/products?search=${searchTerm}`
+      );
+      const productsData = await productsResponse.json();
+
+      const storeSuggestions = storesData.status
+        ? storesData.data.map((store) => ({
+            type: "store",
+            name: store.store_name,
+            ...store,
+          }))
+        : [];
+
+      const productSuggestions = productsData.status
+        ? productsData.data.map((product) => ({
+            type: "product",
+            name: product.name,
+            store_name: product.store?.store_name,
+            ...product,
+          }))
+        : [];
+
+      setSuggestions([...storeSuggestions, ...productSuggestions]);
+      setIsLoading(false);
+    };
+
+    const debouncedFetch = setTimeout(() => {
+      fetchSuggestions();
+    }, 500);
+
+    return () => clearTimeout(debouncedFetch);
+  }, [searchTerm]);
+
+  const handleInputChange = (event) => {
+    setSearchTerm(event.target.value);
+  };
 
   return (
     <header
@@ -226,7 +330,36 @@ export default function Header() {
               type="search"
               placeholder="ابحث عن بضاعة، خدمة او متجر..."
               className="w-full bg-background pl-8 md:w-[300px] lg:w-[400px] transition-all duration-300 focus:ring-2 focus:ring-primary/20"
+              value={searchTerm}
+              onChange={handleInputChange}
             />
+            {suggestions.length > 0 && (
+              <div className="absolute top-12 left-0 right-0 bg-white border rounded-md shadow-md z-10">
+                <ul>
+                  {suggestions.map((suggestion) => (
+                    <li
+                      key={suggestion.id}
+                      className="p-2 hover:bg-gray-100 cursor-pointer"
+                    >
+                      {suggestion.type === "store" && (
+                        <div>متجر: {suggestion.name}</div>
+                      )}
+                      {suggestion.type === "product" && (
+                        <div>
+                          منتج: {suggestion.name} في متجر{" "}
+                          {suggestion.store_name}
+                        </div>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            {isLoading && searchTerm.trim() && (
+              <div className="absolute top-12 left-0 right-0 bg-white border rounded-md shadow-md z-10 p-2 text-center">
+                جاري البحث...
+              </div>
+            )}
           </div>
         </div>
 
