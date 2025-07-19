@@ -28,7 +28,7 @@ import { Label } from "@/components/ui/label";
 import Header from "@/components/main_layout/header";
 
 const LeafletMap = dynamic(() =>
-  import("@/components/LeafletMap").then((module) => ({
+  import("@/components/LeafLetMap").then((module) => ({
     default: module.default,
   }))
 );
@@ -82,7 +82,7 @@ export default function AdminMapPage() {
   const [coordinates, setCoordinates] = useState<Coordinates[]>([]);
   const [currentLatitude, setCurrentLatitude] = useState<number>(31.4167);
   const [currentLongitude, setCurrentLongitude] = useState<number>(34.3333);
-  const [status, setStaus] = useState(0);
+  const [status, setStaus] = useState(false);
   const [isLocationEnabled, setIsLocationEnabled] = useState(false);
   const [success, setSuccess] = useState(false);
   const [fail, setFail] = useState(false);
