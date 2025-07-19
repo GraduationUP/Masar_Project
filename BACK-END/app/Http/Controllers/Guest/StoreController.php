@@ -5,19 +5,36 @@ namespace App\Http\Controllers\Guest;
 use App\Models\Store;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Auth;
 
 class StoreController extends Controller
 {
     public function index()
     {
-        $stores = Store::where('status', true)->get();
+        $stores = Store::where('status', true)->get()->map(function ($store) {
+            return [
+                'id' => $store->id,
+                'user_id' => $store->user_id,
+                'store_name' => $store->store_name,
+                'phone' => $store->phone,
+                'location_address' => $store->location_address,
+                'status' => $store->status,
+                'created_at' => $store->created_at,
+                'updated_at' => $store->updated_at,
+                'latitude' => $store->latitude,
+                'longitude' => $store->longitude,
+
+                'store_image' => $store->id_card_photo
+                    ? asset('storage/' . $store->id_card_photo)
+                    : null,
+            ];
+        });
 
         return response()->json([
             'status' => true,
             'data' => $stores
         ]);
     }
+
 
     public function show($id)
     {
@@ -42,8 +59,13 @@ class StoreController extends Controller
             ];
         })->values();
 
-        // حساب متوسط التقييم
         $averageRating = $store->ratings->avg('score');
+
+        // تعديل: إضافة photo_url لكل منتج
+        $products = $store->products->map(function ($product) {
+            $product->photo_url = $product->photo ? asset('storage/' . $product->photo) : null;
+            return $product;
+        });
 
         return response()->json([
             'id' => $store->id,
@@ -53,9 +75,11 @@ class StoreController extends Controller
             'longitude' => (float) $store->longitude,
             'location_address' => $store->location_address,
             'phone' => $store->phone,
-
-            'average_rating' => round($averageRating, 2), // تقريب لـ رقمين بعد الفاصلة
-            'products' => $store->products,
+            'store_image' => $store->id_card_photo
+                ? asset('storage/' . $store->id_card_photo)
+                : null,
+            'average_rating' => round($averageRating, 2),
+            'products' => $products,
             'feedback' => $feedback,
         ]);
     }

@@ -2,11 +2,7 @@
 
 namespace App\Http\Controllers\Guest;
 
-use App\Models\Store;
 use App\Models\Product;
-use App\Models\Analytics;
-use Illuminate\Http\Request;
-use Illuminate\Support\Carbon;
 use App\Http\Controllers\Controller;
 
 class ProductController extends Controller
@@ -15,17 +11,29 @@ class ProductController extends Controller
     {
         $products = Product::with('store')->get();
 
+        // تعديل المنتجات لإضافة رابط الصورة الكامل لكل منتج ولكل متجر
+        $products = $products->map(function ($product) {
+            $product->photo_url = $product->photo ? asset('storage/' . $product->photo) : null;
+
+            if ($product->store) {
+                $product->store->id_card_photo_url = $product->store->id_card_photo
+                    ? asset('storage/' . $product->store->id_card_photo)
+                    : null;
+            }
+
+            return $product;
+        });
+
         return response()->json([
             'status' => true,
             'data' => $products
         ]);
     }
 
- public function show($id)
+
+    public function show($id)
     {
         $product = Product::with('store', 'category')->findOrFail($id);
-
-
 
         return response()->json([
             'status' => true,
@@ -34,10 +42,13 @@ class ProductController extends Controller
                 'name' => $product->name,
                 'description' => $product->description,
                 'price' => $product->price,
-                'photo' => $product->photo,
+                'photo' => $product->photo ? asset('storage/' . $product->photo) : null,
                 'store_id' => $product->store_id,
                 'store_name' => $product->store?->store_name,
                 'store_phone' => $product->store?->phone,
+                'store_photo' => $product->store?->id_card_photo
+                    ? asset('storage/' . $product->store->id_card_photo)
+                    : null,
                 'category_name' => $product->category?->name,
                 'latitude' => $product->latitude,
                 'longitude' => $product->longitude,
