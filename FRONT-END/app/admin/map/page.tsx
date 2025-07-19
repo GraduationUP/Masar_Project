@@ -139,12 +139,12 @@ export default function AdminMapPage() {
 
   const handleStatusChange = (checked: boolean) => {
     setIsLocationEnabled(checked);
-    setStaus(checked ? 1 : 0);
+    setStaus(checked ? true : false);
   };
 
   const handelAddService = async () => {
     const token = localStorage.getItem("authToken");
-    let formattedCoordinates = `${coordinates}`;
+    let formattedCoordinates = coordinates;
     try {
       const response = await fetch(`${API_BASE_URL}/api/admin/map`, {
         method: "POST",
@@ -156,7 +156,7 @@ export default function AdminMapPage() {
           name,
           type,
           coordinates: formattedCoordinates,
-          status: isLocationEnabled ? 1 : 0,
+          status: isLocationEnabled ? true : false,
         }),
       });
       if (!response.ok) {
@@ -225,7 +225,7 @@ export default function AdminMapPage() {
                         <SelectContent>
                           <SelectItem value="market">سوق</SelectItem>
                           <SelectItem value="aids">مركز مساعدات</SelectItem>
-                          <SelectItem value="GasStations">محطة غاز</SelectItem>
+                          <SelectItem value="gas_station">محطة غاز</SelectItem>
                           <SelectItem value="stores">محل تجاري</SelectItem>
                         </SelectContent>
                       </Select>

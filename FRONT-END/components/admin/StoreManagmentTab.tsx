@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Card,
   CardContent,
@@ -37,11 +37,16 @@ interface storeData {
   longitude: string | null;
   user: storeUser;
 }
+
 interface StoreManagementTabProps {
   storeData: storeData[];
   searchTerm: string;
   storeStatusFilter: string;
   storeStatusOptions: { value: string; label: string }[];
+  handelStoreBan: (id: number) => Promise<void>;
+  handelStoreUnban: (id: number) => Promise<void>;
+  handelStoreDelete: (id: number) => Promise<void>;
+  handelStoreStatusUpdate: (id: number, status: number) => Promise<void>;
   handleStoresSearch: (term: string, status: string) => void;
 }
 
@@ -50,6 +55,10 @@ const StoreManagementTab: React.FC<StoreManagementTabProps> = ({
   searchTerm,
   storeStatusFilter,
   storeStatusOptions,
+  handelStoreBan,
+  handelStoreUnban,
+  handelStoreDelete,
+  handelStoreStatusUpdate,
   handleStoresSearch,
 }) => {
   const filteredStores = storeData.filter((store) => {
@@ -61,6 +70,40 @@ const StoreManagementTab: React.FC<StoreManagementTabProps> = ({
       (storeStatusFilter === "inactive" && store.active === 0);
     return storeNameLower.includes(searchLower) && statusMatch;
   });
+
+  const [deleteLoading, setDeleteLoading] = useState<number | null>(null);
+  const [banLoading, setBanLoading] = useState<number | null>(null);
+  const [unbanLoading, setUnbanLoading] = useState<number | null>(null);
+  const [statusLoading, setStatusLoading] = useState<{
+    id: number;
+    status: number;
+  } | null>(null);
+
+  const handleBanClick = async (id: number) => {
+    setBanLoading(id);
+    await handelStoreBan(id);
+    setBanLoading(null);
+  };
+
+  const handleUnbanClick = async (id: number) => {
+    setUnbanLoading(id);
+    await handelStoreUnban(id);
+    setUnbanLoading(null);
+  };
+
+  const handleDeleteClick = async (id: number) => {
+    setDeleteLoading(id);
+    await handelStoreDelete(id);
+    setDeleteLoading(null);
+  };
+
+  const handleStatusUpdateClick = async (id: number) => {
+    const newStatus =
+      storeData.find((store) => store.id === id)?.active === 1 ? 0 : 1;
+    setStatusLoading({ id, status: newStatus });
+    await handelStoreStatusUpdate(id, newStatus);
+    setStatusLoading(null);
+  };
 
   return (
     <div className="space-y-4">
@@ -108,16 +151,69 @@ const StoreManagementTab: React.FC<StoreManagementTabProps> = ({
                 </div>
               </div>
             </CardContent>
-            <CardFooter className="p-4 pt-0 flex justify-between">
-              <span className="text-xs text-muted-foreground">
+            <CardFooter className="p-4 pt-0 flex flex-col md:flex-row justify-between gap-2">
+              <span className="text-xs text-muted-foreground md:block hidden">
                 رقم مالك المتجر: {store.user.id}
               </span>
               <div className="flex gap-2">
-                <ManageStoreDialog store={store} />
+                <Button
+                  onClick={() => handleDeleteClick(store.id)}
+                  variant={"destructive"}
+                  size="sm"
+                  disabled={
+                    deleteLoading === store.id ||
+                    banLoading === store.id ||
+                    unbanLoading === store.id ||
+                    statusLoading?.id === store.id
+                  }
+                >
+                  {deleteLoading === store.id ? "جاري الحذف..." : "حذف"}
+                </Button>
+                <Button
+                  onClick={() =>
+                    store.is_banned
+                      ? handleUnbanClick(store.id)
+                      : handleBanClick(store.id)
+                  }
+                  variant={"outline"}
+                  size="sm"
+                  disabled={
+                    deleteLoading === store.id ||
+                    banLoading === store.id ||
+                    unbanLoading === store.id ||
+                    statusLoading?.id === store.id
+                  }
+                >
+                  {banLoading === store.id || unbanLoading === store.id
+                    ? store.is_banned
+                      ? "جاري الغاء الحظر..."
+                      : "جاري الحظر..."
+                    : store.is_banned
+                    ? "الغاء الحظر"
+                    : "حظر"}
+                </Button>
+                <Button
+                  onClick={() => handleStatusUpdateClick(store.id)}
+                  variant={"outline"}
+                  size="sm"
+                  disabled={
+                    deleteLoading === store.id ||
+                    banLoading === store.id ||
+                    unbanLoading === store.id ||
+                    statusLoading?.id === store.id
+                  }
+                >
+                  {statusLoading?.id === store.id
+                    ? "جاري تغيير الحالة..."
+                    : "تغيير الحالة"}
+                </Button>
                 <Button asChild size="sm">
                   <Link href={`/stores/${store.id}`}>عرض</Link>
                 </Button>
               </div>
+              <span className="text-xs text-muted-foreground block md:hidden">
+                رقم مالك المتجر: {store.user.id}
+              </span>
             </CardFooter>
           </Card>
         ))}

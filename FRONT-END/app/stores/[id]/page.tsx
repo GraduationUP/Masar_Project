@@ -21,7 +21,9 @@ import Header from "@/components/main_layout/header";
 
 interface userFeedback {
   score: number | null;
+  score_id: number | null;
   content: string | null;
+  content_id: number | null;
 }
 
 interface Feedback {
@@ -84,7 +86,9 @@ export default function StorePage() {
   const [loading, setLoading] = useState(true);
   const [userfeedback, setUserFeedback] = useState<userFeedback>({
     score: null,
+    score_id: null,
     content: null,
+    content_id: null
   });
 
   useEffect(() => {
@@ -285,6 +289,7 @@ export default function StorePage() {
       setSubmitting(false);
     } catch (error) {
       console.error("Error editing comment:", error);
+      setFailure(true);
     }
   };
 
@@ -311,6 +316,63 @@ export default function StorePage() {
       setSubmitting(false);
     } catch (error) {
       console.error("Error editing rating:", error);
+      setFailure(true);
+    }
+  };
+
+  const handelRatingDelete = async (id: number) => {
+    setSubmitting(true);
+    try {
+      const token = localStorage.getItem("authToken");
+      const response = await fetch(`${BASE_API_URL}/api/ratings/${id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error("Error deleting product:", errorData);
+        setFailure(true);
+        return;
+      }
+      setSuccess(true);
+      window.location.reload();
+    } catch (error) {
+      console.error("Error deleting product:", error);
+      setFailure(true);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handelCommentDelete = async (id: number) => {
+    setSubmitting(true);
+    try {
+      const token = localStorage.getItem("authToken");
+      const response = await fetch(`${BASE_API_URL}/api/comments/${id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error("Error deleting product:", errorData);
+        setFailure(true);
+        return;
+      }
+      setSuccess(true);
+      window.location.reload();
+    } catch (error) {
+      console.error("Error deleting product:", error);
+      setFailure(true);
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -571,8 +633,8 @@ export default function StorePage() {
                             ) : (
                               <Button
                                 variant={"link"}
-                                onClick={handelRatingUpdate(
-                                  userfeedback.id, //TODO
+                                onClick={ () =>handelRatingUpdate(
+                                  userfeedback.score_id as number, 
                                   score
                                 )}
                               >
@@ -598,9 +660,10 @@ export default function StorePage() {
                               </Button>
                             ) : (
                               <Button
-                                onClick={handleUpdateComment(
-                                  userfeedback.id, //TODO
-                                  content)}
+                                onClick={ () => handleUpdateComment(
+                                  userfeedback.content_id as number,
+                                  content
+                                )}
                                 type="submit"
                               >
                                 تحديث
@@ -668,12 +731,12 @@ export default function StorePage() {
                                 تعديل
                               </Button>
                               {userfeedback.content && (
-                                <Button variant={"destructive"}>
+                                <Button variant={"destructive"} onClick={() => handelCommentDelete(userfeedback.content_id as number)}>
                                   حذف التعليق
                                 </Button>
                               )}
                               {userfeedback.score && (
-                                <Button variant={"destructive"}>
+                                <Button variant={"destructive"} onClick={() => handelRatingDelete(userfeedback.score_id as number)}>
                                   حذف التقييم
                                 </Button>
                               )}

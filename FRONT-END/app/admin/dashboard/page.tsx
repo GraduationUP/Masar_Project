@@ -102,7 +102,6 @@ interface ProductData {
 export default function AdminDashboard() {
   const [user, setUser] = useState<UserInfo | null>(null);
   const [loading, setLoading] = useState(true);
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
   const [showSuccessAlert, setShowSuccessAlert] = useState(false);
   const [showFailAlert, setShowFailAlert] = useState(false);
@@ -401,6 +400,121 @@ export default function AdminDashboard() {
     servicesData.GasStations.length +
     servicesData.markets.length;
 
+  const updateStoreData = (updatedStore: storeData) => {
+    setStoreData((prevData) =>
+      prevData.map((store) =>
+        store.id === updatedStore.id ? updatedStore : store
+      )
+    );
+  };
+
+  const handleBanStore = async (id: number) => {
+    try {
+      const token = localStorage.getItem("authToken");
+      const response = await fetch(
+        `${API_BASE_URL}/api/admin/stores/${id}/ban`,
+        {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      if (!response.ok) {
+        console.error("Error banning store");
+        setShowFailAlert(true);
+        return;
+      }
+      const updatedStore = await response.json();
+      updateStoreData(updatedStore);
+      setShowSuccessAlert(true);
+    } catch (error) {
+      console.error("Error banning store:", error);
+      setShowFailAlert(true);
+    }
+  };
+
+  const handleUnbanStore = async (id: number) => {
+    try {
+      const token = localStorage.getItem("authToken");
+      const response = await fetch(
+        `${API_BASE_URL}/api/admin/stores/${id}/unban`,
+        {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      if (!response.ok) {
+        console.error("Error unbanning store");
+        setShowFailAlert(true);
+        return;
+      }
+      const updatedStore = await response.json();
+      updateStoreData(updatedStore);
+      setShowSuccessAlert(true);
+    } catch (error) {
+      console.error("Error unbanning store:", error);
+      setShowFailAlert(true);
+    }
+  };
+
+  const handleDeleteStore = async (id: number) => {
+    if (window.confirm("هل أنت متأكد أنك تريد حذف هذا المتجر؟")) {
+      try {
+        const token = localStorage.getItem("authToken");
+        const response = await fetch(`${API_BASE_URL}/api/admin/stores/${id}`, {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        });
+        if (!response.ok) {
+          console.error("Error deleting store");
+          setShowFailAlert(true);
+          return;
+        }
+        setStoreData((prevData) => prevData.filter((store) => store.id !== id));
+        setShowSuccessAlert(true);
+      } catch (error) {
+        console.error("Error deleting store:", error);
+        setShowFailAlert(true);
+      }
+    }
+  };
+
+  const handleStatusUpdateStore = async (id: number, status: number) => {
+    try {
+      const token = localStorage.getItem("authToken");
+      const response = await fetch(
+        `${API_BASE_URL}/api/admin/stores/${id}/status`,
+        {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ status: status }),
+        }
+      );
+      if (!response.ok) {
+        console.error("Error updating store status");
+        setShowFailAlert(true);
+        return;
+      }
+      const updatedStore = await response.json();
+      updateStoreData(updatedStore);
+      setShowSuccessAlert(true);
+    } catch (error) {
+      console.error("Error updating store status:", error);
+      setShowFailAlert(true);
+    }
+  };
+
   if (loading) {
     return <Loading />;
   }
@@ -477,6 +591,10 @@ export default function AdminDashboard() {
                 storeStatusFilter={storeStatusFilter}
                 storeStatusOptions={storeStatusOptions}
                 handleStoresSearch={handleStoresSearch}
+                handelStoreBan={handleBanStore}
+                handelStoreUnban={handleUnbanStore}
+                handelStoreDelete={handleDeleteStore}
+                handelStoreStatusUpdate={handleStatusUpdateStore}
               />
             </TabsContent>
             <TabsContent value="products" className="space-y-4">
