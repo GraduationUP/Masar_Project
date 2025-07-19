@@ -2,12 +2,13 @@
 
 namespace App\Http\Controllers\Seller;
 
-use App\Http\Controllers\Controller;
-use App\Http\Requests\ProductRequest;
 use App\Models\Product;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Log;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
+use App\Http\Requests\ProductRequest;
 use Illuminate\Support\Facades\Storage;
 
 class ProductController extends Controller
@@ -20,44 +21,61 @@ class ProductController extends Controller
             return response()->json(['message' => 'Store not found.'], 404);
         }
 
+        $products = $store->products()->with('category')->get();
+
+        $products->transform(function ($product) {
+            $product->photo_url = $product->photo ? asset('storage/' . $product->photo) : null;
+            return $product;
+        });
+
         return response()->json([
-            'products' => $store->products()->with('category')->get()
+            'products' => $products
         ]);
     }
 
-    public function store(Request $request)
-    {
-        $store = Auth::user()->store;
 
-        if (!$store) {
-            return response()->json(['message' => 'Store not found.'], 404);
-        }
+    public function store(ProductRequest $request)
+    {
 
         try {
-            $photoPath = $request->file('photo')?->store('products', 'public');
+            $user = Auth::user();
+            $store = $user->store;
+            if (!$store) {
+                return response()->json(['message' => 'Store not found for this user'], 404);
+            }
 
+            // رفع الصورة إن وجدت
+            $photoPath = null;
+            if ($request->hasFile('photo')) {
+                $photoPath = $request->file('photo')->store('products', 'public');
+            }
+
+            // إنشاء المنتج
             $product = $store->products()->create([
-                'name'          => $request->name,
-                'description'   => $request->description,
-                'photo'         => $photoPath,
-                'category_id'   => $request->category_id,
-                'price'         => $request->price,
-                'latitude' => $request->latitude ?? 31.41,
-                'longitude' => $request->longitude ?? 34.39,
-                'show_location' => $request->boolean('show_location', true),
+                'name' => $request->name,
+                'description' => $request->description,
+                'photo' => $photoPath,
+                'category_id' => $request->category_id,
+                'price' => $request->price,
+                'latitude' => $request->latitude ?? 31.41,     // تعويض بقيمة افتراضية لو null
+                'longitude' => $request->longitude ?? 34.39,   // تعويض بقيمة افتراضية لو nu
+                'show_location' => $request->show_location ?? true,
             ]);
 
-            Log::info('Product created', ['product_id' => $product->id]);
-
             return response()->json([
-                'message' => 'Product created successfully.',
-                'product' => $product->load('category')
+                'message' => 'Product created successfully',
+                'product' => $product,
             ], 201);
         } catch (\Exception $e) {
-            Log::error('Product creation failed', ['error' => $e->getMessage()]);
-            return response()->json(['message' => 'Failed to create product.'], 500);
+            return response()->json([
+                'message' => 'Failed to create product',
+                'error' => $e->getMessage(),
+                'trace' => $e->getTrace(), // أضف هذا مؤقتًا لتفاصيل أعمق
+            ], 500);
         }
     }
+
+
 
     public function update(ProductRequest $request, Product $product)
     {
