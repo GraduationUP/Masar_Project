@@ -100,6 +100,7 @@ export default function Header() {
     { name: "الرئيسية", href: "/" },
     { name: "الخريطة", href: "/map" },
     { name: "السوق", href: "/marketplace" },
+    { name: "المتاجر", href: "/stores" },
   ];
 
   function HandelLogout() {
@@ -113,16 +114,21 @@ export default function Header() {
     const token = localStorage.getItem("authToken");
     if (token) {
       try {
-        const response = await fetch(`${BASE_API_URL}/api/notifications/${id}/read`, {
-          method: 'PATCH',
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        const response = await fetch(
+          `${BASE_API_URL}/api/notifications/${id}/read`,
+          {
+            method: "PATCH",
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
         if (response.ok) {
-          setNotifications(notifications.map(n =>
-            n.id === id ? { ...n, is_read: true } : n
-          ));
+          setNotifications(
+            notifications.map((n) =>
+              n.id === id ? { ...n, is_read: true } : n
+            )
+          );
         } else {
           console.error("Failed to mark notification as read");
         }
@@ -136,14 +142,17 @@ export default function Header() {
     const token = localStorage.getItem("authToken");
     if (token) {
       try {
-        const response = await fetch(`${BASE_API_URL}/api/notifications/read-all`, {
-          method: 'PUPATCH',
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        const response = await fetch(
+          `${BASE_API_URL}/api/notifications/read-all`,
+          {
+            method: "PUPATCH",
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
         if (response.ok) {
-          setNotifications(notifications.map(n => ({ ...n, is_read: true })));
+          setNotifications(notifications.map((n) => ({ ...n, is_read: true })));
         } else {
           console.error("Failed to mark all notifications as read");
         }
@@ -153,12 +162,13 @@ export default function Header() {
     }
   };
 
-  const deleteAllNotifications = async () => { // TODO
+  const deleteAllNotifications = async () => {
+    // TODO
     const token = localStorage.getItem("authToken");
     if (token) {
       try {
         const response = await fetch(`${BASE_API_URL}/api/notifications`, {
-          method: 'DELETE',
+          method: "DELETE",
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -248,7 +258,7 @@ export default function Header() {
                     <Bell className="h-5 w-5" />
                     {notifications.length !== 0 && (
                       <Badge className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 flex items-center justify-center">
-                        {notifications.filter(n => !n.is_read).length}
+                        {notifications.filter((n) => !n.is_read).length}
                       </Badge>
                     )}
                   </Button>
@@ -257,7 +267,9 @@ export default function Header() {
                   <DropdownMenuLabel>الإشعارات</DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   {notifications.length === 0 ? (
-                    <DropdownMenuItem disabled>لا يوجد إشعارات</DropdownMenuItem>
+                    <DropdownMenuItem disabled>
+                      لا يوجد إشعارات
+                    </DropdownMenuItem>
                   ) : (
                     notifications.map((notification) => (
                       <DropdownMenuItem
@@ -319,14 +331,24 @@ export default function Header() {
                                 comment: "تعليق",
                               }[notification.type_name] || "موافق"}
                             </span>
-                            <span className="text-sm" style={{ wordBreak: 'break-word', whiteSpace: 'normal' }}>
+                            <span
+                              className="text-sm"
+                              style={{
+                                wordBreak: "break-word",
+                                whiteSpace: "normal",
+                              }}
+                            >
                               {notification.message}
                             </span>
-                            {/* Added truncate here as well */}
                           </div>
                         </div>
-                        {!notification.is_read && <Check className="h-4 w-4 ml-2 text-primary" />}
-                        <div className="text-xs text-gray-400" style={{ direction: "rtl" }}>
+                        {!notification.is_read && (
+                          <Check className="h-4 w-4 ml-2 text-primary" />
+                        )}
+                        <div
+                          className="text-xs text-gray-400"
+                          style={{ direction: "rtl" }}
+                        >
                           {new Date(notification.sent_at).toLocaleTimeString(
                             "en-US",
                             {
@@ -349,7 +371,7 @@ export default function Header() {
                       </DropdownMenuItem>
                     ))
                   )}
-                  {notifications.filter(n => !n.is_read).length > 0 && (
+                  {notifications.filter((n) => !n.is_read).length > 0 && (
                     <>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem onClick={markAllAsRead}>
@@ -361,7 +383,10 @@ export default function Header() {
                   {notifications.length > 0 && (
                     <>
                       <DropdownMenuSeparator />
-                      <DropdownMenuItem onClick={deleteAllNotifications} className="text-destructive focus:bg-destructive focus:text-destructive-foreground">
+                      <DropdownMenuItem
+                        onClick={deleteAllNotifications}
+                        className="text-destructive focus:bg-destructive focus:text-destructive-foreground"
+                      >
                         <Trash2 className="h-4 w-4 mr-2" />
                         حذف الكل
                       </DropdownMenuItem>
