@@ -69,11 +69,15 @@ Route::get('/guest/products', [GuestProductController::class, 'index']);
 Route::get('/guest/products/{id}', [GuestProductController::class, 'show']);
 
 Route::get('/guest/categories', [CategoryController::class, 'index']);
+Route::get('/guest/users/{id}', [GuestUserController::class, 'show']);
 
 
 Route::get('/map-data', [MapController::class, 'getMapData']);
 
 Route::get('/stores/{id}', [GuestStoreController::class, 'show']);
+
+Route::get('/search', [GuestUserController::class, 'search']);
+
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/users/{id}', [UserController::class, 'show']);   // عرض الملف الشخصي
@@ -81,13 +85,14 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/users/change-password', [UserController::class, 'changePassword']);
 });
 // راوت للزوار (مش مسجلين) يشوفوا بيانات عامة فقط
-Route::get('/guest/users/{id}', [GuestUserController::class, 'show']);
 
 //Rating Routes
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/stores/{store}/ratings', [RatingController::class, 'store']);
     Route::put('/ratings/{rating}', [RatingController::class, 'update']);
     Route::delete('/ratings/{rating}', [RatingController::class, 'destroy']);
+    Route::get('/store/{store}/feedback-status', [FeedbackStatusController::class, 'check']);
+    Route::delete('/notifications/clear', [NotificationController::class, 'clearAll']);
 });
 
 //comments Routes
@@ -137,6 +142,3 @@ Route::middleware(['auth:sanctum'])->prefix('admin')->group(function () {
     // حذف تعليق
     Route::delete('/comments/{id}', [AdminCommentController::class, 'destroy']);
 });
-
-
-Route::middleware('auth:sanctum')->get('/store/{store}/feedback-status', [FeedbackStatusController::class, 'check']);

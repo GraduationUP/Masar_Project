@@ -45,6 +45,19 @@ class NotificationController extends Controller
         return response()->json(['message' => 'تم تحديد جميع الإشعارات كمقروءة']);
     }
 
+    public function clearAll()
+    {
+        $user = Auth::user();
+
+        Notification::where('user_id', $user->id)->delete();
+
+        return response()->json([
+            'status' => true,
+            'message' => 'تم حذف جميع الإشعارات الخاصة بك بنجاح.'
+        ]);
+    }
+
+
     public function destroy($id)
     {
         $notification = Notification::where('user_id', Auth::id())->findOrFail($id);

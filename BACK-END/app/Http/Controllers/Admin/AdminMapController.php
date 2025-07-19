@@ -59,7 +59,7 @@ class AdminMapController extends Controller
 
         $request->validate([
             'name' => 'required|string|max:255',
-            'type' => 'required|in:store,market,warehouse,aid,gas_station',
+            'type' => 'required|in:stores,market,aids,gas_station',
             'coordinates' => 'required|array',
             'status' => 'boolean',
         ]);

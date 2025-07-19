@@ -11,20 +11,21 @@ class AdminProductController extends Controller
     // عرض كل المنتجات بدون فلترة (الأدمن يشوف كل المنتجات)
     public function index()
     {
-   $products = Product::with(['store' => function($query) {
-        $query->select('id', 'store_name');
-    }])->get();
-    //ساعدني اعرض صورة المنتج
-    $products->transform(function ($product) {
-        $product->photo_url = $product->photo ? asset('storage/' . $product->photo) : null;
-        if ($product->store) {
-            $product->store->id_card_photo_url = $product->store->id_card_photo
-                ? asset('storage/' . $product->store->id_card_photo)
-                : null;
-        }
-        return $product;
-    });
+        $products = Product::with(['store' => function ($query) {
+            $query->select('id', 'store_name', 'id_card_photo');
+        }])->get();
 
+        $products->transform(function ($product) {
+            $product->photo_url = $product->photo ? asset('storage/' . $product->photo) : null;
+
+            if ($product->store) {
+                $product->store->id_card_photo_url = $product->store->id_card_photo
+                    ? asset('storage/' . $product->store->id_card_photo)
+                    : null;
+            }
+
+            return $product;
+        });
 
         return response()->json([
             'status' => true,
@@ -36,6 +37,14 @@ class AdminProductController extends Controller
     public function show($id)
     {
         $product = Product::with('store')->findOrFail($id);
+
+        $product->photo_url = $product->photo ? asset('storage/' . $product->photo) : null;
+
+        if ($product->store) {
+            $product->store->id_card_photo_url = $product->store->id_card_photo
+                ? asset('storage/' . $product->store->id_card_photo)
+                : null;
+        }
 
         return response()->json([
             'status' => true,
