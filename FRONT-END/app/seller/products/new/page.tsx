@@ -391,6 +391,34 @@ export default function NewProductPage() {
               <div className="space-y-6">
                 <Card>
                   <CardHeader>
+                    <CardTitle>صورة المنتج</CardTitle>
+                    <CardDescription>ارفع صورة منتجك</CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="border-2 border-dashed rounded-lg p-4 text-center">
+                      <div className="flex flex-col items-center gap-2">
+                        <div className="h-40 w-full bg-muted/50 rounded-lg flex items-center justify-center overflow-hidden">
+                          {productData.image ? (
+                            <img
+                              src={productData.image || "/boxes.png"}
+                              alt="صورة المنتج"
+                              className="h-full w-full object-cover"
+                            />
+                          ) : (
+                            <Package className="h-12 w-12 text-muted-foreground" />
+                          )}
+                        </div>
+                        <Button type="button" variant="outline" size="sm" className="rounded-full">
+                          <Upload className="h-4 w-4 mr-2" />
+                          رفع الصورة
+                        </Button>
+                        <p className="text-xs text-muted-foreground">الحجم الموصى: 800x800px</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardHeader>
                     <CardTitle>معاينة المنتج</CardTitle>
                     <CardDescription>كيف سيكون شكل منتجك</CardDescription>
                   </CardHeader>

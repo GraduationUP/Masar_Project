@@ -125,7 +125,7 @@ export default function ProductPage() {
             <div className="rounded-xl overflow-hidden shadow-md bg-background">
               <div className="relative aspect-square">
                 <Image
-                  src={"/boxes.png"}
+                  src={products.data.photo || "/boxes.png"}
                   width={500}
                   height={500}
                   alt={products.data.name as string}

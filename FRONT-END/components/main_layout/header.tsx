@@ -43,6 +43,58 @@ interface Notifications {
   sent_at: string;
 }
 
+interface Product {
+  id: number;
+  store_id: number;
+  name: string;
+  description: string;
+  photo: string | null;
+  category_id: number;
+  price: string;
+  latitude: number;
+  longitude: number;
+  show_location: number;
+  created_at: string;
+  updated_at: string;
+  photo_url: string | null;
+  store: {
+    id: number;
+    user_id: number;
+    store_name: string;
+    id_card_photo: string;
+    phone: string;
+    location_address: string;
+    status: number;
+    created_at: string;
+    updated_at: string;
+    latitude: number | null;
+    longitude: number | null;
+    id_card_photo_url: string;
+  };
+}
+interface productsData {
+  status: boolean;
+  data: Product[];
+}
+interface Store {
+  id: number;
+  user_id: number;
+  store_name: string;
+  id_card_photo: string;
+  phone: string;
+  location_address: string;
+  status: number;
+  created_at: string;
+  updated_at: string;
+  latitude: string;
+  longitude: string;
+}
+
+interface storesData {
+  status: boolean;
+  data: Store[];
+}
+
 export default function Header() {
   const BASE_API_URL = process.env.NEXT_PUBLIC_API_URL;
   const { theme, setTheme } = useTheme();
@@ -100,6 +152,7 @@ export default function Header() {
     { name: "الرئيسية", href: "/" },
     { name: "الخريطة", href: "/map" },
     { name: "السوق", href: "/marketplace" },
+    { name: "المتاجر", href: "/stores" },
   ];
 
   function HandelLogout() {
@@ -113,16 +166,21 @@ export default function Header() {
     const token = localStorage.getItem("authToken");
     if (token) {
       try {
-        const response = await fetch(`${BASE_API_URL}/api/notifications/${id}/read`, {
-          method: 'PATCH',
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        const response = await fetch(
+          `${BASE_API_URL}/api/notifications/${id}/read`,
+          {
+            method: "PATCH",
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
         if (response.ok) {
-          setNotifications(notifications.map(n =>
-            n.id === id ? { ...n, is_read: true } : n
-          ));
+          setNotifications(
+            notifications.map((n) =>
+              n.id === id ? { ...n, is_read: true } : n
+            )
+          );
         } else {
           console.error("Failed to mark notification as read");
         }
@@ -136,14 +194,17 @@ export default function Header() {
     const token = localStorage.getItem("authToken");
     if (token) {
       try {
-        const response = await fetch(`${BASE_API_URL}/api/notifications/read-all`, {
-          method: 'PUPATCH',
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        const response = await fetch(
+          `${BASE_API_URL}/api/notifications/read-all`,
+          {
+            method: "PUPATCH",
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
         if (response.ok) {
-          setNotifications(notifications.map(n => ({ ...n, is_read: true })));
+          setNotifications(notifications.map((n) => ({ ...n, is_read: true })));
         } else {
           console.error("Failed to mark all notifications as read");
         }
@@ -153,12 +214,13 @@ export default function Header() {
     }
   };
 
-  const deleteAllNotifications = async () => { // TODO
+  const deleteAllNotifications = async () => {
+    // TODO
     const token = localStorage.getItem("authToken");
     if (token) {
       try {
         const response = await fetch(`${BASE_API_URL}/api/notifications`, {
-          method: 'DELETE',
+          method: "DELETE",
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -172,6 +234,58 @@ export default function Header() {
         console.error("Error deleting all notifications:", error);
       }
     }
+  };
+  const [searchTerm, setSearchTerm] = useState("");
+  const [suggestions, setSuggestions] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  useEffect(() => {
+    const fetchSuggestions = async () => {
+      if (!searchTerm.trim()) {
+        setSuggestions([]);
+        return;
+      }
+
+      setIsLoading(true);
+      const storesResponse = await fetch(
+        `${BASE_API_URL}/api/guest/stores?search=${searchTerm}`
+      );
+      const storesData = await storesResponse.json();
+
+      const productsResponse = await fetch(
+        `${BASE_API_URL}/api/guest/products?search=${searchTerm}`
+      );
+      const productsData = await productsResponse.json();
+
+      const storeSuggestions = storesData.status
+        ? storesData.data.map((store) => ({
+            type: "store",
+            name: store.store_name,
+            ...store,
+          }))
+        : [];
+
+      const productSuggestions = productsData.status
+        ? productsData.data.map((product) => ({
+            type: "product",
+            name: product.name,
+            store_name: product.store?.store_name,
+            ...product,
+          }))
+        : [];
+
+      setSuggestions([...storeSuggestions, ...productSuggestions]);
+      setIsLoading(false);
+    };
+
+    const debouncedFetch = setTimeout(() => {
+      fetchSuggestions();
+    }, 500);
+
+    return () => clearTimeout(debouncedFetch);
+  }, [searchTerm]);
+
+  const handleInputChange = (event) => {
+    setSearchTerm(event.target.value);
   };
 
   return (
@@ -216,7 +330,36 @@ export default function Header() {
               type="search"
               placeholder="ابحث عن بضاعة، خدمة او متجر..."
               className="w-full bg-background pl-8 md:w-[300px] lg:w-[400px] transition-all duration-300 focus:ring-2 focus:ring-primary/20"
+              value={searchTerm}
+              onChange={handleInputChange}
             />
+            {suggestions.length > 0 && (
+              <div className="absolute top-12 left-0 right-0 bg-white border rounded-md shadow-md z-10">
+                <ul>
+                  {suggestions.map((suggestion) => (
+                    <li
+                      key={suggestion.id}
+                      className="p-2 hover:bg-gray-100 cursor-pointer"
+                    >
+                      {suggestion.type === "store" && (
+                        <div>متجر: {suggestion.name}</div>
+                      )}
+                      {suggestion.type === "product" && (
+                        <div>
+                          منتج: {suggestion.name} في متجر{" "}
+                          {suggestion.store_name}
+                        </div>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            {isLoading && searchTerm.trim() && (
+              <div className="absolute top-12 left-0 right-0 bg-white border rounded-md shadow-md z-10 p-2 text-center">
+                جاري البحث...
+              </div>
+            )}
           </div>
         </div>
 
@@ -248,7 +391,7 @@ export default function Header() {
                     <Bell className="h-5 w-5" />
                     {notifications.length !== 0 && (
                       <Badge className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 flex items-center justify-center">
-                        {notifications.filter(n => !n.is_read).length}
+                        {notifications.filter((n) => !n.is_read).length}
                       </Badge>
                     )}
                   </Button>
@@ -257,7 +400,9 @@ export default function Header() {
                   <DropdownMenuLabel>الإشعارات</DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   {notifications.length === 0 ? (
-                    <DropdownMenuItem disabled>لا يوجد إشعارات</DropdownMenuItem>
+                    <DropdownMenuItem disabled>
+                      لا يوجد إشعارات
+                    </DropdownMenuItem>
                   ) : (
                     notifications.map((notification) => (
                       <DropdownMenuItem
@@ -319,14 +464,24 @@ export default function Header() {
                                 comment: "تعليق",
                               }[notification.type_name] || "موافق"}
                             </span>
-                            <span className="text-sm" style={{ wordBreak: 'break-word', whiteSpace: 'normal' }}>
+                            <span
+                              className="text-sm"
+                              style={{
+                                wordBreak: "break-word",
+                                whiteSpace: "normal",
+                              }}
+                            >
                               {notification.message}
                             </span>
-                            {/* Added truncate here as well */}
                           </div>
                         </div>
-                        {!notification.is_read && <Check className="h-4 w-4 ml-2 text-primary" />}
-                        <div className="text-xs text-gray-400" style={{ direction: "rtl" }}>
+                        {!notification.is_read && (
+                          <Check className="h-4 w-4 ml-2 text-primary" />
+                        )}
+                        <div
+                          className="text-xs text-gray-400"
+                          style={{ direction: "rtl" }}
+                        >
                           {new Date(notification.sent_at).toLocaleTimeString(
                             "en-US",
                             {
@@ -349,7 +504,7 @@ export default function Header() {
                       </DropdownMenuItem>
                     ))
                   )}
-                  {notifications.filter(n => !n.is_read).length > 0 && (
+                  {notifications.filter((n) => !n.is_read).length > 0 && (
                     <>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem onClick={markAllAsRead}>
@@ -361,7 +516,10 @@ export default function Header() {
                   {notifications.length > 0 && (
                     <>
                       <DropdownMenuSeparator />
-                      <DropdownMenuItem onClick={deleteAllNotifications} className="text-destructive focus:bg-destructive focus:text-destructive-foreground">
+                      <DropdownMenuItem
+                        onClick={deleteAllNotifications}
+                        className="text-destructive focus:bg-destructive focus:text-destructive-foreground"
+                      >
                         <Trash2 className="h-4 w-4 mr-2" />
                         حذف الكل
                       </DropdownMenuItem>
