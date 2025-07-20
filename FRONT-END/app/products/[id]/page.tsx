@@ -250,11 +250,10 @@ export default function ProductPage() {
                           <span className="text-muted-foreground">
                             تاريخ الاضافة
                           </span>
-                          <span>
-                            {new Date(
-                              products.data.created_at
-                            ).toLocaleDateString()}
-                          </span>
+                        <span>
+  {new Date(products.data.created_at).toLocaleDateString('en-US', { calendar: 'gregory' })}
+</span>
+
                         </div>
                       </div>
                     </div>
