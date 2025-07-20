@@ -32,6 +32,8 @@ class StoreController extends Controller
             'location_address' => $request->location_address,
             'id_card_photo' => $idCardPath,
             'status' => false, // بانتظار موافقة المشرف
+            'latitude' => $request->latitude,
+            'longitude' => $request->longitude,
 
         ]);
 

@@ -15,7 +15,7 @@ public function rules(): array
     if ($this->isMethod('PUT') || $this->isMethod('PATCH')) {
         return [
             'store_name' => 'sometimes|string|max:255',
-          'store_image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+          'id_card_photo' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
             'phone' => 'sometimes|string|max:20',
             'location_address' => 'sometimes|string|max:255',
             'latitude' => 'nullable|numeric',
@@ -25,7 +25,7 @@ public function rules(): array
 
     return [
         'store_name' => 'required|string|max:255',
-        'store_image' => 'required|image|mimes:jpg,jpeg,png|max:2048',
+        'id_card_photo' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
         'phone' => 'required|string|max:20',
         'location_address' => 'required|string|max:255',
         'latitude' => 'nullable|numeric',
