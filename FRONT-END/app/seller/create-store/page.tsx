@@ -9,7 +9,7 @@ import Header from "@/components/main_layout/header";
 import { Label } from "@/components/ui/label";
 
 const LeafletMap = lazy(() =>
-  import("@/components/LeafletMap").then((module) => ({
+  import("@/components/LeafLetMap").then((module) => ({
     default: module.default,
   }))
 );
@@ -41,9 +41,8 @@ export default function CreateStorePage() {
     event.preventDefault();
     setIsSubmitting(true);
     setErrorMessage(null);
-
+    const authToken = localStorage.getItem("authToken");
     const formData = new FormData();
-    formData.append("token", localStorage.getItem("authToken") || "");
     formData.append("store_name", storeData.store_name);
     formData.append("phone", storeData.phone);
     formData.append("location_address", storeData.location_address);
@@ -52,8 +51,6 @@ export default function CreateStorePage() {
     }
     formData.append("latitude", storeData.latitude);
     formData.append("longitude", storeData.longitude);
-
-    const authToken = localStorage.getItem("authToken");
 
     try {
       const response = await fetch(`${BASE_API_URL}/api/seller/store`, {
@@ -125,7 +122,7 @@ export default function CreateStorePage() {
                 className="p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400"
                 role="alert"
               >
-                <span className="font-medium">Error:</span> {errorMessage}
+                <span className="font-medium">حدث خطأ:</span> {errorMessage}
               </div>
             )}
             <form onSubmit={handleCreateStore} className="space-y-4">
@@ -163,7 +160,7 @@ export default function CreateStorePage() {
                 />
               </div>
               <div>
-                <Label htmlFor="id_card_photo">صورة الهوية (اختياري)</Label>
+                <Label htmlFor="id_card_photo">صورة للمتجر</Label>
                 <Input
                   type="file"
                   id="id_card_photo"

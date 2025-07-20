@@ -43,7 +43,7 @@ interface Notifications {
   sent_at: string;
 }
 
-interface Product {
+interface Products {
   id: number;
   store_id: number;
   name: string;
@@ -56,26 +56,12 @@ interface Product {
   show_location: number;
   created_at: string;
   updated_at: string;
-  photo_url: string | null;
   store: {
     id: number;
-    user_id: number;
     store_name: string;
-    id_card_photo: string;
-    phone: string;
-    location_address: string;
-    status: number;
-    created_at: string;
-    updated_at: string;
-    latitude: number | null;
-    longitude: number | null;
-    id_card_photo_url: string;
   };
 }
-interface productsData {
-  status: boolean;
-  data: Product[];
-}
+
 interface Store {
   id: number;
   user_id: number;
@@ -90,9 +76,11 @@ interface Store {
   longitude: string;
 }
 
-interface storesData {
+interface suggestion {
   status: boolean;
-  data: Store[];
+  query: string;
+  products: Products[];
+  stores: Store[];
 }
 
 export default function Header() {
@@ -197,14 +185,16 @@ export default function Header() {
         const response = await fetch(
           `${BASE_API_URL}/api/notifications/read-all`,
           {
-            method: "PUPATCH",
+            method: "PATCH",
             headers: {
               Authorization: `Bearer ${token}`,
             },
           }
         );
         if (response.ok) {
-          setNotifications(notifications.map((n) => ({ ...n, is_read: true })));
+          setNotifications(
+            notifications.map((n) => (n.is_read ? n : { ...n, is_read: true }))
+          );
         } else {
           console.error("Failed to mark all notifications as read");
         }
@@ -215,11 +205,10 @@ export default function Header() {
   };
 
   const deleteAllNotifications = async () => {
-    // TODO
     const token = localStorage.getItem("authToken");
     if (token) {
       try {
-        const response = await fetch(`${BASE_API_URL}/api/notifications`, {
+        const response = await fetch(`${BASE_API_URL}/api/notifications/clear`, {
           method: "DELETE",
           headers: {
             Authorization: `Bearer ${token}`,
@@ -236,55 +225,46 @@ export default function Header() {
     }
   };
   const [searchTerm, setSearchTerm] = useState("");
-  const [suggestions, setSuggestions] = useState([]);
+  const [suggestions, setSuggestions] = useState<suggestion>({
+    status: false,
+    query: "",
+    products: [],
+    stores: [],
+  });
   const [isLoading, setIsLoading] = useState(false);
+
   useEffect(() => {
     const fetchSuggestions = async () => {
       if (!searchTerm.trim()) {
-        setSuggestions([]);
+        setSuggestions({ status: false, query: "", products: [], stores: [] });
         return;
       }
-
       setIsLoading(true);
-      const storesResponse = await fetch(
-        `${BASE_API_URL}/api/guest/stores?search=${searchTerm}`
-      );
-      const storesData = await storesResponse.json();
+      try {
+        const response = await fetch(
+          `${BASE_API_URL}/api/search?query=${encodeURIComponent(searchTerm)}`
+        );
 
-      const productsResponse = await fetch(
-        `${BASE_API_URL}/api/guest/products?search=${searchTerm}`
-      );
-      const productsData = await productsResponse.json();
+        if (!response.ok) {
+          throw new Error("Failed to fetch suggestions");
+        }
 
-      const storeSuggestions = storesData.status
-        ? storesData.data.map((store) => ({
-            type: "store",
-            name: store.store_name,
-            ...store,
-          }))
-        : [];
-
-      const productSuggestions = productsData.status
-        ? productsData.data.map((product) => ({
-            type: "product",
-            name: product.name,
-            store_name: product.store?.store_name,
-            ...product,
-          }))
-        : [];
-
-      setSuggestions([...storeSuggestions, ...productSuggestions]);
-      setIsLoading(false);
+        const data = await response.json();
+        setSuggestions(data);
+      } catch (error) {
+        console.error("Error fetching suggestions:", error);
+        setSuggestions({ status: false, query: "", products: [], stores: [] });
+      } finally {
+        setIsLoading(false);
+      }
     };
 
-    const debouncedFetch = setTimeout(() => {
-      fetchSuggestions();
-    }, 500);
+    const debouncedFetch = setTimeout(fetchSuggestions, 500);
 
     return () => clearTimeout(debouncedFetch);
   }, [searchTerm]);
 
-  const handleInputChange = (event) => {
+  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(event.target.value);
   };
 
@@ -333,23 +313,27 @@ export default function Header() {
               value={searchTerm}
               onChange={handleInputChange}
             />
-            {suggestions.length > 0 && (
+            {(suggestions?.products.length > 0 ||
+              suggestions?.stores.length > 0) && (
               <div className="absolute top-12 left-0 right-0 bg-white border rounded-md shadow-md z-10">
                 <ul>
-                  {suggestions.map((suggestion) => (
+                  {suggestions.products.map((suggestion) => (
                     <li
                       key={suggestion.id}
                       className="p-2 hover:bg-gray-100 cursor-pointer"
                     >
-                      {suggestion.type === "store" && (
-                        <div>متجر: {suggestion.name}</div>
-                      )}
-                      {suggestion.type === "product" && (
-                        <div>
-                          منتج: {suggestion.name} في متجر{" "}
-                          {suggestion.store_name}
-                        </div>
-                      )}
+                      <div>
+                        منتج: {suggestion.name} في متجر{" "}
+                        {suggestion.store.store_name}
+                      </div>
+                    </li>
+                  ))}
+                  {suggestions.stores.map((suggestion) => (
+                    <li
+                      key={suggestion.id}
+                      className="p-2 hover:bg-gray-100 cursor-pointer"
+                    >
+                      <div>متجر: {suggestion.store_name}</div>
                     </li>
                   ))}
                 </ul>
@@ -485,7 +469,6 @@ export default function Header() {
                           {new Date(notification.sent_at).toLocaleTimeString(
                             "en-US",
                             {
-                              // Using Arabic (Palestinian) locale for time
                               hour: "2-digit",
                               minute: "2-digit",
                             }
@@ -494,7 +477,6 @@ export default function Header() {
                           {new Date(notification.sent_at).toLocaleDateString(
                             "en-US",
                             {
-                              // Using Arabic (Palestinian) locale for date
                               year: "numeric",
                               month: "numeric",
                               day: "numeric",
