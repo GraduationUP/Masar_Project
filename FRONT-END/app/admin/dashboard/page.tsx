@@ -400,7 +400,7 @@ export default function AdminDashboard() {
     servicesData.GasStations.length +
     servicesData.markets.length;
 
-  const updateStoreData = (updatedStore: storeData) => {
+  const updateStoreData = (updatedStore: StoreData) => {
     setStoreData((prevData) =>
       prevData.map((store) =>
         store.id === updatedStore.id ? updatedStore : store

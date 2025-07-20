@@ -185,14 +185,16 @@ export default function Header() {
         const response = await fetch(
           `${BASE_API_URL}/api/notifications/read-all`,
           {
-            method: "PUPATCH",
+            method: "PATCH",
             headers: {
               Authorization: `Bearer ${token}`,
             },
           }
         );
         if (response.ok) {
-          setNotifications(notifications.map((n) => ({ ...n, is_read: true })));
+          setNotifications(
+            notifications.map((n) => (n.is_read ? n : { ...n, is_read: true }))
+          );
         } else {
           console.error("Failed to mark all notifications as read");
         }
@@ -203,11 +205,10 @@ export default function Header() {
   };
 
   const deleteAllNotifications = async () => {
-    // TODO
     const token = localStorage.getItem("authToken");
     if (token) {
       try {
-        const response = await fetch(`${BASE_API_URL}/api/notifications`, {
+        const response = await fetch(`${BASE_API_URL}/api/notifications/clear`, {
           method: "DELETE",
           headers: {
             Authorization: `Bearer ${token}`,
@@ -468,7 +469,6 @@ export default function Header() {
                           {new Date(notification.sent_at).toLocaleTimeString(
                             "en-US",
                             {
-                              // Using Arabic (Palestinian) locale for time
                               hour: "2-digit",
                               minute: "2-digit",
                             }
@@ -477,7 +477,6 @@ export default function Header() {
                           {new Date(notification.sent_at).toLocaleDateString(
                             "en-US",
                             {
-                              // Using Arabic (Palestinian) locale for date
                               year: "numeric",
                               month: "numeric",
                               day: "numeric",
