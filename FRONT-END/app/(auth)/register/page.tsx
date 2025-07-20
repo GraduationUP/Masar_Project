@@ -1,10 +1,8 @@
 "use client";
 
-// TODO : add confirm password
-
 import type React from "react";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -19,10 +17,14 @@ import {
 } from "@/components/ui/card";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { RegistrationResponse } from "@/lib/types";
-import { redirect } from "next/navigation";
+import { redirect, useRouter } from "next/navigation";
+import { set } from "react-hook-form";
 
 export default function RegisterPage() {
   const [role, setRole] = useState<"user" | "seller">("user");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const router = useRouter();
+  const BASE_API_URL = process.env.NEXT_PUBLIC_API_URL;
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [username, setUsername] = useState("");
@@ -32,7 +34,13 @@ export default function RegisterPage() {
   const [registrationMessage, setRegistrationMessage] = useState("");
   const [registrationError, setRegistrationError] = useState("");
   const [onFocus, setOnFocues] = useState(false);
-  const isAnyFieldEmpty = [firstName, lastName, username, email, password].every(field => field === "");
+  const isAnyFieldEmpty = [
+    firstName,
+    lastName,
+    username,
+    email,
+    password,
+  ].every((field) => field === "");
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target;
@@ -58,6 +66,7 @@ export default function RegisterPage() {
   };
 
   const handleSubmit = async (event: React.FormEvent) => {
+    setIsSubmitting(true);
     event.preventDefault();
     setRegistrationMessage("");
     setRegistrationError("");
@@ -72,7 +81,7 @@ export default function RegisterPage() {
     };
 
     try {
-      const response = await fetch("http://127.0.0.1:8000/api/register", {
+      const response = await fetch(`${BASE_API_URL}/api/register`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -84,6 +93,7 @@ export default function RegisterPage() {
       if (response.ok) {
         const data: RegistrationResponse = await response.json();
         setRegistrationMessage(data.message);
+        setIsSubmitting(false);
         // Optionally redirect the user or clear the form
       } else {
         const errorData = await response.json();
@@ -92,10 +102,17 @@ export default function RegisterPage() {
     } catch (error) {
       setRegistrationError("An unexpected error occurred");
       console.error("Error during registration:", error);
+      setIsSubmitting(false);
     } finally {
       redirect("/login");
     }
   };
+
+  useEffect(() => {
+    if (localStorage.getItem("authToken")) {
+      router.push("/");
+    }
+  });
 
   return (
     <div className="container flex items-center justify-center min-h-[calc(100vh-8rem)] py-12">
@@ -200,15 +217,13 @@ export default function RegisterPage() {
             </div>
           </CardContent>
           <CardFooter className="flex flex-col gap-4">
-            {!isAnyFieldEmpty && password === confirmPassword ? (
-              <Button type="submit" className="w-full">
-                انشاء حساب
-              </Button>
-            ) : (
-              <div className="bg-secondary text-secondary-foreground hover:bg-secondary/80 w-full py-2 rounded-md text-center">
-                انشاء حساب
-              </div>
-            )}
+            <Button
+              type="submit"
+              className="w-full"
+              disabled={isAnyFieldEmpty || password !== confirmPassword || isSubmitting}
+            >
+              {isSubmitting ? "جاري انشاء الحساب..." : "انشاء حساب"}
+            </Button>
             <p className="text-center text-sm text-muted-foreground">
               لديك حساب بالفعل?{" "}
               <Link href="/login" className="text-primary hover:underline">

@@ -24,7 +24,8 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { ChevronLeft, Loader2, Package, Upload } from "lucide-react";
 import { redirect } from "next/navigation";
-import { CustomAlert } from "@/components/customAlert"; // TODO Add custom alert
+import { CustomAlert } from "@/components/customAlert";
+import Header from "@/components/main_layout/header";
 
 // Dynamically import Leaflet with ssr: false
 const LeafletMap = lazy(() =>
@@ -212,217 +213,14 @@ export default function NewProductPage() {
   };
 
   return (
-    <div className="container px-4 md:px-6 py-8">
-      <div className="flex flex-col gap-8">
-        <div className="flex items-center gap-2">
-          <Button variant="ghost" size="icon" asChild className="rounded-full">
-            <Link
-              href={
-                data.recent_products?.id
-                  ? `/seller/stores/${data.recent_products.id}`
-                  : "/seller/dashboard"
-              }
-            >
-              <ChevronLeft className="h-5 w-5" />
-            </Link>
-          </Button>
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">
-              إضافة منتج جديد
-            </h1>
-            <p className="text-muted-foreground">أضف منتجًا إلى متجرك</p>
-          </div>
-        </div>
-        <form onSubmit={handleSubmit}>
-          <CustomAlert
-            message="تم اضافة المنتج بنجاح"
-            show={showSuccess}
-            onClose={() => setShowSuccess(false)}
-            success
-          />
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <div className="lg:col-span-2 space-y-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>معلومات المنتج</CardTitle>
-                  <CardDescription>تفاصيل أساسية عن منتجك</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="name">اسم المنتج *</Label>
-                    <Input
-                      id="name"
-                      placeholder="أدخل اسم منتجك"
-                      value={productData.name}
-                      onChange={(e) =>
-                        setProductData({
-                          ...productData,
-                          name: e.target.value,
-                        })
-                      }
-                      required
-                      className="rounded-lg"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="description">وصف المنتج *</Label>
-                    <Textarea
-                      id="description"
-                      placeholder="وصف منتجك بالتفصيل"
-                      value={productData.description}
-                      onChange={(e) =>
-                        setProductData({
-                          ...productData,
-                          description: e.target.value,
-                        })
-                      }
-                      required
-                      className="min-h-[120px] rounded-lg"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="category">الفئة *</Label>
-                    <Select
-                      value={productData.category_id.toString()} // ← Convert number to string for UI
-                      onValueChange={(value) => {
-                        setProductData({
-                          ...productData,
-                          category_id: parseInt(value, 10), // ← Convert string back to number for state
-                        });
-                      }}
-                      required
-                    >
-                      <SelectTrigger id="category" className="rounded-lg">
-                        <SelectValue placeholder="اختر فئة" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {storeCategories.data.map((category) => (
-                          <SelectItem
-                            key={category.id}
-                            value={category.id.toString()}
-                          >
-                            {category.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="price">السعر (بالشيكل) *</Label>
-                      <Input
-                        id="price"
-                        type="number"
-                        step="0.01"
-                        min="0"
-                        placeholder="0.00"
-                        value={productData.price}
-                        onChange={(e) =>
-                          setProductData({
-                            ...productData,
-                            price: parseFloat(e.target.value),
-                          })
-                        }
-                        required
-                        className="rounded-lg"
-                      />
-                    </div>
-                  </div>
-                  <div className="flex items-center space-x-2 gap-1">
-                    <Switch
-                      id="show-location"
-                      checked={productData.show_location}
-                      onCheckedChange={(checked) =>
-                        setProductData({
-                          ...productData,
-                          show_location: checked,
-                        })
-                      }
-                      className="flex flex-row-reverse"
-                    />
-                    <Label htmlFor="show-location">عرض الموقع</Label>
-                  </div>
-                  {productData.show_location && (
-                    <div className="space-y-4 mt-4">
-                      <Label>اختر موقع المنتج</Label>
-                      <Suspense fallback={<>جار تحميل الخريطة...</>}>
-                        <LeafletMap
-                          latitude={productData.latitude}
-                          longitude={productData.longitude}
-                          onLocationChange={handleLocationChange}
-                        />
-                      </Suspense>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
-                        <div>
-                          <Label htmlFor="latitude">Latitude:</Label>
-                          <Input
-                            type="number"
-                            id="latitude"
-                            value={productData.latitude}
-                            readOnly
-                            className="rounded-lg"
-                          />
-                        </div>
-                        <div>
-                          <Label htmlFor="longitude">Longitude:</Label>
-                          <Input
-                            type="number"
-                            id="longitude"
-                            value={productData.longitude}
-                            readOnly
-                            className="rounded-lg"
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            </div>
-
-            <div className="space-y-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>معاينة المنتج</CardTitle>
-                  <CardDescription>كيف سيكون شكل منتجك</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="rounded-lg border overflow-hidden">
-                    <div className="h-48 bg-muted/50 relative">
-                      <div className="h-full w-full flex items-center justify-center">
-                        <Package className="h-12 w-12 text-muted-foreground" />
-                      </div>
-                    </div>
-                    <div className="p-4">
-                      <h3 className="font-bold">
-                        {productData.name || "اسم المنتج"}
-                      </h3>
-                      <p className="text-sm text-muted-foreground line-clamp-2 mt-1">
-                        {productData.description || "وصف المنتج سوف يعرض هنا"}
-                      </p>
-                      <div className="flex items-center justify-between mt-2">
-                        <span className="font-bold">
-                          $
-                          {Number.parseFloat(productData.price || "0").toFixed(
-                            2
-                          )}
-                        </span>
-                        <span className="text-xs bg-muted px-2 py-1 rounded-full">
-                          {storeCategories.data.find(
-                            (cat) => cat.id === productData.category_id
-                          )?.name || "القسم"}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          </div>
-          <div className="mt-8 flex justify-between">
+    <>
+      <Header />
+      <div className="container px-4 md:px-6 py-8">
+        <div className="flex flex-col gap-8">
+          <div className="flex items-center gap-2">
             <Button
-              type="button"
-              variant="outline"
+              variant="ghost"
+              size="icon"
               asChild
               className="rounded-full"
             >
@@ -433,29 +231,268 @@ export default function NewProductPage() {
                     : "/seller/dashboard"
                 }
               >
-                الغاء
+                <ChevronLeft className="h-5 w-5" />
               </Link>
             </Button>
-            <Button
-              type="submit"
-              className="rounded-full bg-gradient-to-r from-blue-400 to-blue-500 hover:from-blue-500 hover:to-blue-600"
-              disabled={loading}
-            >
-              {isSubmitting ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  جار اضافة المنتج...
-                </>
-              ) : (
-                <>
-                  <Package className="mr-2 h-4 w-4" />
-                  اضف المنتج
-                </>
-              )}
-            </Button>
+            <div>
+              <h1 className="text-3xl font-bold tracking-tight">
+                إضافة منتج جديد
+              </h1>
+              <p className="text-muted-foreground">أضف منتجًا إلى متجرك</p>
+            </div>
           </div>
-        </form>
+          <form onSubmit={handleSubmit}>
+            <CustomAlert
+              message="تم اضافة المنتج بنجاح"
+              show={showSuccess}
+              onClose={() => setShowSuccess(false)}
+              success
+            />
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+              <div className="lg:col-span-2 space-y-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>معلومات المنتج</CardTitle>
+                    <CardDescription>تفاصيل أساسية عن منتجك</CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="name">اسم المنتج *</Label>
+                      <Input
+                        id="name"
+                        placeholder="أدخل اسم منتجك"
+                        value={productData.name}
+                        onChange={(e) =>
+                          setProductData({
+                            ...productData,
+                            name: e.target.value,
+                          })
+                        }
+                        required
+                        className="rounded-lg"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="description">وصف المنتج *</Label>
+                      <Textarea
+                        id="description"
+                        placeholder="وصف منتجك بالتفصيل"
+                        value={productData.description}
+                        onChange={(e) =>
+                          setProductData({
+                            ...productData,
+                            description: e.target.value,
+                          })
+                        }
+                        required
+                        className="min-h-[120px] rounded-lg"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="category">الفئة *</Label>
+                      <Select
+                        value={productData.category_id.toString()} // ← Convert number to string for UI
+                        onValueChange={(value) => {
+                          setProductData({
+                            ...productData,
+                            category_id: parseInt(value, 10), // ← Convert string back to number for state
+                          });
+                        }}
+                        required
+                      >
+                        <SelectTrigger id="category" className="rounded-lg">
+                          <SelectValue placeholder="اختر فئة" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {storeCategories.data.map((category) => (
+                            <SelectItem
+                              key={category.id}
+                              value={category.id.toString()}
+                            >
+                              {category.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="price">السعر (بالشيكل) *</Label>
+                        <Input
+                          id="price"
+                          type="number"
+                          step="0.01"
+                          min="0"
+                          placeholder="0.00"
+                          value={productData.price}
+                          onChange={(e) =>
+                            setProductData({
+                              ...productData,
+                              price: parseFloat(e.target.value),
+                            })
+                          }
+                          required
+                          className="rounded-lg"
+                        />
+                      </div>
+                    </div>
+                    <div className="flex items-center space-x-2 gap-1">
+                      <Switch
+                        id="show-location"
+                        checked={productData.show_location}
+                        onCheckedChange={(checked) =>
+                          setProductData({
+                            ...productData,
+                            show_location: checked,
+                          })
+                        }
+                        className="flex flex-row-reverse"
+                      />
+                      <Label htmlFor="show-location">عرض الموقع</Label>
+                    </div>
+                    {productData.show_location && (
+                      <div className="space-y-4 mt-4">
+                        <Label>اختر موقع المنتج</Label>
+                        <Suspense fallback={<>جار تحميل الخريطة...</>}>
+                          <LeafletMap
+                            latitude={productData.latitude}
+                            longitude={productData.longitude}
+                            onLocationChange={handleLocationChange}
+                          />
+                        </Suspense>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
+                          <div>
+                            <Label htmlFor="latitude">Latitude:</Label>
+                            <Input
+                              type="number"
+                              id="latitude"
+                              value={productData.latitude}
+                              readOnly
+                              className="rounded-lg"
+                            />
+                          </div>
+                          <div>
+                            <Label htmlFor="longitude">Longitude:</Label>
+                            <Input
+                              type="number"
+                              id="longitude"
+                              value={productData.longitude}
+                              readOnly
+                              className="rounded-lg"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              </div>
+
+              <div className="space-y-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>صورة المنتج</CardTitle>
+                    <CardDescription>ارفع صورة منتجك</CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="border-2 border-dashed rounded-lg p-4 text-center">
+                      <div className="flex flex-col items-center gap-2">
+                        <div className="h-40 w-full bg-muted/50 rounded-lg flex items-center justify-center overflow-hidden">
+                          {productData.image ? (
+                            <img
+                              src={productData.image || "/boxes.png"}
+                              alt="صورة المنتج"
+                              className="h-full w-full object-cover"
+                            />
+                          ) : (
+                            <Package className="h-12 w-12 text-muted-foreground" />
+                          )}
+                        </div>
+                        <Button type="button" variant="outline" size="sm" className="rounded-full">
+                          <Upload className="h-4 w-4 mr-2" />
+                          رفع الصورة
+                        </Button>
+                        <p className="text-xs text-muted-foreground">الحجم الموصى: 800x800px</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardHeader>
+                    <CardTitle>معاينة المنتج</CardTitle>
+                    <CardDescription>كيف سيكون شكل منتجك</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="rounded-lg border overflow-hidden">
+                      <div className="h-48 bg-muted/50 relative">
+                        <div className="h-full w-full flex items-center justify-center">
+                          <Package className="h-12 w-12 text-muted-foreground" />
+                        </div>
+                      </div>
+                      <div className="p-4">
+                        <h3 className="font-bold">
+                          {productData.name || "اسم المنتج"}
+                        </h3>
+                        <p className="text-sm text-muted-foreground line-clamp-2 mt-1">
+                          {productData.description || "وصف المنتج سوف يعرض هنا"}
+                        </p>
+                        <div className="flex items-center justify-between mt-2">
+                          <span className="font-bold">
+                            $
+                            {Number.parseFloat(
+                              productData.price || "0"
+                            ).toFixed(2)}
+                          </span>
+                          <span className="text-xs bg-muted px-2 py-1 rounded-full">
+                            {storeCategories.data.find(
+                              (cat) => cat.id === productData.category_id
+                            )?.name || "القسم"}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
+            <div className="mt-8 flex justify-between">
+              <Button
+                type="button"
+                variant="outline"
+                asChild
+                className="rounded-full"
+              >
+                <Link
+                  href={
+                    data.recent_products?.id
+                      ? `/seller/stores/${data.recent_products.id}`
+                      : "/seller/dashboard"
+                  }
+                >
+                  الغاء
+                </Link>
+              </Button>
+              <Button
+                type="submit"
+                className="rounded-full bg-gradient-to-r from-blue-400 to-blue-500 hover:from-blue-500 hover:to-blue-600"
+                disabled={loading}
+              >
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    جار اضافة المنتج...
+                  </>
+                ) : (
+                  <>
+                    <Package className="mr-2 h-4 w-4" />
+                    اضف المنتج
+                  </>
+                )}
+              </Button>
+            </div>
+          </form>
+        </div>
       </div>
-    </div>
+    </>
   );
 }

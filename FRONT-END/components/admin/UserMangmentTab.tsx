@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Card,
   CardContent,
@@ -55,7 +55,12 @@ interface UserManagementTabProps {
     durationUnit: string
   ) => Promise<void>;
   handelUserBlock: (id: number) => Promise<void>;
-  handelUserNotify: (id: number) => Promise<void>;
+  handelUserNotify: (
+    type: string,
+    message: string,
+    target: string,
+    target_id: number
+  ) => Promise<void>;
 }
 
 const UserManagementTab: React.FC<UserManagementTabProps> = ({
@@ -68,6 +73,42 @@ const UserManagementTab: React.FC<UserManagementTabProps> = ({
   handelUserBlock,
   handelUserNotify,
 }) => {
+  const [isBanDialogOpen, setIsBanDialogOpen] = useState(false);
+  const [selectedUserForBan, setSelectedUserForBan] = useState<userData | null>(null);
+
+  const [isDisableDialogOpen, setIsDisableDialogOpen] = useState(false);
+  const [selectedUserForDisable, setSelectedUserForDisable] = useState<userData | null>(null);
+
+  const [isSendNotificationDialogOpen, setIsSendNotificationDialogOpen] = useState(false);
+  const [selectedUserForNotification, setSelectedUserForNotification] = useState<userData | null>(null);
+
+  const openBanDialog = (user: userData) => {
+    setSelectedUserForBan(user);
+    setIsBanDialogOpen(true);
+  };
+
+  const closeBanDialog = () => {
+    setIsBanDialogOpen(false);
+  };
+
+  const openDisableDialog = (user: userData) => {
+    setSelectedUserForDisable(user);
+    setIsDisableDialogOpen(true);
+  };
+
+  const closeDisableDialog = () => {
+    setIsDisableDialogOpen(false);
+  };
+
+  const openSendNotificationDialog = (user: userData) => {
+    setSelectedUserForNotification(user);
+    setIsSendNotificationDialogOpen(true);
+  };
+
+  const closeSendNotificationDialog = () => {
+    setIsSendNotificationDialogOpen(false);
+  };
+
   const filteredUsers = userData.filter((user) => {
     const fullName = `${user.first_name} ${user.last_name}`.toLowerCase();
     const username = user.username.toLowerCase();
@@ -114,6 +155,20 @@ const UserManagementTab: React.FC<UserManagementTabProps> = ({
                   onBan={handelUserBan}
                   onBlock={handelUserBlock}
                   onNotify={handelUserNotify}
+                  // Ban Dialog Props
+                  openBanDialog={openBanDialog}
+                  isBanDialogOpen={selectedUserForBan?.id === user.id && isBanDialogOpen}
+                  closeBanDialog={closeBanDialog}
+                  // Disable Dialog Props
+                  openDisableDialog={openDisableDialog}
+                  isDisableDialogOpen={selectedUserForDisable?.id === user.id && isDisableDialogOpen}
+                  closeDisableDialog={closeDisableDialog}
+                  // Send Notification Dialog Props
+                  openSendNotificationDialog={openSendNotificationDialog}
+                  isSendNotificationDialogOpen={
+                    selectedUserForNotification?.id === user.id && isSendNotificationDialogOpen
+                  }
+                  closeSendNotificationDialog={closeSendNotificationDialog}
                 />
               ))}
             </div>

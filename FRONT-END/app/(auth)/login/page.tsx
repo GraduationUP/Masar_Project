@@ -13,8 +13,8 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { LogIn } from "lucide-react";
-import React, { useState } from "react";
-import { useRouter } from 'next/navigation'; // Updated import
+import React, { useEffect, useState } from "react";
+import { useRouter } from 'next/navigation';
 import { LoginSuccessResponse, LoginErrorResponse } from "@/lib/types";
 
 const LoginPage: React.FC = () => {
@@ -23,6 +23,7 @@ const LoginPage: React.FC = () => {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const BASE_API_URL = process.env.NEXT_PUBLIC_API_URL
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -30,7 +31,7 @@ const LoginPage: React.FC = () => {
     setError(null); // Clear any previous errors
 
     try {
-      const response = await fetch("http://127.0.0.1:8000/api/login", {
+      const response = await fetch(`${BASE_API_URL}/api/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -56,9 +57,15 @@ const LoginPage: React.FC = () => {
       console.error("Error during sign-in:", err);
       setError("An unexpected error occurred. Please try again.");
     } finally {
-      setLoading(false); // Ensure loading state is reset
+      setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (localStorage.getItem("authToken")) {
+      router.push("/");
+    }
+  })
 
   return (
     <div className="container flex items-center justify-center min-h-[calc(100vh-8rem)] py-12">
@@ -154,7 +161,7 @@ const LoginPage: React.FC = () => {
                 </div>
               </Button>
               <p className="text-center text-sm text-muted-foreground">
-                ليس لديك حساب?{" "}
+                ليس لديك حساب?
                 <Link
                   href="/register"
                   className="text-primary hover:underline font-medium"

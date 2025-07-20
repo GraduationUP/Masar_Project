@@ -47,6 +47,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
+import Header from "@/components/main_layout/header";
 
 export default function ProfilePage() {
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
@@ -73,18 +74,26 @@ export default function ProfilePage() {
 
   interface Data {
     id: number;
-    name: string;
     first_name: string;
     last_name: string;
     username: string;
     store: Store | null;
-    comments: [];
-    ratings: [];
-    email: string;
   }
 
-  const [ownerData, setOwnerData] = useState<Data>({
-    id: Number,
+  interface OwnerData {
+    id: number;
+    first_name: string;
+    last_name: string;
+    username: string;
+    email: string;
+    role: string;
+    store: Store | null;
+    comments: [];
+    ratings: [];
+  }
+
+  const [ownerData, setOwnerData] = useState<OwnerData>({
+    id: 0,
     first_name: "",
     last_name: "",
     username: "",
@@ -106,7 +115,7 @@ export default function ProfilePage() {
   });
 
   const [data, setData] = useState<Data>({
-    id: Number,
+    id: 0,
     first_name: "",
     last_name: "",
     username: "",
@@ -133,8 +142,12 @@ export default function ProfilePage() {
   const [passwordFromData, setPasswordFormData] = useState({
     current_password: "",
     password: "",
-    confirm_password: "",
+    password_confirmation: "",
   });
+
+  const handlePrint = () => {
+    console.log(passwordFromData);
+  };
 
   // For the page owner
   useEffect(() => {
@@ -245,7 +258,7 @@ export default function ProfilePage() {
       setPasswordFormData({
         current_password: "",
         password: "",
-        confirm_password: "",
+        password_confirmation: "",
       });
       setSucssesAlert(true);
       setShowFormError(false);
@@ -308,529 +321,549 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="container px-4 md:px-6 py-8">
-      <div className="flex flex-col w-full gap-8">
-        <div className="flex flex-col md:flex-row gap-4 md:items-center md:justify-between">
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">الملف الشخصي</h1>
-            <p className="text-muted-foreground">
-              قم بادارة اعدادت ملفك الشخصي
-            </p>
-          </div>
-          {ownerData.first_name !== "" && (
-            <div className="flex gap-2">
-              <form onSubmit={HandelLogout}>
-                <Button
-                  type="submit"
-                  variant="outline"
-                  className="rounded-full"
-                >
-                  <LogOut className="mr-2 h-4 w-4" />
-                  تسجيل الخروج
-                </Button>
-              </form>
+    <>
+      <Header />
+      <div className="container px-4 md:px-6 py-8">
+        <div className="flex flex-col w-full gap-8">
+          <div className="flex flex-col md:flex-row gap-4 md:items-center md:justify-between">
+            <div>
+              <h1 className="text-3xl font-bold tracking-tight">
+                الملف الشخصي
+              </h1>
+              <p className="text-muted-foreground">
+                قم بادارة اعدادت ملفك الشخصي
+              </p>
             </div>
-          )}
-        </div>
-        <div className="flex flex-col md:flex-row gap-8">
-          <CustomAlert
-            message="تم تحديث البيانات بنجاح"
-            show={successAlert}
-            onClose={() => setSucssesAlert(false)}
-            success
-          />
-          {/* Sidebar */}
-          <Card className="w-full md:w-1/3 h-fit">
-            <CardContent className="p-6"> 
-                <div className="flex" title="ابلاغ">
-                  {data.store !== null && <Badge>صاحب متجر</Badge>}
-                </div>
-              {isUser && ownerData.first_name === "" && (
-                <Dialog open={open} onOpenChange={setOpen}>
-                  <DialogTrigger asChild>
-                    <Button variant={"outline"} title="ابلاغ">
-                      <Image
-                        src={"/reportFlag.svg"}
-                        alt={"report flag"}
-                        width={30}
-                        height={30}
-                      />
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent>
-                    <DialogHeader>
-                      <DialogTitle>الابلاغ عن مستخدم</DialogTitle>
-                      <DialogDescription>
-                        رجاء اكتب سبب كتابة الابلاغ بدقة
-                      </DialogDescription>
-                    </DialogHeader>
-                    <div className="grid gap-4 py-4">
-                      <div className="grid grid-cols-4 items-center gap-4">
-                        <label
-                          htmlFor="message"
-                          className="text-right text-sm font-medium leading-none text-muted-foreground"
-                        >
-                          الرسالة
-                        </label>
-                        <div className="col-span-3">
-                          <Textarea
-                            id="message"
-                            placeholder="اكتب رسالة الابلاغ هنا!"
-                            value={message}
-                            onChange={(e) => setMessage(e.target.value)}
-                          />
-                        </div>
-                      </div>
-                    </div>
-                    <DialogFooter>
-                      <DialogClose asChild>
-                        <Button variant="secondary">الغاء</Button>
-                      </DialogClose>
-                      <Button onClick={() => handleSendReport(message)}>
-                        ارسال الابلاغ
-                      </Button>
-                    </DialogFooter>
-                  </DialogContent>
-                </Dialog>
-              )}
-              <div className="flex flex-col items-center text-center">
-                <div className="relative mb-4">
-                  <Avatar className="h-24 w-24 border-4 border-background">
-                    <AvatarFallback className="text-2xl">
-                      {data.first_name.slice(0, 2)}
-                    </AvatarFallback>
-                  </Avatar>
-                  {ownerData.first_name !== "" && (
-                    <Button
-                      size="icon"
-                      variant="secondary"
-                      className="absolute bottom-0 right-0 h-8 w-8 rounded-full shadow-md"
-                    >
-                      <Camera className="h-4 w-4" />
-                    </Button>
-                  )}
-                </div>
-                <h2 className="text-xl font-bold mt-2">
-                  {data.first_name} {data.last_name}
-                </h2>
-                <p className="text-sm text-muted-foreground mt-2">
-                  عضو منذ ابريل 2023
-                </p>
-              </div>
-
-              <Separator className="my-6" />
-
-              <div className="space-y-4">
-                <div className="flex items-center gap-3">
-                  <Star className="h-5 w-5 text-muted-foreground" />
-                  <div>
-                    <p className="font-medium">التقييمات</p>
-                    <p className="text-sm text-muted-foreground">
-                      تقييماتك للمتاجر
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3">
-                  <HelpCircle className="h-5 w-5 text-muted-foreground" />
-                  <div>
-                    <p className="font-medium">مركز المساعدة</p>
-                    <p className="text-sm text-muted-foreground">
-                      احصل على المساعدة والدعم
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Main Content */}
-          <div className="flex-grow space-y-6 w-full md:w-2/3">
             {ownerData.first_name !== "" && (
-              <Tabs defaultValue="account" className="w-full">
-                <TabsList className="grid w-full grid-cols-4 rounded-lg mb-6">
-                  <TabsTrigger value="account" className="rounded-md">
-                    الحساب
-                  </TabsTrigger>
-                  <TabsTrigger value="security" className="rounded-md">
-                    الأمان
-                  </TabsTrigger>
-                  <TabsTrigger value="notifications" className="rounded-md">
-                    الاشعارات
-                  </TabsTrigger>
-                  <TabsTrigger value="activity" className="rounded-md">
-                    النشاط
-                  </TabsTrigger>
-                </TabsList>
-
-                {/* Account Tab */}
-                <TabsContent
-                  value="account"
-                  className="space-y-6 animate-fade-in"
-                >
-                  {/* ... Account Tab Content ... */}
-                  <Card>
-                    <CardHeader className="flex flex-row items-center justify-between">
-                      <div>
-                        <CardTitle>المعلومات الشخصية</CardTitle>
-                        {ownerData.first_name !== "" && (
-                          <CardDescription>
-                            قم بادارة معلوماتك الشخصية
-                          </CardDescription>
-                        )}
-                      </div>
-                      <Button
-                        variant={isEditing ? "ghost" : "outline"}
-                        size="sm"
-                        className="rounded-full"
-                        onClick={() => setIsEditing(!isEditing)}
-                      >
-                        {isEditing ? (
-                          "الغاء"
-                        ) : (
-                          <Edit className="mr-2 h-4 w-4" />
-                        )}
-                        {isEditing ? "" : "تعديل"}
+              <div className="flex gap-2">
+                <form onSubmit={HandelLogout}>
+                  <Button
+                    type="submit"
+                    variant="outline"
+                    className="rounded-full"
+                  >
+                    <LogOut className="mr-2 h-4 w-4" />
+                    تسجيل الخروج
+                  </Button>
+                </form>
+              </div>
+            )}
+          </div>
+          <div className={"flex flex-col md:flex-row gap-8"}>
+            <CustomAlert
+              message="تم تحديث البيانات بنجاح"
+              show={successAlert}
+              onClose={() => setSucssesAlert(false)}
+              success
+            />
+            {/* Sidebar */}
+            <Card className="w-full md:w-1/3 h-fit">
+              <CardContent className="p-6">
+                <div className="flex" title="ابلاغ">
+                  {ownerData.role === "seller" && <Badge>صاحب متجر</Badge>}
+                </div>
+                {isUser && ownerData.first_name === "" && (
+                  <Dialog open={open} onOpenChange={setOpen}>
+                    <DialogTrigger asChild>
+                      <Button variant={"outline"} title="ابلاغ">
+                        <Image
+                          src={"/reportFlag.svg"}
+                          alt={"report flag"}
+                          width={30}
+                          height={30}
+                        />
                       </Button>
-                    </CardHeader>
-                    <form onSubmit={handleUserInfoEdit}>
-                      <CardContent className="space-y-4">
-                        {showFormError && (
-                          <span className="text-sm text-muted-foreground text-red-400">
-                            حدث خطأ ما اعد المحاولة لاحقاً!
-                          </span>
-                        )}
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div className="space-y-2">
-                            <Label htmlFor="name">الاسم الأول</Label>
-                            <Input
-                              id="first_name"
-                              value={formData.first_name}
-                              disabled={!isEditing}
-                              onChange={(e) =>
-                                setFormData({
-                                  ...formData,
-                                  first_name: e.target.value,
-                                })
-                              }
-                              className="rounded-lg"
-                            />
-                          </div>
-                          <div className="space-y-2">
-                            <Label htmlFor="email">الاسم الأخير</Label>
-                            <Input
-                              id="last_name"
-                              value={formData.last_name}
-                              disabled={!isEditing}
-                              onChange={(e) =>
-                                setFormData({
-                                  ...formData,
-                                  last_name: e.target.value,
-                                })
-                              }
-                              className="rounded-lg"
-                            />
-                          </div>
-                        </div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div className="space-y-2">
-                            <Label htmlFor="email">الايميل</Label>
-                            <Input
-                              id="email"
-                              type="email"
-                              value={formData.email}
-                              disabled={!isEditing}
-                              onChange={(e) =>
-                                setFormData({
-                                  ...formData,
-                                  email: e.target.value,
-                                })
-                              }
-                              className="rounded-lg"
-                            />
-                          </div>
-                          <div className="space-y-2">
-                            <Label htmlFor="username">اسم المتسخدم</Label>
-                            <Input
-                              id="username"
-                              value={formData.username}
-                              disabled={!isEditing}
-                              onChange={(e) =>
-                                setFormData({
-                                  ...formData,
-                                  username: e.target.value,
-                                })
-                              }
-                              className="rounded-lg"
-                            />
-                          </div>
-                        </div>
-                      </CardContent>
-                      {isEditing && (
-                        <CardFooter>
-                          <Button
-                            className="ml-auto rounded-full bg-gradient-to-r from-blue-400 to-blue-600 hover:from-blue-500 hover:to-blue-700"
-                            type="submit"
+                    </DialogTrigger>
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle>الابلاغ عن مستخدم</DialogTitle>
+                        <DialogDescription>
+                          رجاء اكتب سبب كتابة الابلاغ بدقة
+                        </DialogDescription>
+                      </DialogHeader>
+                      <div className="grid gap-4 py-4">
+                        <div className="grid grid-cols-4 items-center gap-4">
+                          <label
+                            htmlFor="message"
+                            className="text-right text-sm font-medium leading-none text-muted-foreground"
                           >
-                            <>
-                              <Check className="mr-2 h-4 w-4" />
-                              حفظ التغييرات
-                            </>
-                          </Button>
-                        </CardFooter>
-                      )}
-                    </form>
-                  </Card>
-                </TabsContent>
-
-                {/* ... Security Tab Content ... TODO : Make this form works */}
-                <TabsContent
-                  value="security"
-                  className="space-y-6 animate-fade-in"
-                >
-                  <Card>
-                    <form onSubmit={handlePasswordChange}>
-                      <CardHeader>
-                        <CardTitle>كلمة المرور</CardTitle>
-                        <CardDescription>تغيير كلمة المرور</CardDescription>
-                      </CardHeader>
-                      <CardContent className="space-y-4">
-                        {showFormError && (
-                          <span className="text-sm text-muted-foreground text-red-400">
-                            حدث خطاء ما اعد المحاولة لاحقاً!
-                          </span>
-                        )}
-                        <div className="space-y-2">
-                          <Label htmlFor="current-password">
-                            الكلمة الحالية
-                          </Label>
-                          <Input
-                            id="current-password"
-                            type="password"
-                            className="rounded-lg"
-                            onChange={(e) =>
-                              setPasswordFormData({
-                                ...passwordFromData,
-                                current_password: e.target.value,
-                              })
-                            }
-                          />
-                        </div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div className="space-y-2">
-                            <Label htmlFor="new-password">الكلمة الجديدة</Label>
-                            <Input
-                              id="new-password"
-                              type="password"
-                              className="rounded-lg"
-                              onChange={(e) =>
-                                setPasswordFormData({
-                                  ...passwordFromData,
-                                  password: e.target.value,
-                                })
-                              }
+                            الرسالة
+                          </label>
+                          <div className="col-span-3">
+                            <Textarea
+                              id="message"
+                              placeholder="اكتب رسالة الابلاغ هنا!"
+                              value={message}
+                              onChange={(e) => setMessage(e.target.value)}
                             />
                           </div>
+                        </div>
+                      </div>
+                      <DialogFooter>
+                        <DialogClose asChild>
+                          <Button variant="secondary">الغاء</Button>
+                        </DialogClose>
+                        <Button onClick={() => handleSendReport(message)}>
+                          ارسال الابلاغ
+                        </Button>
+                      </DialogFooter>
+                    </DialogContent>
+                  </Dialog>
+                )}
+                <div className="flex flex-col items-center text-center">
+                  <div className="relative mb-4">
+                    <Avatar className="h-24 w-24 border-4 border-background">
+                      <AvatarFallback className="text-2xl">
+                        {data.first_name.slice(0, 2)}
+                      </AvatarFallback>
+                    </Avatar>
+                    {ownerData.first_name !== "" && (
+                      <Button
+                        size="icon"
+                        variant="secondary"
+                        className="absolute bottom-0 right-0 h-8 w-8 rounded-full shadow-md"
+                      >
+                        <Camera className="h-4 w-4" />
+                      </Button>
+                    )}
+                  </div>
+                  <h2 className="text-xl font-bold mt-2">
+                    {data.first_name} {data.last_name}
+                  </h2>
+                </div>
+                <Separator className="my-6" />
+                <div className="space-y-4">
+                  <div className="flex items-center gap-3">
+                    <Star className="h-5 w-5 text-muted-foreground" />
+                    <div>
+                      <p className="font-medium">التقييمات</p>
+                      <p className="text-sm text-muted-foreground">
+                        تقييماتك للمتاجر
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <HelpCircle className="h-5 w-5 text-muted-foreground" />
+                    <div>
+                      <p className="font-medium">مركز المساعدة</p>
+                      <p className="text-sm text-muted-foreground">
+                        احصل على المساعدة والدعم
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Main Content */}
+            <div className={`flex-grow space-y-6 w-full md:w-2/3`}>
+              {ownerData.first_name !== "" && (
+                <Tabs defaultValue="account" className="w-full">
+                  <TabsList className="grid w-full grid-cols-4 rounded-lg mb-6">
+                    <TabsTrigger value="account" className="rounded-md">
+                      الحساب
+                    </TabsTrigger>
+                    <TabsTrigger value="security" className="rounded-md">
+                      الأمان
+                    </TabsTrigger>
+                    <TabsTrigger value="notifications" className="rounded-md">
+                      الاشعارات
+                    </TabsTrigger>
+                    <TabsTrigger value="activity" className="rounded-md">
+                      النشاط
+                    </TabsTrigger>
+                  </TabsList>
+
+                  {/* Account Tab */}
+                  <TabsContent
+                    value="account"
+                    className="space-y-6 animate-fade-in"
+                  >
+                    {/* ... Account Tab Content ... */}
+                    <Card>
+                      <CardHeader className="flex flex-row items-center justify-between">
+                        <div>
+                          <CardTitle>المعلومات الشخصية</CardTitle>
+                          {ownerData.first_name !== "" && (
+                            <CardDescription>
+                              قم بادارة معلوماتك الشخصية
+                            </CardDescription>
+                          )}
+                        </div>
+                        <Button
+                          variant={isEditing ? "ghost" : "outline"}
+                          size="sm"
+                          className="rounded-full"
+                          onClick={() => setIsEditing(!isEditing)}
+                        >
+                          {isEditing ? (
+                            "الغاء"
+                          ) : (
+                            <Edit className="mr-2 h-4 w-4" />
+                          )}
+                          {isEditing ? "" : "تعديل"}
+                        </Button>
+                      </CardHeader>
+                      <form onSubmit={handleUserInfoEdit}>
+                        <CardContent className="space-y-4">
+                          {showFormError && (
+                            <span className="text-sm text-muted-foreground text-red-400">
+                              حدث خطأ ما اعد المحاولة لاحقاً!
+                            </span>
+                          )}
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                              <Label htmlFor="name">الاسم الأول</Label>
+                              <Input
+                                id="first_name"
+                                value={formData.first_name}
+                                disabled={!isEditing}
+                                onChange={(e) =>
+                                  setFormData({
+                                    ...formData,
+                                    first_name: e.target.value,
+                                  })
+                                }
+                                className="rounded-lg"
+                              />
+                            </div>
+                            <div className="space-y-2">
+                              <Label htmlFor="email">الاسم الأخير</Label>
+                              <Input
+                                id="last_name"
+                                value={formData.last_name}
+                                disabled={!isEditing}
+                                onChange={(e) =>
+                                  setFormData({
+                                    ...formData,
+                                    last_name: e.target.value,
+                                  })
+                                }
+                                className="rounded-lg"
+                              />
+                            </div>
+                          </div>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                              <Label htmlFor="email">الايميل</Label>
+                              <Input
+                                id="email"
+                                type="email"
+                                value={formData.email}
+                                disabled={!isEditing}
+                                onChange={(e) =>
+                                  setFormData({
+                                    ...formData,
+                                    email: e.target.value,
+                                  })
+                                }
+                                className="rounded-lg"
+                              />
+                            </div>
+                            <div className="space-y-2">
+                              <Label htmlFor="username">اسم المتسخدم</Label>
+                              <Input
+                                id="username"
+                                value={formData.username}
+                                disabled={!isEditing}
+                                onChange={(e) =>
+                                  setFormData({
+                                    ...formData,
+                                    username: e.target.value,
+                                  })
+                                }
+                                className="rounded-lg"
+                              />
+                            </div>
+                          </div>
+                        </CardContent>
+                        {isEditing && (
+                          <CardFooter>
+                            <Button
+                              className="ml-auto rounded-full bg-gradient-to-r from-blue-400 to-blue-600 hover:from-blue-500 hover:to-blue-700"
+                              type="submit"
+                            >
+                              <>
+                                <Check className="mr-2 h-4 w-4" />
+                                حفظ التغييرات
+                              </>
+                            </Button>
+                          </CardFooter>
+                        )}
+                      </form>
+                    </Card>
+                  </TabsContent>
+
+                  {/* ... Security Tab Content ... TODO : Make this form works */}
+                  <TabsContent
+                    value="security"
+                    className="space-y-6 animate-fade-in"
+                  >
+                    <Card>
+                      <form onSubmit={handlePasswordChange}>
+                        <CardHeader>
+                          <CardTitle>كلمة المرور</CardTitle>
+                          <CardDescription>تغيير كلمة المرور</CardDescription>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                          {showFormError && (
+                            <span className="text-sm text-muted-foreground text-red-400">
+                              حدث خطاء ما اعد المحاولة لاحقاً!
+                            </span>
+                          )}
                           <div className="space-y-2">
-                            <Label htmlFor="confirm-password">
-                              تأكيد الكلمة الجديدة
+                            <Label htmlFor="current-password">
+                              الكلمة الحالية
                             </Label>
                             <Input
-                              id="confirm-password"
+                              id="current-password"
                               type="password"
                               className="rounded-lg"
+                              value={passwordFromData.current_password}
                               onChange={(e) =>
                                 setPasswordFormData({
                                   ...passwordFromData,
-                                  confirm_password: e.target.value,
+                                  current_password: e.target.value,
                                 })
                               }
-                              onFocus={() => {
-                                if (
-                                  passwordFromData.password !==
-                                  passwordFromData.confirm_password
-                                ) {
-                                  setShowErrorMessage(true);
-                                }
-                              }}
-                              onBlur={() => setShowErrorMessage(false)}
                             />
-                            {showErrorMessage &&
-                              passwordFromData.password !==
-                                passwordFromData.confirm_password && (
-                                <p className="text-xs text-muted-foreground text-red-600">
-                                  الكلمة الجديدة غير متطابقة
-                                </p>
-                              )}
+                          </div>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                              <Label htmlFor="new-password">
+                                الكلمة الجديدة
+                              </Label>
+                              <Input
+                                id="new-password"
+                                type="password"
+                                className="rounded-lg"
+                                value={passwordFromData.password}
+                                onChange={(e) =>
+                                  setPasswordFormData({
+                                    ...passwordFromData,
+                                    password: e.target.value,
+                                  })
+                                }
+                              />
+                            </div>
+                            <div className="space-y-2">
+                              <Label htmlFor="confirm-password">
+                                تأكيد الكلمة الجديدة
+                              </Label>
+                              <Input
+                                id="confirm-password"
+                                type="password"
+                                className="rounded-lg"
+                                value={passwordFromData.password_confirmation}
+                                onChange={(e) =>
+                                  setPasswordFormData({
+                                    ...passwordFromData,
+                                    password_confirmation: e.target.value,
+                                  })
+                                }
+                                onFocus={() => {
+                                  if (
+                                    passwordFromData.password !==
+                                    passwordFromData.password_confirmation
+                                  ) {
+                                    setShowErrorMessage(true);
+                                  }
+                                }}
+                                onBlur={() => setShowErrorMessage(false)}
+                              />
+                              {showErrorMessage &&
+                                passwordFromData.password !==
+                                  passwordFromData.password_confirmation && (
+                                  <p className="text-xs text-muted-foreground text-red-600">
+                                    الكلمة الجديدة غير متطابقة
+                                  </p>
+                                )}
+                            </div>
+                          </div>
+                        </CardContent>
+                        <CardFooter>
+                          <Button
+                            className="ml-auto rounded-full"
+                            type="submit"
+                          >
+                            تحديث كلمة المرور
+                          </Button>
+                        </CardFooter>
+                      </form>
+                    </Card>
+
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>حالة الحساب</CardTitle>
+                        <CardDescription>ادارة حالة الحساب</CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="space-y-4">
+                          <div className="flex items-center justify-between p-3 rounded-lg border">
+                            <div className="flex items-center gap-3">
+                              <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
+                                <User className="h-5 w-5 text-primary" />
+                              </div>
+                              <div>
+                                <p className="font-medium">الحالة</p>
+                              </div>
+                            </div>
+                            <Badge>نشط</Badge>
                           </div>
                         </div>
                       </CardContent>
                       <CardFooter>
-                        <Button className="ml-auto rounded-full" type="submit">
-                          تحديث كلمة المرور
-                        </Button>
+                        <form onSubmit={HandelLogout}>
+                          <Button
+                            type="submit"
+                            variant="outline"
+                            className="w-full rounded-full"
+                          >
+                            <Lock className="mr-2 h-4 w-4" />
+                            تسجيل الخروج من الحساب
+                          </Button>
+                        </form>
                       </CardFooter>
-                    </form>
-                  </Card>
+                    </Card>
+                  </TabsContent>
 
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>حالة الحساب</CardTitle>
-                      <CardDescription>ادارة حالة الحساب</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-4">
-                        <div className="flex items-center justify-between p-3 rounded-lg border">
-                          <div className="flex items-center gap-3">
-                            <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
-                              <User className="h-5 w-5 text-primary" />
+                  {/* ... Notifications Tab Content ... */}
+                  <TabsContent
+                    value="notifications"
+                    className="space-y-6 animate-fade-in"
+                  >
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>الاشعارات</CardTitle>
+                        <CardDescription>
+                          ادارة الاشعارات الواردة
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent className="space-y-6">
+                        <div className="space-y-4">
+                          <h3 className="text-sm font-medium">
+                            اشعارات الايميل
+                          </h3>
+                          <div className="space-y-3">
+                            <div className="flex items-center justify-between">
+                              <Label
+                                htmlFor="email-promotions"
+                                className="flex-1"
+                              >
+                                العروض والصفقات
+                              </Label>
+                              <Switch id="email-promotions" defaultChecked />
                             </div>
-                            <div>
-                              <p className="font-medium">الحالة</p>
+                            <div className="flex items-center justify-between">
+                              <Label
+                                htmlFor="email-security"
+                                className="flex-1"
+                              >
+                                تنبيهات الأمان
+                              </Label>
+                              <Switch id="email-security" defaultChecked />
                             </div>
                           </div>
-                          <Badge>نشط</Badge>
                         </div>
-                      </div>
-                    </CardContent>
-                    <CardFooter>
-                      <form onSubmit={HandelLogout}>
-                        <Button
-                          type="submit"
-                          variant="outline"
-                          className="w-full rounded-full"
-                        >
-                          <Lock className="mr-2 h-4 w-4" />
-                          تسجيل الخروج من الحساب
-                        </Button>
-                      </form>
-                    </CardFooter>
-                  </Card>
-                </TabsContent>
 
-                {/* ... Notifications Tab Content ... */}
-                <TabsContent
-                  value="notifications"
-                  className="space-y-6 animate-fade-in"
-                >
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>الاشعارات</CardTitle>
-                      <CardDescription>ادارة الاشعارات الواردة</CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-6">
-                      <div className="space-y-4">
-                        <h3 className="text-sm font-medium">اشعارات الايميل</h3>
-                        <div className="space-y-3">
-                          <div className="flex items-center justify-between">
-                            <Label
-                              htmlFor="email-promotions"
-                              className="flex-1"
-                            >
-                              العروض والصفقات
-                            </Label>
-                            <Switch id="email-promotions" defaultChecked />
-                          </div>
-                          <div className="flex items-center justify-between">
-                            <Label htmlFor="email-security" className="flex-1">
-                              تنبيهات الأمان
-                            </Label>
-                            <Switch id="email-security" defaultChecked />
+                        <Separator />
+
+                        <div className="space-y-4">
+                          <h3 className="text-sm font-medium">اشعارات فورية</h3>
+                          <div className="space-y-3">
+                            <div className="flex items-center justify-between">
+                              <Label
+                                htmlFor="push-promotions"
+                                className="flex-1"
+                              >
+                                العروض والصفقات
+                              </Label>
+                              <Switch id="push-promotions" />
+                            </div>
+                            <div className="flex items-center justify-between">
+                              <Label htmlFor="push-messages" className="flex-1">
+                                رسائل من البائعين
+                              </Label>
+                              <Switch id="push-messages" defaultChecked />
+                            </div>
                           </div>
                         </div>
-                      </div>
+                      </CardContent>
+                      <CardFooter>
+                        <Button className="ml-auto rounded-full">حفظ</Button>
+                      </CardFooter>
+                    </Card>
+                  </TabsContent>
 
-                      <Separator />
-
-                      <div className="space-y-4">
-                        <h3 className="text-sm font-medium">اشعارات فورية</h3>
-                        <div className="space-y-3">
-                          <div className="flex items-center justify-between">
-                            <Label htmlFor="push-promotions" className="flex-1">
-                              العروض والصفقات
-                            </Label>
-                            <Switch id="push-promotions" />
-                          </div>
-                          <div className="flex items-center justify-between">
-                            <Label htmlFor="push-messages" className="flex-1">
-                              رسائل من البائعين
-                            </Label>
-                            <Switch id="push-messages" defaultChecked />
-                          </div>
-                        </div>
-                      </div>
-                    </CardContent>
-                    <CardFooter>
-                      <Button className="ml-auto rounded-full">حفظ</Button>
-                    </CardFooter>
-                  </Card>
-                </TabsContent>
-
-                {/* ... Activity Tab Content ... */}
-                <TabsContent
-                  value="activity"
-                  className="space-y-6 animate-fade-in"
-                >
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>تقييماتك</CardTitle>
-                      <CardDescription>
-                        التقييمات التي قمت بنشرها
-                      </CardDescription>
-                    </CardHeader>
-                    {/* ... Activity Tab Content ... */}
-                  </Card>
-                </TabsContent>
-              </Tabs>
-            )}
-            {data.store !== null && (
-              <div className={`grid grid-cols-1 gap-6`}>
-                {/* ... Store Card ... */}
-                <Card key={data.store?.id} className="overflow-hidden">
-                  <div className="relative h-32 w-full">
-                    <img
-                      src={"/storeBanner.svg"}
-                      alt={data.store?.store_name}
-                      className="h-full w-full object-cover"
-                    />
-                    <div className="absolute bottom-4 left-4 bg-background/80 backdrop-blur-sm rounded-full p-1">
+                  {/* ... Activity Tab Content ... */}
+                  <TabsContent
+                    value="activity"
+                    className="space-y-6 animate-fade-in"
+                  >
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>تقييماتك</CardTitle>
+                        <CardDescription>
+                          التقييمات التي قمت بنشرها
+                        </CardDescription>
+                      </CardHeader>
+                      {/* ... Activity Tab Content ... */}
+                    </Card>
+                  </TabsContent>
+                </Tabs>
+              )}
+              {data.store !== null && (
+                <div className={`grid grid-cols-1 gap-6`}>
+                  {/* ... Store Card ... */}
+                  <Card key={data.store?.id} className="overflow-hidden">
+                    <div className="relative h-32 w-full">
                       <img
-                        src={"/placeholder-store.png"}
-                        alt={`${data.store?.store_name} logo`}
-                        className="h-12 w-12 rounded-full border-2 border-background"
+                        src={"/storeBanner.svg"}
+                        alt={data.store?.store_name}
+                        className="h-full w-full object-cover"
                       />
-                    </div>
-                  </div>
-                  <CardContent className="p-4">
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <h3 className="font-bold">{data.store?.store_name}</h3>
-                        <p className="text-sm text-muted-foreground line-clamp-1">
-                          {data.store?.location_address}
-                        </p>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                      <div className="absolute bottom-4 left-4 bg-background/80 backdrop-blur-sm rounded-full p-1">
+                        <img
+                          src={"/placeholder-store.png"}
+                          alt={`${data.store?.store_name} logo`}
+                          className="h-12 w-12 rounded-full border-2 border-background"
+                        />
                       </div>
                     </div>
-                  </CardContent>
-                  <CardFooter className="p-4 pt-0 flex justify-between">
-                    <div className="flex gap-2">
-                      <Button asChild size="sm" variant="outline">
-                        <Link href={`/seller/stores/${data.store?.id}`}>
-                          إدارة
-                        </Link>
-                      </Button>
-                      <Button asChild size="sm">
-                        <Link href={`/stores/${data.store?.id}`}>عرض</Link>
-                      </Button>
-                    </div>
-                  </CardFooter>
-                </Card>
-              </div>
-            )}
+                    <CardContent className="p-4">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <h3 className="font-bold">
+                            {data.store?.store_name}
+                          </h3>
+                          <p className="text-sm text-muted-foreground line-clamp-1">
+                            {data.store?.location_address}
+                          </p>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                        </div>
+                      </div>
+                    </CardContent>
+                    <CardFooter className="p-4 pt-0 flex justify-between">
+                      <div className="flex gap-2">
+                        {ownerData.first_name !== "" && (
+                          <Button asChild size="sm" variant="outline">
+                            <Link href={`/seller/dashboard`}>إدارة</Link>
+                          </Button>
+                        )}
+                        <Button asChild size="sm">
+                          <Link href={`/stores/${data.store?.id}`}>عرض</Link>
+                        </Button>
+                      </div>
+                    </CardFooter>
+                  </Card>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }

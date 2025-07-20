@@ -19,17 +19,6 @@ export default function Loading() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2">
             <Tabs defaultValue="about">
-              <TabsList>
-                <TabsTrigger value="about" disabled>
-                  About
-                </TabsTrigger>
-                <TabsTrigger value="products" disabled>
-                  Products
-                </TabsTrigger>
-                <TabsTrigger value="reviews" disabled>
-                  Reviews
-                </TabsTrigger>
-              </TabsList>
               <div className="mt-6 space-y-6">
                 <div>
                   <div className="h-6 w-1/3 bg-muted rounded-lg mb-2"></div>

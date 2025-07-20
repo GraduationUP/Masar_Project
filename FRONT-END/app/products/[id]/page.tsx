@@ -9,21 +9,11 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import {
-  Clock,
-  MapPin,
-  MessageSquare,
-  ShoppingBag,
-  Star,
-  StoreIcon,
-  Share2,
-  ChevronRight,
-  Plus,
-  Minus,
-  Loader2,
-} from "lucide-react";
+import { MapPin, ChevronRight, Loader2 } from "lucide-react";
 import dynamic from "next/dynamic";
-
+import Image from "next/image";
+import Loading from "./loading";
+import Header from "@/components/main_layout/header";
 
 const MapWithNoSSR = dynamic(() => import("@/components/mapWithNoSSR"), {
   ssr: false,
@@ -33,24 +23,25 @@ const MapWithNoSSR = dynamic(() => import("@/components/mapWithNoSSR"), {
       <span className="sr-only">جار تحميل الخريطة...</span>
     </div>
   ),
-})
+});
 
 interface Products {
   status: Boolean;
   data: {
-    id: Number;
-    store_id: Number;
-    name: String;
-    description: String;
-    price: String;
-    photo: String;
-    store_name: String;
-    category_name: String;
+    id: number;
+    store_id: number;
+    name: string;
+    description: string;
+    price: string;
+    photo: string;
+    store_name: string;
+    store_phone: string;
+    category_name: string;
     latitude: any;
     longitude: any;
     show_location: any;
-    created_at: String;
-    location_address: String;
+    created_at: string;
+    location_address: string;
   };
 }
 
@@ -66,6 +57,7 @@ export default function ProductPage() {
       price: "",
       photo: "",
       store_name: "",
+      store_phone: "",
       category_name: "",
       latitude: 0,
       longitude: 0,
@@ -94,129 +86,121 @@ export default function ProductPage() {
   }, []);
 
   if (loading) {
-    return (
-      <div className="container px-4 md:px-6 py-8">
-        <div className="flex flex-col gap-8 animate-pulse">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div className="h-96 bg-muted rounded-lg"></div>
-            <div className="space-y-4">
-              <div className="h-8 w-3/4 bg-muted rounded-lg"></div>
-              <div className="h-6 w-1/4 bg-muted rounded-lg"></div>
-              <div className="h-4 w-full bg-muted rounded-lg"></div>
-              <div className="h-4 w-5/6 bg-muted rounded-lg"></div>
-              <div className="h-10 w-full bg-muted rounded-lg mt-8"></div>
-              <div className="flex gap-4 mt-4">
-                <div className="h-10 w-1/2 bg-muted rounded-lg"></div>
-                <div className="h-10 w-1/2 bg-muted rounded-lg"></div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
+    return <Loading />;
   }
 
   return (
-    <div className="container px-4 md:px-6 py-8">
-      <div className="flex flex-col gap-8">
-        {/* Breadcrumb */}
-        <nav className="flex items-center text-sm text-muted-foreground">
-          <Link href="/" className="hover:text-primary transition-colors">
-            الرئيسية
-          </Link>
-          <ChevronRight className="h-4 w-4 mx-2" />
-          <Link
-            href="/marketplace"
-            className="hover:text-primary transition-colors"
-          >
-            السوق
-          </Link>
-          <ChevronRight className="h-4 w-4 mx-2" />
-          <Link
-            href={`/stores/${products.data.store_id}`}
-            className="hover:text-primary transition-colors"
-          >
-            {products.data.store_name}
-          </Link>
-          <ChevronRight className="h-4 w-4 mx-2" />
-          <span className="text-foreground font-medium truncate">
-            {products.data.name}
-          </span>
-        </nav>
+    <>
+      <Header />
+      <div className="container px-4 md:px-6 py-8">
+        <div className="flex flex-col gap-8">
+          {/* Breadcrumb */}
+          <nav className="flex items-center text-sm text-muted-foreground">
+            <Link href="/" className="hover:text-primary transition-colors">
+              الرئيسية
+            </Link>
+            <ChevronRight className="h-4 w-4 mx-2" />
+            <Link
+              href="/marketplace"
+              className="hover:text-primary transition-colors"
+            >
+              السوق
+            </Link>
+            <ChevronRight className="h-4 w-4 mx-2" />
+            <Link
+              href={`/stores/${products.data.store_id}`}
+              className="hover:text-primary transition-colors"
+            >
+              {products.data.store_name}
+            </Link>
+            <ChevronRight className="h-4 w-4 mx-2" />
+            <span className="text-foreground font-medium truncate">
+              {products.data.name}
+            </span>
+          </nav>
 
-        {/* Product Details */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {/* Product Image */}
-          <div className="rounded-xl overflow-hidden shadow-md bg-background">
-            <div className="relative aspect-square">
-              <img
-                src={products.data.photo || "/boxes.png"}
-                alt={products.data.name}
-                className="h-full w-full object-cover"
-              />
-            </div>
-          </div>
-
-          {/* Product Info */}
-          <div className="space-y-6">
-            <div>
-              <Badge className="mb-2">{products.data.category_name}</Badge>
-              <h1 className="text-3xl font-bold">{products.data.name}</h1>
-              <div className="flex items-center gap-2 mt-2">
-                <span className="text-sm text-muted-foreground">•</span>
-                {/* <Link
-                  href={`/stores/${store.id}`}
-                  className="flex items-center gap-1 text-sm text-muted-foreground hover:text-primary transition-colors"
-                >
-                  <StoreIcon className="h-3.5 w-3.5" />
-                  <span>{store.name}</span>
-                </Link> TODO */}
+          {/* Product Details */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {/* Product Image */}
+            <div className="rounded-xl overflow-hidden shadow-md bg-background">
+              <div className="relative aspect-square">
+                <Image
+                  src={products.data.photo || "/boxes.png"}
+                  width={500}
+                  height={500}
+                  alt={products.data.name as string}
+                  className="h-full w-full object-cover"
+                />
               </div>
             </div>
 
-            <p className="text-muted-foreground">{products.data.description}</p>
-
-            <div className="pt-4 border-t">
-              <div className="flex items-baseline justify-between">
-                <span className="text-3xl font-bold">
-                  ${Number(products.data.price).toFixed(2)}
-                </span>
+            {/* Product Info */}
+            <div className="space-y-6">
+              <div>
+                <Badge className="mb-2">{products.data.category_name}</Badge>
+                <h1 className="text-3xl font-bold">{products.data.name}</h1>
               </div>
-            </div>
 
-            {/* Store Quick Info */}
-            <Card className="mt-6 card-hover">
-              <CardContent className="p-4">
-                <div className="flex items-center gap-4">
-                  <img
-                    src={"/placeholder-store.png"}
-                    alt={`${products.data.store_name} logo`}
-                    className="h-12 w-12 rounded-full border"
-                  />
-                  <div className="flex-1">
-                    <h3 className="font-bold">{products.data.store_name}</h3>
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <MapPin className="h-3.5 w-3.5" />
-                      <span className="truncate">
-                        {products.data.location_address}
-                      </span>
-                    </div>
-                  </div>
-                  <Button
-                    asChild
-                    variant="outline"
-                    size="sm"
-                    className="rounded-full"
+              <p className="text-muted-foreground">
+                {products.data.description}
+              </p>
+
+              <div className="pt-4 border-t">
+                <div className="flex items-baseline justify-between">
+                  <span className="text-3xl font-bold">
+                    ₪{Number(products.data.price).toFixed(2)}
+                  </span>
+                  <Link
+                    href={`https://wa.me/00${products.data.store_phone
+                      .replace(/^\+/, "")
+                      .replace(/-/g, "")}`}
                   >
-                    <Link href={`/stores/${products.data.store_id}`}>
-                      عرض المتجر
-                    </Link>
-                  </Button>
+                    <Button variant={"outline"} className="rounded-full">
+                      اطلب الآن
+                      <Image
+                        src={"/whatsapp.svg"}
+                        alt="whatsapp"
+                        width={20}
+                        height={20}
+                      />
+                    </Button>
+                  </Link>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+
+              {/* Store Quick Info */}
+              <Card className="mt-6 card-hover">
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-4">
+                    <img
+                      src={"/placeholder-store.png"}
+                      alt={`${products.data.store_name} logo`}
+                      className="h-12 w-12 rounded-full border"
+                    />
+                    <div className="flex-1">
+                      <h3 className="font-bold">{products.data.store_name}</h3>
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <MapPin className="h-3.5 w-3.5" />
+                        <span className="truncate">
+                          {products.data.location_address}
+                        </span>
+                      </div>
+                    </div>
+                    <Button
+                      asChild
+                      variant="outline"
+                      size="sm"
+                      className="rounded-full"
+                    >
+                      <Link href={`/stores/${products.data.store_id}`}>
+                        عرض المتجر
+                      </Link>
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
           </div>
-        </div>
 
         {/* Product Tabs */}
         <div className="mt-8">
@@ -250,10 +234,11 @@ export default function ProductPage() {
                           <span className="text-muted-foreground">
                             تاريخ الاضافة
                           </span>
-                        <span>
-  {new Date(products.data.created_at).toLocaleDateString('en-US', { calendar: 'gregory' })}
-</span>
-
+                          <span>
+                            {new Date(
+                              products.data.created_at
+                            ).toLocaleDateString()}
+                          </span>
                         </div>
                       </div>
                     </div>
@@ -430,7 +415,11 @@ export default function ProductPage() {
             </div>
           </div>
         )} */}
+              </TabsContent>
+            </Tabs>
+          </div>
+        </div>
       </div>
-    </div>
+    </>
   );
 }
