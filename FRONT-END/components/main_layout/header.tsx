@@ -28,6 +28,8 @@ import {
   Star,
   CheckCheck,
   Trash2,
+  ShoppingCart,
+  ShoppingBag,
 } from "lucide-react";
 import { useTheme } from "next-themes";
 import { Badge } from "@/components/ui/badge";
@@ -208,12 +210,15 @@ export default function Header() {
     const token = localStorage.getItem("authToken");
     if (token) {
       try {
-        const response = await fetch(`${BASE_API_URL}/api/notifications/clear`, {
-          method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        const response = await fetch(
+          `${BASE_API_URL}/api/notifications/clear`,
+          {
+            method: "DELETE",
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
         if (response.ok) {
           setNotifications([]);
         } else {
@@ -322,10 +327,12 @@ export default function Header() {
                       key={suggestion.id}
                       className="p-2 hover:bg-gray-100 cursor-pointer"
                     >
-                      <div>
-                        منتج: {suggestion.name} في متجر{" "}
-                        {suggestion.store.store_name}
-                      </div>
+                      <Link href={`/products/${suggestion.id}`}>
+                        <div className="flex items-center gap-1">
+                          <ShoppingBag className="h-4 w-4 mr-2" />
+                          {suggestion.name}
+                        </div>
+                      </Link>
                     </li>
                   ))}
                   {suggestions.stores.map((suggestion) => (
@@ -333,7 +340,12 @@ export default function Header() {
                       key={suggestion.id}
                       className="p-2 hover:bg-gray-100 cursor-pointer"
                     >
-                      <div>متجر: {suggestion.store_name}</div>
+                      <Link href={`/stores/${suggestion.id}`}>
+                        <div className="flex items-center gap-1">
+                          <ShoppingCart className="h-4 w-4 mr-2" />
+                          {suggestion.store_name}
+                        </div>
+                      </Link>
                     </li>
                   ))}
                 </ul>
