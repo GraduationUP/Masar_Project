@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Loader } from "lucide-react";
 import Header from "@/components/main_layout/header";
 import { Label } from "@/components/ui/label";
+import { CustomAlert } from "@/components/customAlert";
+import { redirect } from "next/navigation";
 
 const LeafletMap = lazy(() =>
   import("@/components/LeafLetMap").then((module) => ({
@@ -24,6 +26,8 @@ interface StoreData {
 }
 
 export default function CreateStorePage() {
+  const [success, setSuccess] = useState(false);
+  const [failure, setFailure] = useState(false);
   const [storeData, setStoreData] = useState<StoreData>({
     store_name: "",
     phone: "",
@@ -63,16 +67,16 @@ export default function CreateStorePage() {
 
       if (!response.ok) {
         const errorData = await response.json();
+        setFailure(true);
         throw new Error(errorData?.message || "Failed to create store");
       }
 
       const data = await response.json();
-      console.log("Store created successfully:", data);
-      // Optionally, redirect the user or show a success message
+      setSuccess(true);
+      redirect("/seller/dashboard");
     } catch (error: any) {
-      console.error("Error creating store:", error);
       setErrorMessage(error.message);
-      // Optionally, display an error message to the user
+      setFailure(true);
     } finally {
       setIsSubmitting(false);
     }
@@ -114,6 +118,18 @@ export default function CreateStorePage() {
     <>
       <Header />
       <div className="flex justify-center items-center min-h-screen bg-gray-100">
+        <CustomAlert
+          message="تم انشاء المتجر بنجاح"
+          show={success}
+          onClose={() => setSuccess(false)}
+          success
+        />
+        <CustomAlert
+          message="تم انشاء المتجر بنجاح"
+          show={failure}
+          onClose={() => setFailure(false)}
+          success={false}
+        />
         <Card className="container mx-6">
           <CardContent>
             <h3 className="mb-4 text-xl">انشاء متجرك الخاص</h3>

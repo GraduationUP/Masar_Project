@@ -29,17 +29,10 @@ import Header from "@/components/main_layout/header";
 
 // Dynamically import Leaflet with ssr: false
 const LeafletMap = lazy(() =>
-  import("@/components/LeafletMap").then((module) => ({
+  import("@/components/LeafLetMap").then((module) => ({
     default: module.default,
   }))
 );
-
-interface DashboardData {
-  recent_comments: any[]; // Replace 'any' with the actual type
-  recent_products: Product[];
-  recent_ratings: any[]; // Replace 'any' with the actual type
-  store: any; // Replace 'any' with the actual type
-}
 
 interface Product {
   id?: number;
@@ -52,8 +45,23 @@ interface Product {
   show_location: boolean;
 }
 
+interface DashboardData {
+  recent_comments: any[];
+  recent_products: Product[];
+  recent_ratings: any[];
+  store: any;
+}
+
+interface user {
+  email: string,
+  id: number,
+  name: string,
+  role: string,
+}
+
 export default function NewProductPage() {
-  const [user, setUser] = useState(null);
+  const BASE_API_URL = process.env.NEXT_PUBLIC_API_URL;
+  const [user, setUser] = useState<user | null>(null);
   const [loading, setLoading] = useState(true); // Initialize loading to true
   const [showSuccess, setShowSuccess] = useState(false);
   const [productData, setProductData] = useState<Product>({
@@ -83,9 +91,9 @@ export default function NewProductPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
-    const authToken = localStorage.getItem("userInfo");
-    if (authToken) {
-      setUser(JSON.parse(authToken));
+    const userInfo = localStorage.getItem("userInfo");
+    if (userInfo) {
+      setUser(JSON.parse(userInfo));
     }
     setLoading(false); // Set loading to false after attempting to get user info
   }, []); // Redirect if not logged in or role is undefined, but only after loading is complete
@@ -103,7 +111,7 @@ export default function NewProductPage() {
       try {
         const token = localStorage.getItem("authToken");
         const response = await fetch(
-          "http://127.0.0.1:8000/api/seller/dashboard",
+          `${BASE_API_URL}/api/seller/dashboard`,
           {
             method: "GET",
             headers: {
@@ -134,7 +142,7 @@ export default function NewProductPage() {
       try {
         const token = localStorage.getItem("authToken");
         const response = await fetch(
-          "http://127.0.0.1:8000/api/guest/categories",
+          `${BASE_API_URL}/api/guest/categories`,
           {
             method: "GET",
             headers: {
@@ -176,7 +184,7 @@ export default function NewProductPage() {
 
     try {
       const response = await fetch(
-        "http://127.0.0.1:8000/api/seller/products",
+        `${BASE_API_URL}/api/seller/products`,
         {
           method: "POST",
           headers: {
