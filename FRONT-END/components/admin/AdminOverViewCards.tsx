@@ -1,6 +1,6 @@
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Map, MapPin, Package, StoreIcon, Users } from "lucide-react";
+import { Map, Package, StoreIcon, Users } from "lucide-react";
 
 interface AdminOverviewCardsProps {
   userCount: number;

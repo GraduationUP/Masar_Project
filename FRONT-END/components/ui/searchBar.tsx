@@ -52,7 +52,7 @@ export default function SearchBar({
           )}
         </div>
       )}
-      <div className="bg-white rounded-full flex items-center gap-2 px-4 py-2 text-black outline-none">
+      <div className="bg-background rounded-full flex items-center gap-2 px-4 py-2 text-foreground outline-none border-foreground border">
         <SearchIcon />
         <input
           type="text"
