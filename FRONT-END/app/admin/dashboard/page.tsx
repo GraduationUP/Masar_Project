@@ -344,38 +344,6 @@ export default function AdminDashboard() {
     }
   }
 
-  async function handelStoreDelete(id: number) {
-    // TODO : Test
-    try {
-      const token = localStorage.getItem("authToken");
-      const response = await fetch(`${API_BASE_URL}/api/admin/stores/${id}`, {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      if (!response.ok)
-        throw new Error(`HTTP error! status: ${response.status}`);
-      setShowSuccessAlert(true);
-    } catch (error) {
-      console.error("Error fetching stores data:", error);
-      setShowFailAlert(true);
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  async function handelStoreBan(id: number) {
-    console.log(`Banning store with ID: ${id}`);
-    setShowSuccessAlert(true);
-  }
-
-  async function handelStoreStatus(id: number) {
-    console.log(`Changing status of store with ID: ${id}`);
-    setShowSuccessAlert(true);
-  }
-
   async function handelProductDelete(id: number) {
     console.log(`Deleting product with ID: ${id}`);
     setShowSuccessAlert(true);
@@ -463,27 +431,25 @@ export default function AdminDashboard() {
   };
 
   const handleDeleteStore = async (id: number) => {
-    if (window.confirm("هل أنت متأكد أنك تريد حذف هذا المتجر؟")) {
-      try {
-        const token = localStorage.getItem("authToken");
-        const response = await fetch(`${API_BASE_URL}/api/admin/stores/${id}`, {
-          method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        });
-        if (!response.ok) {
-          console.error("Error deleting store");
-          setShowFailAlert(true);
-          return;
-        }
-        setStoreData((prevData) => prevData.filter((store) => store.id !== id));
-        setShowSuccessAlert(true);
-      } catch (error) {
-        console.error("Error deleting store:", error);
+    try {
+      const token = localStorage.getItem("authToken");
+      const response = await fetch(`${API_BASE_URL}/api/admin/stores/${id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+      if (!response.ok) {
+        console.error("Error deleting store");
         setShowFailAlert(true);
+        return;
       }
+      setStoreData((prevData) => prevData.filter((store) => store.id !== id));
+      setShowSuccessAlert(true);
+    } catch (error) {
+      console.error("Error deleting store:", error);
+      setShowFailAlert(true);
     }
   };
 
@@ -522,6 +488,18 @@ export default function AdminDashboard() {
   return (
     <>
       <Header />
+      <CustomAlert
+        message="تم تحديث البيانات بنجاح"
+        onClose={() => setShowSuccessAlert(false)}
+        show={showSuccessAlert}
+        success
+      />
+      <CustomAlert
+        message="حدث خطأ ما"
+        onClose={() => setShowFailAlert(false)}
+        show={showFailAlert}
+        success={false}
+      />
       <div className="container px-4 md:px-6 py-8">
         <div className="flex flex-col gap-8">
           <div className="flex flex-col md:flex-row gap-4 md:items-center md:justify-between">
@@ -561,18 +539,6 @@ export default function AdminDashboard() {
               <TabsTrigger value="products">البضائع</TabsTrigger>
             </TabsList>
             <TabsContent value="users" className="space-y-4">
-              <CustomAlert
-                message="تم تحديث البيانات بنجاح"
-                onClose={() => setShowSuccessAlert(false)}
-                show={showSuccessAlert}
-                success
-              />
-              <CustomAlert
-                message="حدث خطأ ما"
-                onClose={() => setShowFailAlert(false)}
-                show={showFailAlert}
-                success={false}
-              />
               <UserManagementTab
                 userData={userData}
                 searchTerm={searchTerm}
@@ -593,7 +559,6 @@ export default function AdminDashboard() {
                 handleStoresSearch={handleStoresSearch}
                 handelStoreBan={handleBanStore}
                 handelStoreUnban={handleUnbanStore}
-                handelStoreDelete={handleDeleteStore}
                 handelStoreStatusUpdate={handleStatusUpdateStore}
               />
             </TabsContent>

@@ -74,7 +74,7 @@ const UserManagementTab: React.FC<UserManagementTabProps> = ({
   handelUserNotify,
 }) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-   const handleOpenChange = (newOpenState: boolean) => {
+  const handleOpenChange = (newOpenState: boolean) => {
     setIsDialogOpen(newOpenState);
   };
   const [isBanDialogOpen, setIsBanDialogOpen] = useState(false);

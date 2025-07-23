@@ -1,14 +1,11 @@
 import React, { useState } from "react";
-import {
-  Card,
-  CardContent,
-  CardFooter,
-} from "@/components/ui/card";
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import SearchBar from "@/components/ui/searchBar";
 import { MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "../ui/badge";
 import Link from "next/link";
+import DeleteStoreDialog from "./DeleteStoreDialog";
 
 interface storeUser {
   id: number;
@@ -43,7 +40,6 @@ interface StoreManagementTabProps {
   storeStatusOptions: { value: string; label: string }[];
   handelStoreBan: (id: number) => Promise<void>;
   handelStoreUnban: (id: number) => Promise<void>;
-  handelStoreDelete: (id: number) => Promise<void>;
   handelStoreStatusUpdate: (id: number, status: number) => Promise<void>;
   handleStoresSearch: (term: string, status: string) => void;
 }
@@ -55,10 +51,15 @@ const StoreManagementTab: React.FC<StoreManagementTabProps> = ({
   storeStatusOptions,
   handelStoreBan,
   handelStoreUnban,
-  handelStoreDelete,
   handelStoreStatusUpdate,
   handleStoresSearch,
 }) => {
+  const [openDialogId, setOpenDialogId] = useState<number | null>(null);
+
+  const handleOpenChange = (storeId: number | null) => {
+    setOpenDialogId(storeId);
+  };
+
   const filteredStores = storeData.filter((store) => {
     const storeNameLower = store.store_name.toLowerCase();
     const searchLower = searchTerm.toLowerCase();
@@ -69,7 +70,6 @@ const StoreManagementTab: React.FC<StoreManagementTabProps> = ({
     return storeNameLower.includes(searchLower) && statusMatch;
   });
 
-  const [deleteLoading, setDeleteLoading] = useState<number | null>(null);
   const [banLoading, setBanLoading] = useState<number | null>(null);
   const [unbanLoading, setUnbanLoading] = useState<number | null>(null);
   const [statusLoading, setStatusLoading] = useState<{
@@ -87,12 +87,6 @@ const StoreManagementTab: React.FC<StoreManagementTabProps> = ({
     setUnbanLoading(id);
     await handelStoreUnban(id);
     setUnbanLoading(null);
-  };
-
-  const handleDeleteClick = async (id: number) => {
-    setDeleteLoading(id);
-    await handelStoreDelete(id);
-    setDeleteLoading(null);
   };
 
   const handleStatusUpdateClick = async (id: number) => {
@@ -154,19 +148,13 @@ const StoreManagementTab: React.FC<StoreManagementTabProps> = ({
                 رقم مالك المتجر: {store.user.id}
               </span>
               <div className="flex gap-2">
-                <Button
-                  onClick={() => handleDeleteClick(store.id)}
-                  variant={"destructive"}
-                  size="sm"
-                  disabled={
-                    deleteLoading === store.id ||
-                    banLoading === store.id ||
-                    unbanLoading === store.id ||
-                    statusLoading?.id === store.id
+                <DeleteStoreDialog
+                  store={store}
+                  open={openDialogId === store.id}
+                  onOpenChange={(open) =>
+                    handleOpenChange(open ? store.id : null)
                   }
-                >
-                  {deleteLoading === store.id ? "جاري الحذف..." : "حذف"}
-                </Button>
+                />
                 <Button
                   onClick={() =>
                     store.is_banned
@@ -176,7 +164,6 @@ const StoreManagementTab: React.FC<StoreManagementTabProps> = ({
                   variant={"outline"}
                   size="sm"
                   disabled={
-                    deleteLoading === store.id ||
                     banLoading === store.id ||
                     unbanLoading === store.id ||
                     statusLoading?.id === store.id
@@ -195,7 +182,6 @@ const StoreManagementTab: React.FC<StoreManagementTabProps> = ({
                   variant={"outline"}
                   size="sm"
                   disabled={
-                    deleteLoading === store.id ||
                     banLoading === store.id ||
                     unbanLoading === store.id ||
                     statusLoading?.id === store.id
