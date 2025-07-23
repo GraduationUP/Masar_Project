@@ -33,6 +33,12 @@ const LeafletMap = dynamic(() =>
   }))
 );
 
+type Coordinate = [number, number];
+
+const LeafletMapWithNoSSR = dynamic(() => import("@/components/testmap"), {
+  ssr: false,
+});
+
 // Dynamically import the map component to avoid SSR issues
 const GazaMap = dynamic(() => import("@/components/AdminMap"), {
   ssr: false,
@@ -76,6 +82,11 @@ export interface GazaData {
 }
 
 export default function AdminMapPage() {
+  const [parentCoordinates, setParentCoordinates] = useState<Coordinate[]>([]);
+  const handleCoordinatesChange = (newCoordinates: Coordinate[]) => {
+    setParentCoordinates(newCoordinates);
+    setCoordinates(parentCoordinates);
+  };
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
   const [name, setName] = useState("");
   const [type, setType] = useState("");
@@ -226,7 +237,7 @@ export default function AdminMapPage() {
                           <SelectItem value="market">سوق</SelectItem>
                           <SelectItem value="aid">مركز مساعدات</SelectItem>
                           <SelectItem value="gas_station">محطة غاز</SelectItem>
-                          <SelectItem value="store">محل تجاري</SelectItem>
+                          <SelectItem value="stores">محل تجاري</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -235,37 +246,47 @@ export default function AdminMapPage() {
                   <div className="grid gap-1">
                     <Label htmlFor="location">الاحداثيات</Label>
                     <Suspense fallback={<>جار تحميل الخريطة...</>}>
-                      <div className="relative border rounded-md">
-                        <LeafletMap
-                          latitude={currentLatitude}
-                          longitude={currentLongitude}
-                          onLocationChange={handleLocationChange}
-                        />
+                      <div className="relative border rounded-md overflow-hidden">
+                        {type === "market" ? (
+                          <div className="h-96">
+                            <LeafletMapWithNoSSR
+                              onCoordinatesChange={handleCoordinatesChange}
+                            />
+                          </div>
+                        ) : (
+                          <LeafletMap
+                            latitude={currentLatitude}
+                            longitude={currentLongitude}
+                            onLocationChange={handleLocationChange}
+                          />
+                        )}
                       </div>
                     </Suspense>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2">
-                      <div>
-                        <Label htmlFor="latitude">Latitude:</Label>
-                        <Input
-                          type="number"
-                          id="latitude"
-                          value={currentLatitude}
-                          readOnly
-                          className="rounded-lg"
-                        />
+                    {type !== "market" && (
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2">
+                        <div>
+                          <Label htmlFor="latitude">Latitude:</Label>
+                          <Input
+                            type="number"
+                            id="latitude"
+                            value={currentLatitude}
+                            readOnly
+                            className="rounded-lg"
+                          />
+                        </div>
+                        <div>
+                          <Label htmlFor="longitude">Longitude:</Label>
+                          <Input
+                            type="number"
+                            id="longitude"
+                            value={currentLongitude}
+                            readOnly
+                            className="rounded-lg"
+                          />
+                        </div>
                       </div>
-                      <div>
-                        <Label htmlFor="longitude">Longitude:</Label>
-                        <Input
-                          type="number"
-                          id="longitude"
-                          value={currentLongitude}
-                          readOnly
-                          className="rounded-lg"
-                        />
-                      </div>
-                    </div>
+                    )}
                   </div>
 
                   <div className="flex items-center space-x-2 ltr">
