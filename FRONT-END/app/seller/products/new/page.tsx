@@ -1,5 +1,5 @@
 "use client";
-import { Suspense, useState, lazy } from "react";
+import { Suspense, useState, lazy, useEffect } from "react";
 import {
   Card,
   CardContent,
@@ -57,6 +57,13 @@ export default function NewProductPage() {
     latitude: 31.53157982870554,
     longitude: 34.46717173572411,
     show_location: false,
+  });
+  const [storeCategories, setStoreCategories] = useState<{
+    status: boolean;
+    data: { id: number; name: string }[]; // Assuming the category object has an 'id' and 'name'
+  }>({
+    status: false,
+    data: [],
   });
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
@@ -154,6 +161,34 @@ export default function NewProductPage() {
     }
   };
 
+  useEffect(() => {
+    async function fetchCategories() {
+      try {
+        const token = localStorage.getItem("authToken");
+        const response = await fetch(`${BASE_API_URL}/api/guest/categories`, {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        });
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const responseData = await response.json();
+        setStoreCategories(
+          responseData as {
+            status: boolean;
+            data: { id: number; name: string }[];
+          } // Type assertion here
+        );
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+      }
+    }
+    fetchCategories();
+  }, []);
+
   const handleLocationChange = (lat: number, lng: number) => {
     setProductData((prev) => ({
       ...prev,
@@ -236,6 +271,33 @@ export default function NewProductPage() {
                       required
                       className="min-h-[120px] rounded-lg"
                     />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="category">الفئة *</Label>
+                    <Select
+                      value={productData.category_id.toString()} // ← Convert number to string for UI
+                      onValueChange={(value) => {
+                        setProductData({
+                          ...productData,
+                          category_id: parseInt(value, 10), // ← Convert string back to number for state
+                        });
+                      }}
+                      required
+                    >
+                      <SelectTrigger id="category" className="rounded-lg">
+                        <SelectValue placeholder="اختر فئة" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {storeCategories.data.map((category) => (
+                          <SelectItem
+                            key={category.id}
+                            value={category.id.toString()}
+                          >
+                            {category.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="price">السعر (بالشيكل) *</Label>

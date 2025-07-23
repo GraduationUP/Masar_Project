@@ -35,9 +35,12 @@ const LeafletMap = dynamic(() =>
 
 type Coordinate = [number, number];
 
-const LeafletMapWithNoSSR = dynamic(() => import("@/components/MultipointMap"), {
-  ssr: false,
-});
+const LeafletMapWithNoSSR = dynamic(
+  () => import("@/components/MultipointMap"),
+  {
+    ssr: false,
+  }
+);
 
 // Dynamically import the map component to avoid SSR issues
 const GazaMap = dynamic(() => import("@/components/AdminMap"), {
@@ -97,6 +100,7 @@ export default function AdminMapPage() {
   const [isLocationEnabled, setIsLocationEnabled] = useState(false);
   const [success, setSuccess] = useState(false);
   const [fail, setFail] = useState(false);
+  const [submitting, isSubmitting] = useState(false);
   const [mapData, setMapData] = useState<GazaData>({
     city: "",
     aids: [],
@@ -154,6 +158,7 @@ export default function AdminMapPage() {
   };
 
   const handelAddService = async () => {
+    isSubmitting(true);
     const token = localStorage.getItem("authToken");
     let formattedCoordinates = coordinates;
     try {
@@ -178,12 +183,11 @@ export default function AdminMapPage() {
       console.log("Success:", data);
       setSuccess(true);
     } catch (error) {
+      setFail(true);
       console.error("Error adding service:", error);
+    } finally {
+      isSubmitting(false);
     }
-  };
-
-  const showStates = () => {
-    console.log({ name, type, coordinates, status });
   };
 
   if (!mapData) return <Loading />;
@@ -235,7 +239,7 @@ export default function AdminMapPage() {
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="market">سوق</SelectItem>
-                          <SelectItem value="aid">مركز مساعدات</SelectItem>
+                          <SelectItem value="aids">مركز مساعدات</SelectItem>
                           <SelectItem value="gas_station">محطة غاز</SelectItem>
                           <SelectItem value="stores">محل تجاري</SelectItem>
                         </SelectContent>
@@ -289,11 +293,12 @@ export default function AdminMapPage() {
                     )}
                   </div>
 
-                  <div className="flex items-center space-x-2 ltr">
+                  <div className="flex gap-1 items-center space-x-2">
                     <Switch
                       id="location-status"
                       checked={isLocationEnabled}
                       onCheckedChange={handleStatusChange}
+                      style={{ direction: "ltr" }}
                     />
                     <Label htmlFor="location-status">مفعل</Label>
                   </div>
@@ -304,14 +309,17 @@ export default function AdminMapPage() {
                       الغاء
                     </Button>
                   </DialogClose>
-                  <Button type="submit">اضافة الخدمة</Button>
+                  {submitting ? (
+                    <Button disabled variant={"ghost"}>جار اضافة الخدمة...</Button>
+                  ) : (
+                    <Button type="submit">اضافة الخدمة</Button>
+                  )}
                 </DialogFooter>
                 {success && (
                   <p className="text-green-500">تم اضافة الخدمة بنجاح</p>
                 )}
                 {fail && <p className="text-red-500">حدث خطأ ما حاول مجدداً</p>}
               </form>
-              <Button onClick={showStates}>print</Button>
             </DialogContent>
           </Dialog>
         </div>
