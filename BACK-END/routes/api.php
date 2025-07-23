@@ -18,6 +18,7 @@ use App\Http\Controllers\User\NotificationController;
 use App\Http\Controllers\Admin\AdminCommentController;
 use App\Http\Controllers\Admin\AdminProductController;
 
+use App\Http\Controllers\Admin\AdminCategoryController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\User\FeedbackStatusController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
@@ -141,4 +142,7 @@ Route::middleware(['auth:sanctum'])->prefix('admin')->group(function () {
 
     // حذف تعليق
     Route::delete('/comments/{id}', [AdminCommentController::class, 'destroy']);
+
+    Route::apiResource('categories', AdminCategoryController::class)->only(['index', 'store', 'update', 'destroy']);
+
 });

@@ -58,7 +58,7 @@ class ProductController extends Controller
                 'category_id' => $request->category_id,
                 'price' => $request->price,
                 'latitude' => $request->latitude ?? 31.41,     // تعويض بقيمة افتراضية لو null
-                'longitude' => $request->longitude ?? 34.39,   // تعويض بقيمة افتراضية لو nu
+                'longitude' => $request->longitude ?? 34.39,   
                 'show_location' => $request->show_location ?? true,
             ]);
 
