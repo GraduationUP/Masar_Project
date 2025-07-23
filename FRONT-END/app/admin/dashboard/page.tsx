@@ -509,20 +509,12 @@ export default function AdminDashboard() {
               </h1>
               <p className="text-muted-foreground">إدارة منصة مسار</p>
             </div>
-            <div className="flex gap-2">
-              <Button asChild variant="outline">
-                <Link href="/admin/settings">
-                  <Settings className="mr-2 h-4 w-4" />
-                  إعدادات المنصة
-                </Link>
-              </Button>
-              <Button asChild>
-                <Link href="/admin/map">
-                  <MapPin className="mr-2 h-4 w-4" />
-                  إدارة الخريطة
-                </Link>
-              </Button>
-            </div>
+            <Button asChild>
+              <Link href="/admin/map">
+                <MapPin className="mr-2 h-4 w-4" />
+                إدارة الخريطة
+              </Link>
+            </Button>
           </div>
 
           <AdminOverviewCards
