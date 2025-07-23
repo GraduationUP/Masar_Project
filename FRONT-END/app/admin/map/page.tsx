@@ -35,7 +35,7 @@ const LeafletMap = dynamic(() =>
 
 type Coordinate = [number, number];
 
-const LeafletMapWithNoSSR = dynamic(() => import("@/components/testmap"), {
+const LeafletMapWithNoSSR = dynamic(() => import("@/components/MultipointMap"), {
   ssr: false,
 });
 
