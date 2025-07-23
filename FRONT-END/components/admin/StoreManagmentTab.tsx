@@ -3,14 +3,12 @@ import {
   Card,
   CardContent,
   CardFooter,
-  CardHeader,
 } from "@/components/ui/card";
 import SearchBar from "@/components/ui/searchBar";
 import { MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "../ui/badge";
 import Link from "next/link";
-import ManageStoreDialog from "./ManageStoreDialog";
 
 interface storeUser {
   id: number;

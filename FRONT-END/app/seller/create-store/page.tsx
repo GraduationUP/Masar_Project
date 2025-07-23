@@ -110,10 +110,6 @@ export default function CreateStorePage() {
     }));
   };
 
-  const showStates = () => {
-    console.log(storeData);
-  };
-
   return (
     <>
       <Header />
@@ -125,7 +121,7 @@ export default function CreateStorePage() {
           success
         />
         <CustomAlert
-          message="تم انشاء المتجر بنجاح"
+          message="حدث خطأ ما"
           show={failure}
           onClose={() => setFailure(false)}
           success={false}
@@ -226,7 +222,6 @@ export default function CreateStorePage() {
             </form>
           </CardContent>
         </Card>
-        {/* <Button onClick={showStates}>اطبع</Button> */}
       </div>
     </>
   );
