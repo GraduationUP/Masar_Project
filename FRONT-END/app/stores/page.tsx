@@ -16,6 +16,7 @@ import {
   ShoppingBag,
   ChevronDown,
   ChevronUp,
+  MapPinOff,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -27,37 +28,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import Header from "@/components/main_layout/header"; 
+import Header from "@/components/main_layout/header";
 import dynamic from "next/dynamic";
-import L from "leaflet";
-import { Avatar } from "@radix-ui/react-avatar";
-import { AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import Image from "next/image";
+import Link from "next/link";
 
-const customMarkerIcon = new L.Icon({
-  iconUrl: "/marker-icon.png",
-  iconRetinaUrl: "/marker-icon-2x.png",
-  shadowUrl: "/marker-shadow.png",
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-  popupAnchor: [1, -34],
-  shadowSize: [41, 41],
-});
-
-const MapContainer = dynamic(
-  () => import("react-leaflet").then((mod) => mod.MapContainer),
-  { ssr: false }
-);
-const TileLayer = dynamic(
-  () => import("react-leaflet").then((mod) => mod.TileLayer),
-  { ssr: false }
-);
-const Marker = dynamic(
-  () => import("react-leaflet").then((mod) => mod.Marker),
-  { ssr: false }
-);
-const Popup = dynamic(() => import("react-leaflet").then((mod) => mod.Popup), {
+const MapWithNoSSR = dynamic(() => import("@/components/mapWithNoSSR"), {
   ssr: false,
+  loading: () => null,
 });
 
 interface Store {
@@ -266,90 +245,88 @@ export default function StoresPage() {
                       key={store.id}
                       className="overflow-hidden h-full flex flex-col"
                     >
-                      <CardHeader className="flex-grow">
-                        <CardTitle className="text-lg">
-                          <div className="flex gap-2 items-center">
-                            <Avatar>
-                              <AvatarImage
-                                src={store.store_image}
-                                alt={store.store_name}
-                              />
-                              <AvatarFallback>
-                                <Image
-                                src={"/placeholder-store.png"}
-                                alt={store.store_name}
-                                height={50}
-                                width={50}
-                                className="rounded-full"
-                              />
-                              </AvatarFallback>
-                            </Avatar>
-                            {store.store_name}
-                          </div>
-                        </CardTitle>
-                        <CardDescription>
-                          {store.location_address}
-                        </CardDescription>
-                      </CardHeader>
-                      <CardContent>
-                        <p className="text-sm text-gray-600">
-                          <strong>الهاتف:</strong> {store.phone}
-                        </p>
-                        <Badge
-                          className="mt-2"
-                          variant={store.status === 1 ? "default" : "secondary"}
-                        >
-                          {store.status === 1 ? "مفتوح" : "مغلق"}
-                        </Badge>
-                      </CardContent>
+                      <Link href={`/stores/${store.id}`} className="w-full">
+                        <CardHeader className="flex-grow">
+                          <CardTitle className="text-lg">
+                            <div className="flex gap-2 items-center">
+                              <Avatar>
+                                <AvatarImage
+                                  src={store.store_image}
+                                  alt={store.store_name}
+                                />
+                                <AvatarFallback>
+                                  <Image
+                                    src={"/placeholder-store.png"}
+                                    alt={store.store_name}
+                                    height={50}
+                                    width={50}
+                                    className="rounded-full"
+                                  />
+                                </AvatarFallback>
+                              </Avatar>
+                              {store.store_name}
+                            </div>
+                          </CardTitle>
+                          <CardDescription>
+                            {store.location_address}
+                          </CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                          <p className="text-sm text-gray-600">
+                            <strong>الهاتف:</strong> {store.phone}
+                          </p>
+                          <Badge
+                            className="mt-2"
+                            variant={
+                              store.status === 1 ? "default" : "secondary"
+                            }
+                          >
+                            {store.status === 1 ? "مفتوح" : "مغلق"}
+                          </Badge>
+                        </CardContent>
+                      </Link>
                       <CardFooter className="flex flex-col items-start pt-4 border-t">
-                        <Button
-                          variant="outline"
-                          className="w-full flex justify-center items-center gap-2"
-                          onClick={() => toggleMap(store.id)}
-                        >
-                          {expandedStoreId === store.id ? (
-                            <>
-                              إخفاء الخريطة <ChevronUp className="h-4 w-4" />
-                            </>
-                          ) : (
-                            <>
-                              عرض على الخريطة{" "}
-                              <ChevronDown className="h-4 w-4" />
-                            </>
-                          )}
-                        </Button>
+                        {store.latitude !== null ? (
+                          <Button
+                            variant="outline"
+                            className="w-full flex justify-center items-center gap-2"
+                            onClick={() => toggleMap(store.id)}
+                          >
+                            {expandedStoreId === store.id ? (
+                              <>
+                                إخفاء الخريطة <ChevronUp className="h-4 w-4" />
+                              </>
+                            ) : (
+                              <>
+                                عرض على الخريطة
+                                <ChevronDown className="h-4 w-4" />
+                              </>
+                            )}
+                          </Button>
+                        ) : (
+                          <MapPinOff className="h-4 w-4 text-muted-foreground" />
+                        )}
                         {expandedStoreId === store.id &&
                           store.latitude &&
                           store.longitude && (
                             <div className="w-full h-64 mt-4 rounded-md overflow-hidden z-0">
-                              <MapContainer
+                              <MapWithNoSSR
                                 center={[
                                   parseFloat(store.latitude),
                                   parseFloat(store.longitude),
                                 ]}
                                 zoom={15}
-                                scrollWheelZoom={false}
-                                className="h-full w-full"
-                              >
-                                <TileLayer
-                                  attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                                />
-                                <Marker
-                                  position={[
-                                    parseFloat(store.latitude),
-                                    parseFloat(store.longitude),
-                                  ]}
-                                  icon={customMarkerIcon}
-                                >
-                                  <Popup>
-                                    <strong>{store.store_name}</strong>
-                                    <br />
-                                    {store.location_address}
-                                  </Popup>
-                                </Marker>
-                              </MapContainer>
+                                markers={[
+                                  {
+                                    position: [
+                                      parseFloat(store.latitude),
+                                      parseFloat(store.longitude),
+                                    ],
+                                    title: store.store_name,
+                                    type: "store",
+                                  },
+                                ]}
+                              />
                             </div>
                           )}
                       </CardFooter>

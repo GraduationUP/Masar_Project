@@ -73,14 +73,23 @@ const UserManagementTab: React.FC<UserManagementTabProps> = ({
   handelUserBlock,
   handelUserNotify,
 }) => {
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const handleOpenChange = (newOpenState: boolean) => {
+    setIsDialogOpen(newOpenState);
+  };
   const [isBanDialogOpen, setIsBanDialogOpen] = useState(false);
-  const [selectedUserForBan, setSelectedUserForBan] = useState<userData | null>(null);
+  const [selectedUserForBan, setSelectedUserForBan] = useState<userData | null>(
+    null
+  );
 
   const [isDisableDialogOpen, setIsDisableDialogOpen] = useState(false);
-  const [selectedUserForDisable, setSelectedUserForDisable] = useState<userData | null>(null);
+  const [selectedUserForDisable, setSelectedUserForDisable] =
+    useState<userData | null>(null);
 
-  const [isSendNotificationDialogOpen, setIsSendNotificationDialogOpen] = useState(false);
-  const [selectedUserForNotification, setSelectedUserForNotification] = useState<userData | null>(null);
+  const [isSendNotificationDialogOpen, setIsSendNotificationDialogOpen] =
+    useState(false);
+  const [selectedUserForNotification, setSelectedUserForNotification] =
+    useState<userData | null>(null);
 
   const openBanDialog = (user: userData) => {
     setSelectedUserForBan(user);
@@ -134,7 +143,10 @@ const UserManagementTab: React.FC<UserManagementTabProps> = ({
             onSearch={handleUsersSearch}
             roleFilterOptions={userRoleOptions}
           />
-          <SendAllUsersNotificationDialog />
+          <SendAllUsersNotificationDialog
+            open={isDialogOpen}
+            onOpenChange={handleOpenChange}
+          />
         </CardHeader>
         <CardContent className="min-h-[20rem] flex items-center justify-center">
           {userData.length === 0 ? (
@@ -157,16 +169,22 @@ const UserManagementTab: React.FC<UserManagementTabProps> = ({
                   onNotify={handelUserNotify}
                   // Ban Dialog Props
                   openBanDialog={openBanDialog}
-                  isBanDialogOpen={selectedUserForBan?.id === user.id && isBanDialogOpen}
+                  isBanDialogOpen={
+                    selectedUserForBan?.id === user.id && isBanDialogOpen
+                  }
                   closeBanDialog={closeBanDialog}
                   // Disable Dialog Props
                   openDisableDialog={openDisableDialog}
-                  isDisableDialogOpen={selectedUserForDisable?.id === user.id && isDisableDialogOpen}
+                  isDisableDialogOpen={
+                    selectedUserForDisable?.id === user.id &&
+                    isDisableDialogOpen
+                  }
                   closeDisableDialog={closeDisableDialog}
                   // Send Notification Dialog Props
                   openSendNotificationDialog={openSendNotificationDialog}
                   isSendNotificationDialogOpen={
-                    selectedUserForNotification?.id === user.id && isSendNotificationDialogOpen
+                    selectedUserForNotification?.id === user.id &&
+                    isSendNotificationDialogOpen
                   }
                   closeSendNotificationDialog={closeSendNotificationDialog}
                 />

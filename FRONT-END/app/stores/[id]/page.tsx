@@ -1,7 +1,5 @@
 "use client";
 
-// TODO prevent the user from addin a new feedback and show him his feedback for editing or deleting
-
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter, useParams } from "next/navigation";
@@ -10,7 +8,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import StarRating from "@/components/starRating";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { MapPin, MessageSquare, Phone, ShoppingBag, Star } from "lucide-react";
 import dynamic from "next/dynamic";
 import Loading from "./loading";
@@ -40,6 +38,7 @@ interface StoreData {
   longitude: number;
   location_address: string;
   phone: string;
+  store_image: string;
   average_rating: number;
   products: {
     id: number;
@@ -88,7 +87,7 @@ export default function StorePage() {
     score: null,
     score_id: null,
     content: null,
-    content_id: null
+    content_id: null,
   });
 
   useEffect(() => {
@@ -443,10 +442,6 @@ export default function StorePage() {
                 Whatsapp
               </Link>
             </Button>
-            <Button className="gap-2 ml-auto rounded-full bg-gradient-to-r from-blue-400 to-blue-500 hover:from-blue-500 hover:to-blue-600">
-              <ShoppingBag className="h-4 w-4" />
-              <span>تصفح البضائع</span>
-            </Button>
           </div>
 
           {/* Store Content */}
@@ -633,10 +628,12 @@ export default function StorePage() {
                             ) : (
                               <Button
                                 variant={"link"}
-                                onClick={ () =>handelRatingUpdate(
-                                  userfeedback.score_id as number, 
-                                  score
-                                )}
+                                onClick={() =>
+                                  handelRatingUpdate(
+                                    userfeedback.score_id as number,
+                                    score
+                                  )
+                                }
                               >
                                 تحديث
                               </Button>
@@ -660,10 +657,12 @@ export default function StorePage() {
                               </Button>
                             ) : (
                               <Button
-                                onClick={ () => handleUpdateComment(
-                                  userfeedback.content_id as number,
-                                  content
-                                )}
+                                onClick={() =>
+                                  handleUpdateComment(
+                                    userfeedback.content_id as number,
+                                    content
+                                  )
+                                }
                                 type="submit"
                               >
                                 تحديث
@@ -682,6 +681,16 @@ export default function StorePage() {
                           <div className="flex justify-between gap-4">
                             <div className="flex gap-2">
                               <Avatar>
+                                <AvatarImage>
+                                  {data?.store_image && (
+                                    <Image
+                                      src={data.store_image}
+                                      alt="صورة المتجر"
+                                      height={40}
+                                      width={40}
+                                    />
+                                  )}
+                                </AvatarImage>
                                 <AvatarFallback>
                                   {JSON.parse(
                                     localStorage.getItem("userInfo") || "{}"
@@ -731,12 +740,26 @@ export default function StorePage() {
                                 تعديل
                               </Button>
                               {userfeedback.content && (
-                                <Button variant={"destructive"} onClick={() => handelCommentDelete(userfeedback.content_id as number)}>
+                                <Button
+                                  variant={"destructive"}
+                                  onClick={() =>
+                                    handelCommentDelete(
+                                      userfeedback.content_id as number
+                                    )
+                                  }
+                                >
                                   حذف التعليق
                                 </Button>
                               )}
                               {userfeedback.score && (
-                                <Button variant={"destructive"} onClick={() => handelRatingDelete(userfeedback.score_id as number)}>
+                                <Button
+                                  variant={"destructive"}
+                                  onClick={() =>
+                                    handelRatingDelete(
+                                      userfeedback.score_id as number
+                                    )
+                                  }
+                                >
                                   حذف التقييم
                                 </Button>
                               )}

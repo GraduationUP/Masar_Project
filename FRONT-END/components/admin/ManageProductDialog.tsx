@@ -64,7 +64,6 @@ const ManageProductDialog: React.FC<ManageProductDialogProps> = ({
       setSuccess(true);
     } catch (error) {
       console.error("Error deleting product:", error);
-      alert("An unexpected error occurred while deleting the product.");
     } finally {
       setLoading(false);
     }

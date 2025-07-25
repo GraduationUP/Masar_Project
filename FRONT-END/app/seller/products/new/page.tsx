@@ -1,17 +1,16 @@
 "use client";
-import type React from "react";
-
-import { useState, useEffect, lazy, Suspense } from "react";
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
+import { Suspense, useState, lazy, useEffect } from "react";
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
   CardTitle,
+  CardDescription,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Loader2, Package, ChevronLeft } from "lucide-react";
+import Link from "next/link";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -22,29 +21,20 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { ChevronLeft, Loader2, Package, Upload } from "lucide-react";
-import { redirect } from "next/navigation";
 import { CustomAlert } from "@/components/customAlert";
 import Header from "@/components/main_layout/header";
+import { redirect } from "next/navigation";
 
-// Dynamically import Leaflet with ssr: false
 const LeafletMap = lazy(() =>
-  import("@/components/LeafletMap").then((module) => ({
+  import("@/components/LeafLetMap").then((module) => ({
     default: module.default,
   }))
 );
 
-interface DashboardData {
-  recent_comments: any[]; // Replace 'any' with the actual type
-  recent_products: Product[];
-  recent_ratings: any[]; // Replace 'any' with the actual type
-  store: any; // Replace 'any' with the actual type
-}
-
 interface Product {
-  id?: number;
   name: string;
   description: string;
+  photo: File | null;
   category_id: number;
   price: number;
   latitude: number;
@@ -53,24 +43,20 @@ interface Product {
 }
 
 export default function NewProductPage() {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true); // Initialize loading to true
-  const [showSuccess, setShowSuccess] = useState(false);
+  const BASE_API_URL = process.env.NEXT_PUBLIC_API_URL;
+  const [success, setSuccess] = useState(false);
+  const [failure, setFailure] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [productData, setProductData] = useState<Product>({
     name: "",
     description: "",
+    photo: null,
     category_id: 1,
     price: 0,
     latitude: 31.53157982870554,
     longitude: 34.46717173572411,
     show_location: false,
-  });
-
-  const [data, setData] = useState<DashboardData>({
-    recent_comments: [],
-    recent_products: [],
-    recent_ratings: [],
-    store: {},
   });
   const [storeCategories, setStoreCategories] = useState<{
     status: boolean;
@@ -79,70 +65,113 @@ export default function NewProductPage() {
     status: false,
     data: [],
   });
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setIsSubmitting(true);
+    setErrorMessage(null);
 
-  useEffect(() => {
-    const authToken = localStorage.getItem("userInfo");
-    if (authToken) {
-      setUser(JSON.parse(authToken));
+    const authToken = localStorage.getItem("authToken");
+    if (!authToken) {
+      setErrorMessage("Authentication token missing");
+      setFailure(true);
+      setIsSubmitting(false);
+      return;
     }
-    setLoading(false); // Set loading to false after attempting to get user info
-  }, []); // Redirect if not logged in or role is undefined, but only after loading is complete
 
-  useEffect(() => {
-    if (!loading && (user === null || user.role !== "seller")) {
-      redirect("/");
+    const formData = new FormData();
+    formData.append("name", productData.name);
+    formData.append("description", productData.description);
+    if (productData.photo) {
+      formData.append("photo", productData.photo);
     }
-  }, [user, loading]);
+    formData.append("category_id", productData.category_id.toString());
+    formData.append("price", productData.price.toString());
+    formData.append("latitude", productData.latitude.toString());
+    formData.append("longitude", productData.longitude.toString());
+    formData.append("show_location", productData.show_location.toString());
 
-  useEffect(() => {
-    async function fetchData() {
-      setLoading(true); // Set loading to true before the fetch
+    try {
+      const response = await fetch(`${BASE_API_URL}/api/seller/products`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+        },
+        body: formData,
+      });
 
-      try {
-        const token = localStorage.getItem("authToken");
-        const response = await fetch(
-          "http://127.0.0.1:8000/api/seller/dashboard",
-          {
-            method: "GET",
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
-          }
-        );
-
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        const responseData = await response.json();
-        setData(responseData);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      } finally {
-        setLoading(false); // Set loading to false after the fetch completes (success or failure)
+      if (!response.ok) {
+        const errorData = await response.json();
+        setErrorMessage(errorData?.message || "Failed to create product");
+        setFailure(true);
+        throw new Error(errorData?.message || "Failed to create product");
       }
-    }
 
-    fetchData();
-  }, []);
+      const data = await response.json();
+      setSuccess(true);
+      // Reset form after successful submission
+      setProductData({
+        name: "",
+        description: "",
+        photo: null,
+        category_id: 1,
+        price: 0,
+        latitude: 31.53157982870554,
+        longitude: 34.46717173572411,
+        show_location: false,
+      });
+      if (previewUrl) {
+        URL.revokeObjectURL(previewUrl);
+        setPreviewUrl(null);
+      }
+      // Optionally redirect after delay
+      setTimeout(() => redirect("/seller/dashboard"), 2000);
+    } catch (error: any) {
+      console.error("Error creating product:", error);
+      setErrorMessage(error.message);
+      setFailure(true);
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
+
+  const handleChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
+  ) => {
+    const { name, value } = e.target;
+    setProductData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      setProductData((prev) => ({
+        ...prev,
+        photo: file,
+      }));
+      // Create preview URL
+      const url = URL.createObjectURL(file);
+      setPreviewUrl(url);
+    }
+  };
 
   useEffect(() => {
     async function fetchCategories() {
       try {
         const token = localStorage.getItem("authToken");
-        const response = await fetch(
-          "http://127.0.0.1:8000/api/guest/categories",
-          {
-            method: "GET",
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
-          }
-        );
+        const response = await fetch(`${BASE_API_URL}/api/guest/categories`, {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        });
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
@@ -161,55 +190,11 @@ export default function NewProductPage() {
   }, []);
 
   const handleLocationChange = (lat: number, lng: number) => {
-    setProductData((prevData) => ({
-      ...prevData,
+    setProductData((prev) => ({
+      ...prev,
       latitude: lat,
       longitude: lng,
     }));
-  };
-
-  const handleSubmit = async (event: React.FormEvent) => {
-    event.preventDefault();
-    setIsSubmitting(true);
-
-    const token = localStorage.getItem("authToken");
-
-    try {
-      const response = await fetch(
-        "http://127.0.0.1:8000/api/seller/products",
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(productData),
-        }
-      );
-
-      if (!response.ok) {
-        console.log(productData);
-        const errorData = await response.json();
-        console.error("Error creating product:", errorData);
-      } else {
-        const successData = await response.json();
-        console.log("Product created successfully:", successData);
-        setShowSuccess(true);
-        setProductData({
-          name: "",
-          description: "",
-          category_id: 1,
-          price: 0,
-          latitude: 31.53157982870554,
-          longitude: 34.46717173572411,
-          show_location: false,
-        });
-      }
-    } catch (error) {
-      console.error("Error submitting form:", error);
-    } finally {
-      setIsSubmitting(false);
-    }
   };
 
   return (
@@ -224,13 +209,7 @@ export default function NewProductPage() {
               asChild
               className="rounded-full"
             >
-              <Link
-                href={
-                  data.recent_products?.id
-                    ? `/seller/stores/${data.recent_products.id}`
-                    : "/seller/dashboard"
-                }
-              >
+              <Link href="/seller/dashboard">
                 <ChevronLeft className="h-5 w-5" />
               </Link>
             </Button>
@@ -241,241 +220,204 @@ export default function NewProductPage() {
               <p className="text-muted-foreground">أضف منتجًا إلى متجرك</p>
             </div>
           </div>
-          <form onSubmit={handleSubmit}>
-            <CustomAlert
-              message="تم اضافة المنتج بنجاح"
-              show={showSuccess}
-              onClose={() => setShowSuccess(false)}
-              success
-            />
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-              <div className="lg:col-span-2 space-y-6">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>معلومات المنتج</CardTitle>
-                    <CardDescription>تفاصيل أساسية عن منتجك</CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="name">اسم المنتج *</Label>
-                      <Input
-                        id="name"
-                        placeholder="أدخل اسم منتجك"
-                        value={productData.name}
-                        onChange={(e) =>
-                          setProductData({
-                            ...productData,
-                            name: e.target.value,
-                          })
-                        }
-                        required
-                        className="rounded-lg"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="description">وصف المنتج *</Label>
-                      <Textarea
-                        id="description"
-                        placeholder="وصف منتجك بالتفصيل"
-                        value={productData.description}
-                        onChange={(e) =>
-                          setProductData({
-                            ...productData,
-                            description: e.target.value,
-                          })
-                        }
-                        required
-                        className="min-h-[120px] rounded-lg"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="category">الفئة *</Label>
-                      <Select
-                        value={productData.category_id.toString()} // ← Convert number to string for UI
-                        onValueChange={(value) => {
-                          setProductData({
-                            ...productData,
-                            category_id: parseInt(value, 10), // ← Convert string back to number for state
-                          });
-                        }}
-                        required
-                      >
-                        <SelectTrigger id="category" className="rounded-lg">
-                          <SelectValue placeholder="اختر فئة" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {storeCategories.data.map((category) => (
-                            <SelectItem
-                              key={category.id}
-                              value={category.id.toString()}
-                            >
-                              {category.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="price">السعر (بالشيكل) *</Label>
-                        <Input
-                          id="price"
-                          type="number"
-                          step="0.01"
-                          min="0"
-                          placeholder="0.00"
-                          value={productData.price}
-                          onChange={(e) =>
-                            setProductData({
-                              ...productData,
-                              price: parseFloat(e.target.value),
-                            })
-                          }
-                          required
-                          className="rounded-lg"
-                        />
-                      </div>
-                    </div>
-                    <div className="flex items-center space-x-2 gap-1">
-                      <Switch
-                        id="show-location"
-                        checked={productData.show_location}
-                        onCheckedChange={(checked) =>
-                          setProductData({
-                            ...productData,
-                            show_location: checked,
-                          })
-                        }
-                        className="flex flex-row-reverse"
-                      />
-                      <Label htmlFor="show-location">عرض الموقع</Label>
-                    </div>
-                    {productData.show_location && (
-                      <div className="space-y-4 mt-4">
-                        <Label>اختر موقع المنتج</Label>
-                        <Suspense fallback={<>جار تحميل الخريطة...</>}>
-                          <LeafletMap
-                            latitude={productData.latitude}
-                            longitude={productData.longitude}
-                            onLocationChange={handleLocationChange}
-                          />
-                        </Suspense>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
-                          <div>
-                            <Label htmlFor="latitude">Latitude:</Label>
-                            <Input
-                              type="number"
-                              id="latitude"
-                              value={productData.latitude}
-                              readOnly
-                              className="rounded-lg"
-                            />
-                          </div>
-                          <div>
-                            <Label htmlFor="longitude">Longitude:</Label>
-                            <Input
-                              type="number"
-                              id="longitude"
-                              value={productData.longitude}
-                              readOnly
-                              className="rounded-lg"
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
-              </div>
 
-              <div className="space-y-6">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>صورة المنتج</CardTitle>
-                    <CardDescription>ارفع صورة منتجك</CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="border-2 border-dashed rounded-lg p-4 text-center">
-                      <div className="flex flex-col items-center gap-2">
-                        <div className="h-40 w-full bg-muted/50 rounded-lg flex items-center justify-center overflow-hidden">
-                          {productData.image ? (
-                            <img
-                              src={productData.image || "/boxes.png"}
-                              alt="صورة المنتج"
-                              className="h-full w-full object-cover"
-                            />
-                          ) : (
-                            <Package className="h-12 w-12 text-muted-foreground" />
-                          )}
+          <CustomAlert
+            message="تم اضافة المنتج بنجاح"
+            show={success}
+            onClose={() => setSuccess(false)}
+            success
+          />
+          <CustomAlert
+            message={errorMessage || "حدث خطأ في اضافة المنتج"}
+            show={failure}
+            onClose={() => {
+              setFailure(false);
+              setErrorMessage(null);
+            }}
+            success={false}
+          />
+
+          <form
+            onSubmit={handleSubmit}
+            className="grid grid-cols-1 lg:grid-cols-3 gap-8"
+          >
+            <div className="lg:col-span-2 space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>معلومات المنتج</CardTitle>
+                  <CardDescription>تفاصيل أساسية عن منتجك</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="name">اسم المنتج *</Label>
+                    <Input
+                      id="name"
+                      name="name"
+                      placeholder="أدخل اسم منتجك"
+                      value={productData.name}
+                      onChange={handleChange}
+                      required
+                      className="rounded-lg"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="description">وصف المنتج *</Label>
+                    <Textarea
+                      id="description"
+                      name="description"
+                      placeholder="وصف منتجك بالتفصيل"
+                      value={productData.description}
+                      onChange={handleChange}
+                      required
+                      className="min-h-[120px] rounded-lg"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="category">الفئة *</Label>
+                    <Select
+                      value={productData.category_id.toString()} // ← Convert number to string for UI
+                      onValueChange={(value) => {
+                        setProductData({
+                          ...productData,
+                          category_id: parseInt(value, 10), // ← Convert string back to number for state
+                        });
+                      }}
+                      required
+                    >
+                      <SelectTrigger id="category" className="rounded-lg">
+                        <SelectValue placeholder="اختر فئة" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {storeCategories.data.map((category) => (
+                          <SelectItem
+                            key={category.id}
+                            value={category.id.toString()}
+                          >
+                            {category.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="price">السعر (بالشيكل) *</Label>
+                    <Input
+                      id="price"
+                      name="price"
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      placeholder="0.00"
+                      value={productData.price}
+                      onChange={handleChange}
+                      required
+                      className="rounded-lg"
+                    />
+                  </div>
+                  <div className="flex items-center space-x-2 gap-1">
+                    <Switch
+                      id="show-location"
+                      checked={productData.show_location}
+                      onCheckedChange={(checked) =>
+                        setProductData({
+                          ...productData,
+                          show_location: checked,
+                        })
+                      }
+                      className="flex flex-row-reverse"
+                    />
+                    <Label htmlFor="show-location">عرض الموقع</Label>
+                  </div>
+                  {productData.show_location && (
+                    <div className="space-y-4 mt-4">
+                      <Label>اختر موقع المنتج</Label>
+                      <Suspense fallback={<div>جار تحميل الخريطة...</div>}>
+                        <LeafletMap
+                          latitude={productData.latitude}
+                          longitude={productData.longitude}
+                          onLocationChange={handleLocationChange}
+                        />
+                      </Suspense>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
+                        <div>
+                          <Label htmlFor="latitude">Latitude:</Label>
+                          <Input
+                            type="number"
+                            id="latitude"
+                            value={productData.latitude}
+                            readOnly
+                            className="rounded-lg"
+                          />
                         </div>
-                        <Button type="button" variant="outline" size="sm" className="rounded-full">
-                          <Upload className="h-4 w-4 mr-2" />
-                          رفع الصورة
-                        </Button>
-                        <p className="text-xs text-muted-foreground">الحجم الموصى: 800x800px</p>
+                        <div>
+                          <Label htmlFor="longitude">Longitude:</Label>
+                          <Input
+                            type="number"
+                            id="longitude"
+                            value={productData.longitude}
+                            readOnly
+                            className="rounded-lg"
+                          />
+                        </div>
                       </div>
                     </div>
-                  </CardContent>
-                </Card>
-                <Card>
-                  <CardHeader>
-                    <CardTitle>معاينة المنتج</CardTitle>
-                    <CardDescription>كيف سيكون شكل منتجك</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="rounded-lg border overflow-hidden">
-                      <div className="h-48 bg-muted/50 relative">
-                        <div className="h-full w-full flex items-center justify-center">
-                          <Package className="h-12 w-12 text-muted-foreground" />
-                        </div>
-                      </div>
-                      <div className="p-4">
-                        <h3 className="font-bold">
-                          {productData.name || "اسم المنتج"}
-                        </h3>
-                        <p className="text-sm text-muted-foreground line-clamp-2 mt-1">
-                          {productData.description || "وصف المنتج سوف يعرض هنا"}
-                        </p>
-                        <div className="flex items-center justify-between mt-2">
-                          <span className="font-bold">
-                            $
-                            {Number.parseFloat(
-                              productData.price || "0"
-                            ).toFixed(2)}
-                          </span>
-                          <span className="text-xs bg-muted px-2 py-1 rounded-full">
-                            {storeCategories.data.find(
-                              (cat) => cat.id === productData.category_id
-                            )?.name || "القسم"}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
+                  )}
+                </CardContent>
+              </Card>
             </div>
-            <div className="mt-8 flex justify-between">
+
+            <div className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>صورة المنتج</CardTitle>
+                  <CardDescription>ارفع صورة منتجك</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="border-2 border-dashed rounded-lg p-4 text-center">
+                    <div className="flex flex-col items-center gap-2">
+                      <div className="h-40 w-full bg-muted/50 rounded-lg flex items-center justify-center overflow-hidden">
+                        {previewUrl ? (
+                          <img
+                            src={previewUrl}
+                            alt="صورة المنتج"
+                            className="h-full w-full object-cover"
+                          />
+                        ) : (
+                          <Package className="h-12 w-12 text-muted-foreground" />
+                        )}
+                      </div>
+                      <label className="inline-flex items-center rounded-full border border-input bg-background px-4 py-2 text-sm font-medium cursor-pointer hover:bg-accent hover:text-accent-foreground">
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={handleFileChange}
+                        />
+                        <Package className="h-4 w-4 ml-2" />
+                        رفع الصورة
+                      </label>
+                      <p className="text-xs text-muted-foreground">
+                        الحجم الموصى: 800x800px
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            <div className="col-span-full mt-8 flex justify-between">
               <Button
                 type="button"
                 variant="outline"
                 asChild
                 className="rounded-full"
               >
-                <Link
-                  href={
-                    data.recent_products?.id
-                      ? `/seller/stores/${data.recent_products.id}`
-                      : "/seller/dashboard"
-                  }
-                >
-                  الغاء
-                </Link>
+                <Link href="/seller/dashboard">الغاء</Link>
               </Button>
               <Button
                 type="submit"
                 className="rounded-full bg-gradient-to-r from-blue-400 to-blue-500 hover:from-blue-500 hover:to-blue-600"
-                disabled={loading}
+                disabled={isSubmitting}
               >
                 {isSubmitting ? (
                   <>

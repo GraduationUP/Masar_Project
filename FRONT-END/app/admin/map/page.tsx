@@ -33,6 +33,15 @@ const LeafletMap = dynamic(() =>
   }))
 );
 
+type Coordinate = [number, number];
+
+const LeafletMapWithNoSSR = dynamic(
+  () => import("@/components/MultipointMap"),
+  {
+    ssr: false,
+  }
+);
+
 // Dynamically import the map component to avoid SSR issues
 const GazaMap = dynamic(() => import("@/components/AdminMap"), {
   ssr: false,
@@ -76,6 +85,11 @@ export interface GazaData {
 }
 
 export default function AdminMapPage() {
+  const [parentCoordinates, setParentCoordinates] = useState<Coordinate[]>([]);
+  const handleCoordinatesChange = (newCoordinates: Coordinate[]) => {
+    setParentCoordinates(newCoordinates);
+    setCoordinates(parentCoordinates);
+  };
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
   const [name, setName] = useState("");
   const [type, setType] = useState("");
@@ -86,6 +100,7 @@ export default function AdminMapPage() {
   const [isLocationEnabled, setIsLocationEnabled] = useState(false);
   const [success, setSuccess] = useState(false);
   const [fail, setFail] = useState(false);
+  const [submitting, isSubmitting] = useState(false);
   const [mapData, setMapData] = useState<GazaData>({
     city: "",
     aids: [],
@@ -143,6 +158,7 @@ export default function AdminMapPage() {
   };
 
   const handelAddService = async () => {
+    isSubmitting(true);
     const token = localStorage.getItem("authToken");
     let formattedCoordinates = coordinates;
     try {
@@ -167,12 +183,11 @@ export default function AdminMapPage() {
       console.log("Success:", data);
       setSuccess(true);
     } catch (error) {
+      setFail(true);
       console.error("Error adding service:", error);
+    } finally {
+      isSubmitting(false);
     }
-  };
-
-  const showStates = () => {
-    console.log({ name, type, coordinates, status });
   };
 
   if (!mapData) return <Loading />;
@@ -224,9 +239,9 @@ export default function AdminMapPage() {
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="market">سوق</SelectItem>
-                          <SelectItem value="aid">مركز مساعدات</SelectItem>
+                          <SelectItem value="aids">مركز مساعدات</SelectItem>
                           <SelectItem value="gas_station">محطة غاز</SelectItem>
-                          <SelectItem value="store">محل تجاري</SelectItem>
+                          <SelectItem value="stores">محل تجاري</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -235,44 +250,55 @@ export default function AdminMapPage() {
                   <div className="grid gap-1">
                     <Label htmlFor="location">الاحداثيات</Label>
                     <Suspense fallback={<>جار تحميل الخريطة...</>}>
-                      <div className="relative border rounded-md">
-                        <LeafletMap
-                          latitude={currentLatitude}
-                          longitude={currentLongitude}
-                          onLocationChange={handleLocationChange}
-                        />
+                      <div className="relative border rounded-md overflow-hidden">
+                        {type === "market" ? (
+                          <div className="h-96">
+                            <LeafletMapWithNoSSR
+                              onCoordinatesChange={handleCoordinatesChange}
+                            />
+                          </div>
+                        ) : (
+                          <LeafletMap
+                            latitude={currentLatitude}
+                            longitude={currentLongitude}
+                            onLocationChange={handleLocationChange}
+                          />
+                        )}
                       </div>
                     </Suspense>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2">
-                      <div>
-                        <Label htmlFor="latitude">Latitude:</Label>
-                        <Input
-                          type="number"
-                          id="latitude"
-                          value={currentLatitude}
-                          readOnly
-                          className="rounded-lg"
-                        />
+                    {type !== "market" && (
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2">
+                        <div>
+                          <Label htmlFor="latitude">Latitude:</Label>
+                          <Input
+                            type="number"
+                            id="latitude"
+                            value={currentLatitude}
+                            readOnly
+                            className="rounded-lg"
+                          />
+                        </div>
+                        <div>
+                          <Label htmlFor="longitude">Longitude:</Label>
+                          <Input
+                            type="number"
+                            id="longitude"
+                            value={currentLongitude}
+                            readOnly
+                            className="rounded-lg"
+                          />
+                        </div>
                       </div>
-                      <div>
-                        <Label htmlFor="longitude">Longitude:</Label>
-                        <Input
-                          type="number"
-                          id="longitude"
-                          value={currentLongitude}
-                          readOnly
-                          className="rounded-lg"
-                        />
-                      </div>
-                    </div>
+                    )}
                   </div>
 
-                  <div className="flex items-center space-x-2 ltr">
+                  <div className="flex gap-1 items-center space-x-2">
                     <Switch
                       id="location-status"
                       checked={isLocationEnabled}
                       onCheckedChange={handleStatusChange}
+                      style={{ direction: "ltr" }}
                     />
                     <Label htmlFor="location-status">مفعل</Label>
                   </div>
@@ -283,14 +309,17 @@ export default function AdminMapPage() {
                       الغاء
                     </Button>
                   </DialogClose>
-                  <Button type="submit">اضافة الخدمة</Button>
+                  {submitting ? (
+                    <Button disabled variant={"ghost"}>جار اضافة الخدمة...</Button>
+                  ) : (
+                    <Button type="submit">اضافة الخدمة</Button>
+                  )}
                 </DialogFooter>
                 {success && (
                   <p className="text-green-500">تم اضافة الخدمة بنجاح</p>
                 )}
                 {fail && <p className="text-red-500">حدث خطأ ما حاول مجدداً</p>}
               </form>
-              <Button onClick={showStates}>print</Button>
             </DialogContent>
           </Dialog>
         </div>
