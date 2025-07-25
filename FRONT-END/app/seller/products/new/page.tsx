@@ -92,6 +92,13 @@ export default function NewProductPage() {
     formData.append("longitude", productData.longitude.toString());
     formData.append("show_location", productData.show_location.toString());
 
+    // --- Start of how to print formData content ---
+    console.log("FormData content:");
+    for (const pair of formData.entries()) {
+      console.log(`${pair[0]}: ${pair[1]}`);
+    }
+    // --- End of how to print formData content ---
+
     try {
       const response = await fetch(`${BASE_API_URL}/api/seller/products`, {
         method: "POST",
@@ -110,6 +117,7 @@ export default function NewProductPage() {
 
       const data = await response.json();
       setSuccess(true);
+      console.log("Product created successfully:", data); // Log the response data
       // Reset form after successful submission
       setProductData({
         name: "",
@@ -137,15 +145,26 @@ export default function NewProductPage() {
   }
 
   const handleChange = (
-    e: React.ChangeEvent<
-      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-    >
+    e:
+      | React.ChangeEvent<
+          HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+        >
+      | string // Add string to the type definition
   ) => {
-    const { name, value } = e.target;
-    setProductData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    if (typeof e === "string") {
+      // Handle Select component's onValueChange
+      setProductData((prev) => ({
+        ...prev,
+        category_id: parseInt(e, 10), // Convert the string value back to a number
+      }));
+    } else if (e?.target) {
+      // Handle Input and Textarea components' onChange
+      const { name, value } = e.target;
+      setProductData((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
+    }
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -276,12 +295,7 @@ export default function NewProductPage() {
                     <Label htmlFor="category">الفئة *</Label>
                     <Select
                       value={productData.category_id.toString()} // ← Convert number to string for UI
-                      onValueChange={(value) => {
-                        setProductData({
-                          ...productData,
-                          category_id: parseInt(value, 10), // ← Convert string back to number for state
-                        });
-                      }}
+                      onValueChange={handleChange}
                       required
                     >
                       <SelectTrigger id="category" className="rounded-lg">
