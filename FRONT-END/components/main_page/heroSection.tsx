@@ -9,17 +9,17 @@ export default function HeroSection() {
             <div className="absolute inset-0 w-full h-full">
                 <Image src={'/images/mapBG.png'} alt="Background" fill className="object-cover" />
             </div>
-            <div className="absolute inset-0 bg-gradient-to-l from-background/95 via-background/80 to-background/30 flex items-center">
+            <div className="absolute inset-0 bg-gradient-to-l from-background/95 via-background/80 to-background/30 flex pt-5">
                 <div className="container px-4 md:px-6">
-                    <div className="max-w-lg space-y-6 animate-slide-up">
+                    <div className="max-w-4xl space-y-6 animate-slide-up">
                         <div className="inline-block rounded-full bg-primary/10 px-3 py-1 text-sm text-primary">
                             استكشف محيطك
                         </div>
                         <h1 className="text-4xl font-bold tracking-tighter sm:text-5xl md:text-6xl lg:text-7xl">
-                            استكشف <span className="gradient-heading">الخدمات و المنتجات</span> المحلية
+                            المسار الصحيح للمنتجات والخدمات المحلية المرغوبة
                         </h1>
                         <p className="text-muted-foreground md:text-xl">
-                            ابحث عن البائعين والخدمات الأساسية القريبة منك على مسار - منصتك الشاملة للسوق المحلي.
+                            موقع مسار يساعدك على إيجاد الأماكن التجارية ونقاط الخدمات المحلية بسهولة بعد التواصل مع أصحابها
                         </p>
                         <div className="flex flex-col sm:flex-row gap-3">
                             <Button
@@ -29,13 +29,14 @@ export default function HeroSection() {
                             >
                                 <Link href="/map">
                                     <MapPinIcon className="mr-2 h-4 w-4" />
-                                    استكشف الخريطة
+                                    تصفح الخريطة
                                 </Link>
                             </Button>
                             <Button asChild size="lg" variant="outline" className="rounded-full">
                                 <Link href="/marketplace">
                                     <ShoppingBag className="mr-2 h-4 w-4" />
-                                    زيارة المتجر
+                                    <p>تسوق الان</p>
+                                    <p className="text-sm text-muted-foreground block">حسب منطقتك</p>
                                 </Link>
                             </Button>
                         </div>

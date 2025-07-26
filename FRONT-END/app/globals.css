@@ -2,6 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
+/* @import for Tajawal */
+@import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@200;300;400;500;700;800;900&display=swap');
+
 @layer base {
   :root {
     --background: 0 0% 100%;
@@ -55,7 +58,8 @@
   }
   body {
     @apply bg-background text-foreground;
-    font-feature-settings: "rlig" 1, "calt" 1;
+    /* --- ADD THIS LINE TO SET TAJAWAL AS THE DEFAULT FONT --- */
+    font-family: "Tajawal", sans-serif;
   }
   h1,
   h2,
@@ -64,6 +68,9 @@
   h5,
   h6 {
     @apply tracking-tight;
+    /* You might want to explicitly set Tajawal here as well if you want to ensure headings always use it,
+       though it should inherit from body. */
+    font-family: "Tajawal", sans-serif;
   }
 }
 
@@ -174,4 +181,3 @@ body {
 .staggered-animation > *:nth-child(8) {
   animation-delay: 0.8s;
 }
-

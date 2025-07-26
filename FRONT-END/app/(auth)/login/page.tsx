@@ -14,8 +14,9 @@ import {
 } from "@/components/ui/card";
 import { LogIn } from "lucide-react";
 import React, { useEffect, useState } from "react";
-import { useRouter } from 'next/navigation';
+import { useRouter } from "next/navigation";
 import { LoginSuccessResponse, LoginErrorResponse } from "@/lib/types";
+import AuthLayout from "@/components/auth/AuthLayout";
 
 const LoginPage: React.FC = () => {
   const router = useRouter();
@@ -23,26 +24,28 @@ const LoginPage: React.FC = () => {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const BASE_API_URL = process.env.NEXT_PUBLIC_API_URL
+  const BASE_API_URL = process.env.NEXT_PUBLIC_API_URL;
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setError(null); // Clear any previous errors
+    setError(null);
 
     try {
       const response = await fetch(`${BASE_API_URL}/api/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          'Accept': 'application/json',
+          Accept: "application/json",
         },
         body: JSON.stringify({ email, password }),
       });
 
       if (!response.ok) {
         const errorData: LoginErrorResponse = await response.json();
-        setError(errorData.message || "Login failed. Please check your credentials.");
+        setError(
+          errorData.message || "Login failed. Please check your credentials."
+        );
         return;
       }
 
@@ -62,118 +65,91 @@ const LoginPage: React.FC = () => {
   };
 
   useEffect(() => {
-    if (localStorage.getItem("authToken")) {
+    if (typeof window !== "undefined" && localStorage.getItem("authToken")) {
       router.push("/");
     }
-  })
+  }, [router]);
 
   return (
-    <div className="container flex items-center justify-center min-h-[calc(100vh-8rem)] py-12">
-      <div className="w-full max-w-md mx-auto">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold gradient-heading">مرحباً</h1>
-          <p className="text-muted-foreground mt-2">
-            سجل الدخول في حسابك في مسار
-          </p>
-        </div>
-
-        <Card className="border-border/50 shadow-lg">
-          <form onSubmit={handleLogin}>
-            <CardHeader className="space-y-1 pb-4">
-              <CardTitle className="text-2xl">تسجيل الدخول</CardTitle>
-              <CardDescription>
-                ادخل بياناتك لتتمكن من الدخول لحسابك
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="email">ايميل</Label>
+    <AuthLayout title="مرحباً" Subtitle="أدخل بياناتك لتتمكن من الدخول لحسابك">
+      <Card className="border-border/50 shadow-lg">
+        <form onSubmit={handleLogin}>
+          <CardHeader className="space-y-1 pb-4">
+            <CardTitle className="text-2xl">تسجيل الدخول</CardTitle>
+            <CardDescription>
+              ادخل بياناتك لتتمكن من الدخول لحسابك
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="email">ايميل</Label>
+              <Input
+                id="email"
+                name="email"
+                type="email"
+                placeholder="Enter your email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label htmlFor="password">كلمة المرور</Label>
+                <Link
+                  href="/forgot-password"
+                  className="text-xs text-primary hover:underline"
+                >
+                  نسيت كلمة المرور؟
+                </Link>
+              </div>
+              <div className="relative">
                 <Input
-                  id="email"
-                  name="email"
-                  type="email"
-                  placeholder="Enter your email"
+                  id="password"
+                  name="password"
+                  type="password"
+                  placeholder="Enter your password"
                   required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                 />
               </div>
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="password">Password</Label>
-                  <Link
-                    href="/forgot-password"
-                    className="text-xs text-primary hover:underline"
-                  >
-                    نسيت كلمة المرور؟
-                  </Link>
-                </div>
-                <div className="relative">
-                  <Input
-                    id="password"
-                    name="password"
-                    type="password"
-                    placeholder="Enter your password"
-                    required
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                  />
-                </div>
-              </div>
+            </div>
 
-              {error && (
-                <p className="text-red-500 text-sm text-center">{error}</p>
-              )}
-
-              <div className="p-4 rounded-lg bg-muted/50 border border-border/50">
-                <p className="text-sm font-medium mb-2">حساب تجريبي:</p>
-                <ul className="space-y-1 text-sm text-muted-foreground">
-                  <li className="flex items-center gap-2">
-                    <span className="h-1.5 w-1.5 rounded-full bg-primary"></span>
-                    admin@example.com / password
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <span className="h-1.5 w-1.5 rounded-full bg-primary"></span>
-                    seller@example.com / password
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <span className="h-1.5 w-1.5 rounded-full bg-primary"></span>
-                    user@example.com / password
-                  </li>
-                </ul>
+            {error && (
+              <p className="text-red-500 text-sm text-center">{error}</p>
+            )}
+          </CardContent>
+          <CardFooter className="flex flex-col gap-4 pt-2">
+            <Button
+              type="submit"
+              className="w-full rounded-lg bg-gradient-to-r from-[#4bbae6] to-[#4682B4]"
+              disabled={loading} // Disable button while loading
+            >
+              <div className="flex items-center gap-2">
+                {loading ? (
+                  "جاري تسجيل الدخول..."
+                ) : (
+                  <>
+                    <LogIn className="h-4 w-4" />
+                    <span>تسجيل الدخول</span>
+                  </>
+                )}
               </div>
-            </CardContent>
-            <CardFooter className="flex flex-col gap-4 pt-2">
-              <Button
-                type="submit"
-                className="w-full rounded-lg bg-gradient-to-r from-[#4bbae6] to-[#4682B4]"
-                disabled={loading} // Disable button while loading
+            </Button>
+            <p className="text-center text-sm text-muted-foreground">
+              ليس لديك حساب?
+              <Link
+                href="/register"
+                className="text-primary hover:underline font-medium"
               >
-                <div className="flex items-center gap-2">
-                  {loading ? (
-                    "جاري تسجيل الدخول..."
-                  ) : (
-                    <>
-                      <LogIn className="h-4 w-4" />
-                      <span>تسجيل الدخول</span>
-                    </>
-                  )}
-                </div>
-              </Button>
-              <p className="text-center text-sm text-muted-foreground">
-                ليس لديك حساب?
-                <Link
-                  href="/register"
-                  className="text-primary hover:underline font-medium"
-                >
-                  انشاء حساب
-                </Link>
-              </p>
-            </CardFooter>
-          </form>
-        </Card>
-      </div>
-    </div>
+                انشاء حساب
+              </Link>
+            </p>
+          </CardFooter>
+        </form>
+      </Card>
+    </AuthLayout>
   );
 };
 
