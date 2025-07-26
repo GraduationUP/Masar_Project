@@ -21,6 +21,7 @@ class DashboardController extends Controller
             return response()->json(['message' => 'Store not found.'], 404);
         }
 
+
         $products = $store->products()->with('category')->latest()->get();
         $averageRating = round($store->ratings()->avg('score'), 1);
 
@@ -69,6 +70,9 @@ class DashboardController extends Controller
                 'average_rating' => $averageRating,
                 'latitude' => $store->latitude,
                 'longitude' => $store->longitude,
+                'id_card_photo_url' => $store->id_card_photo
+                    ? asset('storage/' . $store->id_card_photo)
+                    : null,
             ],
 
 
