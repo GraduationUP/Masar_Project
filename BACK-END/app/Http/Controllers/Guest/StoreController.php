@@ -11,6 +11,8 @@ class StoreController extends Controller
     public function index()
     {
         $stores = Store::where('status', true)->get()->map(function ($store) {
+            $averageRating = round($store->ratings()->avg('score'), 1);
+
             return [
                 'id' => $store->id,
                 'user_id' => $store->user_id,
@@ -22,6 +24,8 @@ class StoreController extends Controller
                 'updated_at' => $store->updated_at,
                 'latitude' => $store->latitude,
                 'longitude' => $store->longitude,
+
+                'average_rating' => $averageRating,
 
                 'store_image' => $store->id_card_photo
                     ? asset('storage/' . $store->id_card_photo)
