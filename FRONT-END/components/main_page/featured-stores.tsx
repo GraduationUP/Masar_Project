@@ -1,16 +1,31 @@
-"use client"
+"use client";
 
-import { useEffect, useState } from "react"
-import Link from "next/link"
-import { Card, CardContent, CardFooter } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Star, MapPin } from "lucide-react"
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Star, MapPin } from "lucide-react";
+
+interface Store {
+  id: number;
+  user_id: number;
+  store_name: string;
+  phone: string;
+  location_address: string;
+  status: 1;
+  created_at: string;
+  updated_at: string;
+  latitude: number;
+  longitude: number;
+  store_image: string;
+}
 
 const storesData = [
   {
     id: "1",
     name: "بنز اند بنز",
-    description: "بنز اند بنز، مكانك الأول والأخير لشراء الهدايا والقرطاسية ومستلزمات الدراسة",
+    description:
+      "بنز اند بنز، مكانك الأول والأخير لشراء الهدايا والقرطاسية ومستلزمات الدراسة",
     categories: ["قرطاسية", "المتاجر الكبرى"],
     location: {
       address: "غزة، الرمال، اسفل كابيتال مول",
@@ -24,7 +39,8 @@ const storesData = [
   {
     id: "2",
     name: "بنز اند بنز",
-    description: "بنز اند بنز، مكانك الأول والأخير لشراء الهدايا والقرطاسية ومستلزمات الدراسة",
+    description:
+      "بنز اند بنز، مكانك الأول والأخير لشراء الهدايا والقرطاسية ومستلزمات الدراسة",
     categories: ["قرطاسية", "المتاجر الكبرى"],
     location: {
       address: "غزة، الرمال، اسفل كابيتال مول",
@@ -38,7 +54,8 @@ const storesData = [
   {
     id: "3",
     name: "بنز اند بنز",
-    description: "بنز اند بنز، مكانك الأول والأخير لشراء الهدايا والقرطاسية ومستلزمات الدراسة",
+    description:
+      "بنز اند بنز، مكانك الأول والأخير لشراء الهدايا والقرطاسية ومستلزمات الدراسة",
     categories: ["قرطاسية", "المتاجر الكبرى"],
     location: {
       address: "غزة، الرمال، اسفل كابيتال مول",
@@ -49,15 +66,31 @@ const storesData = [
     coverImage: "/any.jpg",
     logo: "/any-logo.svg",
   },
-]
+];
 
 export default function FeaturedStores() {
-  const [stores, setStores] = useState(storesData)
-  const [isLoading, setIsLoading] = useState(false)
+  const [stores, setStores] = useState<Store[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    setIsLoading(false)
-  }, [])
+    const fetchStores = async () => {
+      setIsLoading(true);
+      try {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/guest/stores`);
+        if (!response.ok) {
+          throw new Error(`Failed to fetch stores, status: ${response.status}`);
+        }
+        const data = await response.json();
+        setStores(data.data || []);
+      } catch (error) {
+        console.error('Error fetching stores:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchStores();
+  }, []);
 
   if (isLoading) {
     return (
@@ -76,7 +109,7 @@ export default function FeaturedStores() {
           </Card>
         ))}
       </div>
-    )
+    );
   }
 
   return (
@@ -86,51 +119,41 @@ export default function FeaturedStores() {
           <Card className="overflow-hidden h-full card-hover border-border/50">
             <div className="relative h-48 w-full overflow-hidden">
               <img
-                src={store.coverImage || "/placeholder.svg"}
-                alt={store.name}
+                src={"/storeBanner.svg"}
+                alt={store.store_name}
                 className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
               />
-              <div className="absolute top-4 left-4">
-                <Badge className="glass-effect text-foreground">{store.categories[0]}</Badge>
-              </div>
               <div className="absolute bottom-4 left-4 bg-background/80 backdrop-blur-sm rounded-full p-1 border border-border/50 shadow-md">
                 <img
-                  src={store.logo || "/placeholder.svg"}
-                  alt={`${store.name} logo`}
+                  src={store.store_image || "/placeholder.svg"}
+                  alt={`${store.store_name} logo`}
                   className="h-12 w-12 rounded-full"
                 />
               </div>
             </div>
             <CardContent className="p-4">
-              <h3 className="text-lg font-bold">{store.name}</h3>
-              <p className="text-sm text-muted-foreground line-clamp-2 mt-1">{store.description}</p>
-              <div className="flex flex-wrap gap-2 mt-3">
-                {store.categories.slice(0, 2).map((category) => (
-                  <Badge key={category} variant="secondary" className="text-xs">
-                    {category}
-                  </Badge>
-                ))}
-                {store.categories.length > 2 && (
-                  <Badge variant="outline" className="text-xs">
-                    +{store.categories.length - 2} more
-                  </Badge>
-                )}
-              </div>
+              <h3 className="text-lg font-bold">{store.store_name}</h3>
+              <p className="text-sm text-muted-foreground line-clamp-2 mt-1">
+                {store.location_address}
+              </p>
             </CardContent>
             <CardFooter className="p-4 pt-0 flex justify-between items-center border-t border-border/50 mt-2">
               <div className="flex items-center gap-1 text-sm">
                 <MapPin className="h-3.5 w-3.5 text-muted-foreground" />
-                <span className="text-xs text-muted-foreground truncate max-w-[120px]">{store.location.address}</span>
+                <span className="text-xs text-muted-foreground truncate max-w-[120px]">
+                  {store.location_address}
+                </span>
               </div>
               <div className="flex items-center gap-1">
                 <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                <span className="text-sm font-medium">{store.rating?.toFixed(1)}</span>
+                <span className="text-sm font-medium">
+                  {/* {store.rating?.toFixed(1)} TODO */}
+                </span>
               </div>
             </CardFooter>
           </Card>
         </Link>
       ))}
     </div>
-  )
+  );
 }
-

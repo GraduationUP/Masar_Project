@@ -1,0 +1,22 @@
+<svg width="1340" height="412" viewBox="0 0 1340 412" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g clip-path="url(#clip0_1087_90)">
+<rect width="1340" height="412" rx="16" fill="#2563EB"/>
+<ellipse cx="1093.48" cy="32.6027" rx="441.5" ry="237.802" transform="rotate(24.7131 1093.48 32.6027)" fill="#3471F6"/>
+<ellipse cx="152.925" cy="400.875" rx="301.859" ry="115.859" transform="rotate(24.7131 152.925 400.875)" fill="#3471F6"/>
+<rect width="313" height="412" fill="url(#paint0_linear_1087_90)"/>
+<rect x="884" width="456" height="412" fill="url(#paint1_linear_1087_90)"/>
+</g>
+<defs>
+<linearGradient id="paint0_linear_1087_90" x1="0" y1="206" x2="313" y2="206" gradientUnits="userSpaceOnUse">
+<stop stop-color="#2563EB"/>
+<stop offset="1" stop-color="#525FE1" stop-opacity="0"/>
+</linearGradient>
+<linearGradient id="paint1_linear_1087_90" x1="884" y1="206" x2="1340" y2="206" gradientUnits="userSpaceOnUse">
+<stop stop-color="#525FE1" stop-opacity="0"/>
+<stop offset="1" stop-color="#2563EB"/>
+</linearGradient>
+<clipPath id="clip0_1087_90">
+<rect width="1340" height="412" rx="16" fill="white"/>
+</clipPath>
+</defs>
+</svg>
