@@ -32,7 +32,7 @@ const variants = {
 
 export default function RegisterPage() {
   const [currentStep, setCurrentStep] = useState<1 | 2>(1);
-  const [role, setRole] = useState<"user" | "seller">("user");
+  const [account_type, setAccount_type] = useState<"user" | "seller">("user");
   const [direction, setDirection] = useState(0);
 
   const handleNextStep = () => {
@@ -45,13 +45,13 @@ export default function RegisterPage() {
     setCurrentStep(1);
   };
 
-  const handleSelectRole = (selectedRole: "user" | "seller") => {
-    setRole(selectedRole);
+  const handleSelectAccount_type = (selectedAccount_type: "user" | "seller") => {
+    setAccount_type(selectedAccount_type);
   };
 
   return (
     <AuthLayout title="تسجيل جديد!" Subtitle="للبدء في هذه الرحلة، أخبرنا بنوع الحساب الذي ترغب في فتحه.">
-      <div className="relative overflow-hidden min-h-[calc(100vh-8rem)] flex items-center justify-center">
+      <div className="relative min-h-[calc(100vh-8rem)] flex items-center justify-center">
         <AnimatePresence initial={false} custom={direction}>
           {currentStep === 1 && (
             <motion.div
@@ -65,8 +65,8 @@ export default function RegisterPage() {
             >
               <RegisterStep1
                 onNext={handleNextStep}
-                onSelectRole={handleSelectRole}
-                selectedRole={role}
+                onSelectAccount_type={handleSelectAccount_type}
+                selectedAccount_type={account_type}
               />
             </motion.div>
           )}
@@ -81,7 +81,7 @@ export default function RegisterPage() {
               exit="exit"
               className="absolute w-full max-w-md p-4"
             >
-              <RegisterStep2 role={role} onPrevious={handlePreviousStep} />
+              <RegisterStep2 account_type={account_type} onPrevious={handlePreviousStep} />
             </motion.div>
           )}
         </AnimatePresence>

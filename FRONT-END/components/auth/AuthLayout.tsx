@@ -36,11 +36,11 @@ export default function AuthLayout({
             </p>
             <Button
               variant={"ghost"}
-              className="absolute right-16 top-14 flex gap-2"
+              className="absolute rgiht-2 top-5 md:right-16 md:top-14 flex gap-2"
               onClick={() => router.push("/")}
             >
               <ArrowRight />
-              <div>رجوع</div>
+              <div>الصفحة الرئيسية</div>
             </Button>
           </div>
           <div>{children}</div>

@@ -5,29 +5,29 @@ import { ArrowLeft, Backpack, PersonStandingIcon } from "lucide-react";
 
 interface RegisterStep1Props {
   onNext: () => void;
-  onSelectRole: (role: "user" | "seller") => void;
-  selectedRole: "user" | "seller";
+  onSelectAccount_type: (account_type: "user" | "seller") => void;
+  selectedAccount_type: "user" | "seller";
 }
 
 export default function RegisterStep1({
   onNext,
-  onSelectRole,
-  selectedRole,
+  onSelectAccount_type,
+  selectedAccount_type,
 }: RegisterStep1Props) {
   return (
     <div className="flex flex-col gap-10">
-      {/* User Role Card */}
+      {/* User account_type Card */}
       <Button
-        onClick={() => onSelectRole("user")}
+        onClick={() => onSelectAccount_type("user")}
         className={`flex flex-col group justify-center p-6 rounded-lg border-2 transition-all duration-200 ease-in-out ${
-          selectedRole === "user"
+          selectedAccount_type === "user"
             ? "border-blue-500 shadow-lg"
             : "border-gray-200 hover:border-blue-300"
         } h-full`}
         variant="outline"
       >
         <div className="flex justify-between w-full">
-          <div className="size-14 [clip-path:polygon(50%_0%,_100%_38%,_82%_100%,_18%_100%,_0%_38%)] flex items-center justify-center bg-blue-100 text-blue-600 mb-4">
+          <div className="hidden md:size-14 md:[clip-path:polygon(50%_0%,_100%_38%,_82%_100%,_18%_100%,_0%_38%)] md:flex md:items-center md:justify-center md:bg-green-100 md:text-blue-600 md:mb-4">
             <PersonStandingIcon />
           </div>
           <div className="flex flex-col">
@@ -38,45 +38,51 @@ export default function RegisterStep1({
           </div>
           <div
             className={`mt-4 opacity-0 ${
-              selectedRole === "user" && "opacity-100"
+              selectedAccount_type === "user" && "opacity-100"
             }`}
           >
-            <Button onClick={onNext} variant={"outline"}>
-              <ArrowLeft className={`text-primary`} />
-            </Button>
+            <div
+              onClick={onNext}
+              className={`h-10 px-4 py-2 border border-input bg-background hover:bg-accent hover:text-accent-foreground inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 text-primary`}
+            >
+              <ArrowLeft className="hover:text-white" />
+            </div>
           </div>
         </div>
       </Button>
 
       <Button
-        onClick={() => onSelectRole("seller")}
+        onClick={() => onSelectAccount_type("seller")}
         className={`flex flex-col group justify-center p-6 rounded-lg border-2 transition-all duration-200 ease-in-out ${
-          selectedRole === "seller"
+          selectedAccount_type === "seller"
             ? "border-blue-500 shadow-lg"
             : "border-gray-200 hover:border-blue-300"
         } h-full`}
         variant="outline"
       >
         <div className="flex w-full justify-between">
-          <div className="size-14 [clip-path:polygon(50%_0%,_100%_38%,_82%_100%,_18%_100%,_0%_38%)] flex items-center justify-center bg-green-100 text-green-600 mb-4">
+          <div className="hidden md:size-14 md:[clip-path:polygon(50%_0%,_100%_38%,_82%_100%,_18%_100%,_0%_38%)] md:flex md:items-center md:justify-center md:bg-green-100 md:text-green-600 md:mb-4">
             <Backpack size={48} />
           </div>
           <div className="text-center">
             <div className="font-semibold text-lg">تجاري</div>
-            <div className="text-sm text-gray-500 mt-1 flex flex-col">
-              <span>إذا كنت تمتلك شركة أو تنتمي إليها،</span>
+            <div className="text-sm text-gray-500 mt-1 flex flex-col group-hover:text-white">
+              <span>إذا كنت تمتلك شركة أو صاحب متجر،</span>
               <span>فهذا هو الخيار المناسب لك.</span>
             </div>
           </div>
 
           <div
             className={`mt-4 opacity-0 ${
-              selectedRole === "seller" && "opacity-100"
+              selectedAccount_type === "seller" && "opacity-100"
             }`}
           >
-            <Button onClick={onNext} variant={"outline"}>
-              <ArrowLeft className={`text-primary`} />
-            </Button>
+            <div
+              onClick={onNext}
+              className={`h-10 px-4 py-2 border border-input bg-background hover:bg-accent hover:text-accent-foreground inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 text-primary`}
+            >
+              <ArrowLeft className="hover:text-white" />
+            </div>
           </div>
         </div>
       </Button>

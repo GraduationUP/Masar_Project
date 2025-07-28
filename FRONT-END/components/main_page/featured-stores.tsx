@@ -17,6 +17,7 @@ interface Store {
   updated_at: string;
   latitude: number;
   longitude: number;
+  average_rating: number;
   store_image: string;
 }
 
@@ -76,14 +77,16 @@ export default function FeaturedStores() {
     const fetchStores = async () => {
       setIsLoading(true);
       try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/guest/stores`);
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/guest/stores`
+        );
         if (!response.ok) {
           throw new Error(`Failed to fetch stores, status: ${response.status}`);
         }
         const data = await response.json();
         setStores(data.data || []);
       } catch (error) {
-        console.error('Error fetching stores:', error);
+        console.error("Error fetching stores:", error);
       } finally {
         setIsLoading(false);
       }
@@ -119,7 +122,7 @@ export default function FeaturedStores() {
           <Card className="overflow-hidden h-full card-hover border-border/50">
             <div className="relative h-48 w-full overflow-hidden">
               <img
-                src={"/storeBanner.svg"}
+                src={"/Banner.svg"}
                 alt={store.store_name}
                 className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
               />
@@ -147,7 +150,7 @@ export default function FeaturedStores() {
               <div className="flex items-center gap-1">
                 <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
                 <span className="text-sm font-medium">
-                  {/* {store.rating?.toFixed(1)} TODO */}
+                  {store.average_rating}
                 </span>
               </div>
             </CardFooter>
