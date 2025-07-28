@@ -11,10 +11,10 @@ export default function Home() {
     <div className="flex flex-col">
       <Header />
       <HeroSection />
-      <ServiceCategoriesSection />
-      <FeaturedStoresSection />
       <HowItWorksSection />
+      <ServiceCategoriesSection />
       <CTASection />
+      <FeaturedStoresSection />
     </div>
   );
 }
