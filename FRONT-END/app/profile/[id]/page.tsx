@@ -1,6 +1,5 @@
 "use client";
 
-// TODO : Solve api issue for the password
 // TODO : Fix page layout
 
 import { FormEvent, useEffect, useState } from "react";
@@ -818,13 +817,13 @@ export default function ProfilePage() {
                   <Card key={data.store?.id} className="overflow-hidden">
                     <div className="relative h-32 w-full">
                       <img
-                        src={"/storeBanner.svg"}
+                        src={"/Banner.svg"}
                         alt={data.store?.store_name}
                         className="h-full w-full object-cover"
                       />
                       <div className="absolute bottom-4 left-4 bg-background/80 backdrop-blur-sm rounded-full p-1">
                         <img
-                          src={"/placeholder-store.png"}
+                          src={data.store.id_card_photo ? data.store.id_card_photo : "/placeholder-store.png"}
                           alt={`${data.store?.store_name} logo`}
                           className="h-12 w-12 rounded-full border-2 border-background"
                         />
