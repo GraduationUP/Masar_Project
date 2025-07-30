@@ -775,7 +775,9 @@ export default function StorePage() {
                 >
                   <div>
                     <div className="flex items-center justify-between mb-4">
-                      <h2 className="text-xl font-bold">التقييمات ({data?.feedback?.length})</h2>
+                      <h2 className="text-xl font-bold">
+                        التقييمات ({data?.feedback?.length})
+                      </h2>
                     </div>
                     {isUser && notOwner && (
                       <>
