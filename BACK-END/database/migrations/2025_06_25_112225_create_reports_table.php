@@ -16,6 +16,8 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained()->onDelete('cascade'); // المبلّغ
             $table->foreignId('reported_user_id')->constrained('users')->onDelete('cascade'); // المبلّغ عنه
             $table->text('message');
+            $table->enum('status', ['pending', 'in_progress', 'resolved'])->default('pending');
+
             $table->timestamps();
         });
     }

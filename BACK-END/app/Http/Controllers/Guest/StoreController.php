@@ -55,6 +55,7 @@ class StoreController extends Controller
 
             return [
                 'user_name' => $rating?->user->username ?? $comment?->user->username ?? 'مستخدم غير معروف',
+                'user_id' => $rating?->user_id ?? $comment?->user_id,
                 'score' => $rating?->score,
                 'content' => $comment?->content ?? '',
                 'created_at' => $rating && $comment

@@ -30,6 +30,10 @@ class MapController extends Controller
         ]),
 
         'stores' => Store::where('status', 1)->get()->map(fn($store) => [
+            //get store id
+
+
+            'store_id'=> $store->id,
             'name' => $store->store_name,
             'coordinates' => [(float) $store->latitude, (float) $store->longitude],
         ]),
