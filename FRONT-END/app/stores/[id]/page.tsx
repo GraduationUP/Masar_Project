@@ -775,7 +775,7 @@ export default function StorePage() {
                 >
                   <div>
                     <div className="flex items-center justify-between mb-4">
-                      <h2 className="text-xl font-bold">التقييمات</h2>
+                      <h2 className="text-xl font-bold">التقييمات ({data?.feedback?.length})</h2>
                     </div>
                     {isUser && notOwner && (
                       <>
@@ -1055,6 +1055,32 @@ export default function StorePage() {
                   </div>
                 </TabsContent>
               </Tabs>
+            </div>
+            <div className="space-y-6">
+              <Card className="card-hover">
+                <CardContent className="p-4">
+                  <h3 className="font-bold mb-2">موقع المتجر</h3>
+                  <div className="h-64 rounded-lg overflow-hidden mb-4">
+                    {data && (
+                      <MapWithNoSSR
+                        center={[data.latitude, data.longitude]}
+                        zoom={15}
+                        markers={[
+                          {
+                            position: [data.latitude, data.longitude],
+                            title: data.name,
+                            type: "store",
+                          },
+                        ]}
+                      />
+                    )}
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <MapPin className="h-5 w-5 text-muted-foreground shrink-0 mt-0.5" />
+                    <span>{data?.location_address}</span>
+                  </div>
+                </CardContent>
+              </Card>
             </div>
           </div>
         </div>
