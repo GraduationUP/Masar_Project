@@ -22,6 +22,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Filter, Search, ShoppingBag } from "lucide-react";
 import Header from "@/components/main_layout/header";
+import Image from "next/image";
 
 interface StoreItem {
   id: number;
@@ -177,6 +178,12 @@ export default function MarketplacePage() {
   return (
     <>
       <Header />
+      <div
+        className="bg-no-repeat bg-center bg-cover h-[412px] flex justify-center items-center text-5xl text-white font-bold text-center"
+        style={{ backgroundImage: 'url("/Banner.svg")' }}
+      >
+        تسوق، استمتع، اختر، استرخِ!
+      </div>
       <div className="container px-4 md:px-6 py-8">
         <div className="flex flex-col gap-6">
           <div className="flex flex-col gap-2">

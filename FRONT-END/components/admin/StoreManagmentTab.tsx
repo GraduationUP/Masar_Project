@@ -112,7 +112,7 @@ const StoreManagementTab: React.FC<StoreManagementTabProps> = ({
           <Card key={store.id} className="overflow-hidden">
             <div className="relative h-32 w-full">
               <img
-                src={"/storeBanner.svg"}
+                src={"/Banner.svg"}
                 alt={store.store_name}
                 className="h-full w-full object-cover"
               />

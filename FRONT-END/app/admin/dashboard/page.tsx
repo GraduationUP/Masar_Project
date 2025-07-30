@@ -5,7 +5,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { MapPin, Settings } from "lucide-react";
+import { AlertTriangle, MapPin, Settings } from "lucide-react";
 import Loading from "./loading";
 import { CustomAlert } from "@/components/customAlert";
 import AdminOverviewCards from "@/components/admin/AdminOverViewCards";
@@ -509,12 +509,20 @@ export default function AdminDashboard() {
               </h1>
               <p className="text-muted-foreground">إدارة منصة مسار</p>
             </div>
-            <Button asChild>
-              <Link href="/admin/map">
-                <MapPin className="mr-2 h-4 w-4" />
-                إدارة الخريطة
-              </Link>
-            </Button>
+            <div className="flex gap-3">
+              <Button asChild>
+                <Link href="/admin/map">
+                  <MapPin className="mr-2 h-4 w-4" />
+                  إدارة الخريطة
+                </Link>
+              </Button>
+              <Button asChild variant={"outline"}>
+                <Link href="/admin/reports">
+                  <AlertTriangle className="mr-2 h-4 w-4" />
+                  البلاغات
+                </Link>
+              </Button>
+            </div>
           </div>
 
           <AdminOverviewCards

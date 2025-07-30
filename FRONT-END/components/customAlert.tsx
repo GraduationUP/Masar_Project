@@ -32,7 +32,7 @@ export function CustomAlert({
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 20 }}
-          className="fixed bottom-6 right-6 z-50 w-full max-w-sm"
+          className="fixed bottom-6 right-6 z-50 w-full max-w-sm sm:max-w-md md:max-w-lg lg:max-w-xl xl:max-w-2xl"
         >
           <Alert
             className={`${

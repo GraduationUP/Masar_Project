@@ -22,6 +22,7 @@ import { Input } from "./ui/input";
 import { Search } from "lucide-react";
 import { Label } from "./ui/label";
 import classes from "./map.module.css";
+import Link from "next/link";
 
 interface Props {
   length: number;
@@ -311,7 +312,12 @@ const GazaMap: React.FC<GazaMapProps> = ({ data }) => {
 
         {(viewOption === "all" || viewOption === "stores") &&
           filteredStores.map(
-            (store: { id: number; name: string; staus: boolean; coordinates: Coordinates }) => (
+            (store: {
+              id: number;
+              name: string;
+              staus: boolean;
+              coordinates: Coordinates;
+            }) => (
               <Marker
                 key={`store-${store.id}`}
                 position={[
@@ -321,7 +327,9 @@ const GazaMap: React.FC<GazaMapProps> = ({ data }) => {
                 icon={ActiveStoreIcon}
               >
                 <Popup>
-                  <div>{store.name}</div>
+                  <Link href={`/store/${store.id}`}>
+                    <div>{store.name}</div>
+                  </Link>
                 </Popup>
               </Marker>
             )
