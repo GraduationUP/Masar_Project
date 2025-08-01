@@ -22,7 +22,6 @@ class ProductController extends Controller
         }
 
 
-        $products = $store->products()->with('category')->get();
         $products = $store->products()->with('category')->get()->map(function ($product) {
             return [
                 'id' => $product->id,
