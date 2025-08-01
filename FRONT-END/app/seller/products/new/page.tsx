@@ -401,11 +401,12 @@ export default function NewProductPage() {
                         )}
                       </div>
                       <label className="inline-flex items-center rounded-full border border-input bg-background px-4 py-2 text-sm font-medium cursor-pointer hover:bg-accent hover:text-accent-foreground">
-                        <input
+                        <Input
                           type="file"
                           accept="image/*"
                           className="hidden"
                           onChange={handleFileChange}
+                          required
                         />
                         <Package className="h-4 w-4 ml-2" />
                         رفع الصورة
