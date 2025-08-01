@@ -956,26 +956,26 @@ export default function StorePage() {
                               </Button>
                               {userfeedback.content && (
                                 <Button
-                                  variant={"destructive"}
+                                  variant={"secondary"}
                                   onClick={() =>
                                     handelCommentDelete(
                                       userfeedback.content_id as number
                                     )
                                   }
                                 >
-                                  حذف التعليق
+                                  <Image src={'/ui/trash_comment.svg'} alt="حذف التعليق" height={20} width={20} />
                                 </Button>
                               )}
                               {userfeedback.score && (
                                 <Button
-                                  variant={"destructive"}
+                                  variant={"secondary"}
                                   onClick={() =>
                                     handelRatingDelete(
                                       userfeedback.score_id as number
                                     )
                                   }
                                 >
-                                  حذف التقييم
+                                 <Image src={'/ui/trash_rating.svg'} alt="حذف التقييم" height={20} width={20} />
                                 </Button>
                               )}
                             </div>
