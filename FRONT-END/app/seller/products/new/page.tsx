@@ -39,7 +39,7 @@ interface Product {
   price: number;
   latitude: number;
   longitude: number;
-  show_location: boolean;
+  show_location: number;
 }
 
 export default function NewProductPage() {
@@ -56,7 +56,7 @@ export default function NewProductPage() {
     price: 0,
     latitude: 31.53157982870554,
     longitude: 34.46717173572411,
-    show_location: false,
+    show_location: 0,
   });
   const [storeCategories, setStoreCategories] = useState<{
     status: boolean;
@@ -92,13 +92,6 @@ export default function NewProductPage() {
     formData.append("longitude", productData.longitude.toString());
     formData.append("show_location", productData.show_location.toString());
 
-    // --- Start of how to print formData content ---
-    console.log("FormData content:");
-    for (const pair of formData.entries()) {
-      console.log(`${pair[0]}: ${pair[1]}`);
-    }
-    // --- End of how to print formData content ---
-
     try {
       const response = await fetch(`${BASE_API_URL}/api/seller/products`, {
         method: "POST",
@@ -127,7 +120,7 @@ export default function NewProductPage() {
         price: 0,
         latitude: 31.53157982870554,
         longitude: 34.46717173572411,
-        show_location: false,
+        show_location: 0,
       });
       if (previewUrl) {
         URL.revokeObjectURL(previewUrl);
@@ -331,11 +324,11 @@ export default function NewProductPage() {
                   <div className="flex items-center space-x-2 gap-1">
                     <Switch
                       id="show-location"
-                      checked={productData.show_location}
+                      checked={productData.show_location === 0 ? false : true}
                       onCheckedChange={(checked) =>
                         setProductData({
                           ...productData,
-                          show_location: checked,
+                          show_location: checked === true ? 1 : 0,
                         })
                       }
                       className="flex flex-row-reverse"
