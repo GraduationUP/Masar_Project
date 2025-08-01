@@ -21,12 +21,24 @@ class ProductController extends Controller
             return response()->json(['message' => 'Store not found.'], 404);
         }
 
-        $products = $store->products()->with('category')->get();
 
-        $products->transform(function ($product) {
-            $product->photo_url = $product->photo ? asset('storage/' . $product->photo) : null;
-            return $product;
+        $products = $store->products()->with('category')->get();
+        $products = $store->products()->with('category')->get()->map(function ($product) {
+            return [
+                'id' => $product->id,
+                'name' => $product->name,
+                'description' => $product->description,
+                'category' => $product->category,
+                'price' => $product->price,
+                'photo' => $product->photo ? asset('storage/' . $product->photo) : null,
+                'latitude' => $product->latitude,
+                'longitude' => $product->longitude,
+                'show_location' => $product->show_location,
+                'created_at' => $product->created_at,
+                'updated_at' => $product->updated_at,
+            ];
         });
+
 
         return response()->json([
             'products' => $products
@@ -58,7 +70,7 @@ class ProductController extends Controller
                 'category_id' => $request->category_id,
                 'price' => $request->price,
                 'latitude' => $request->latitude ?? 31.41,     // تعويض بقيمة افتراضية لو null
-                'longitude' => $request->longitude ?? 34.39,   
+                'longitude' => $request->longitude ?? 34.39,
                 'show_location' => $request->show_location ?? true,
             ]);
 
