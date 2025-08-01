@@ -1,6 +1,5 @@
 "use client";
 
-// TODO : Solve api issue for the password
 // TODO : Fix page layout
 
 import { FormEvent, useEffect, useState } from "react";
@@ -28,6 +27,7 @@ import {
   Lock,
   LogOut,
   Star,
+  Store,
   User,
 } from "lucide-react";
 import React from "react";
@@ -72,6 +72,22 @@ export default function ProfilePage() {
     longitude: number | null;
   }
 
+  interface comment {
+    id: number;
+    store_id: number;
+    store_name: string;
+    comment: string;
+    created_at: string;
+  }
+
+  interface rating {
+    id: number;
+    store_id: number;
+    store_name: string;
+    rating: number;
+    created_at: string;
+  }
+
   interface Data {
     id: number;
     first_name: string;
@@ -88,8 +104,8 @@ export default function ProfilePage() {
     email: string;
     role: string;
     store: Store | null;
-    comments: [];
-    ratings: [];
+    comments: [comment] | [];
+    ratings: [rating] | [];
   }
 
   const [ownerData, setOwnerData] = useState<OwnerData>({
@@ -795,7 +811,6 @@ export default function ProfilePage() {
                     </Card>
                   </TabsContent>
 
-                  {/* ... Activity Tab Content ... */}
                   <TabsContent
                     value="activity"
                     className="space-y-6 animate-fade-in"
@@ -807,24 +822,135 @@ export default function ProfilePage() {
                           التقييمات التي قمت بنشرها
                         </CardDescription>
                       </CardHeader>
-                      {/* ... Activity Tab Content ... */}
+                      <Tabs defaultValue="user_comments" className="w-full p-4">
+                        <TabsList>
+                          <TabsTrigger value="user_comments">
+                            التعليقات
+                          </TabsTrigger>
+                          <TabsTrigger value="user_ratings">
+                            التقييمات
+                          </TabsTrigger>
+                        </TabsList>
+                        {/* Tabs content: Yeah this is Osama not AI you dumbass */}
+                        {/* Comments Tab */}
+                        <TabsContent value="user_comments">
+                          {ownerData.comments.map((comment) => (
+                            <div
+                              className="relative flex gap-3 items-start border rounded-md p-4"
+                              key={comment.id}
+                            >
+                              <Avatar>
+                                <AvatarFallback>
+                                  {ownerData.first_name.slice(0, 2)}
+                                </AvatarFallback>
+                              </Avatar>
+                              <div className="flex flex-col w-full">
+                                <div className="flex justify-between">
+                                  <div>
+                                    {ownerData.first_name} {ownerData.last_name}
+                                  </div>
+                                  <div>
+                                    <div>
+                                      {new Date(
+                                        comment.created_at
+                                      ).toLocaleString("en", {
+                                        year: "numeric",
+                                        month: "long",
+                                        day: "numeric",
+                                      })}
+                                    </div>
+                                  </div>
+                                </div>
+                                <div className="flex justify-between">
+                                  <div>{comment.comment}</div>
+                                  <div className="text-primary text-sm">
+                                    <Link
+                                      href={`/store/${comment.store_id}`}
+                                      className="flex gap-2"
+                                    >
+                                      <Store />
+                                      {comment.store_name}
+                                    </Link>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </TabsContent>
+                        {/* Ratings Tab */}
+                        <TabsContent value="user_ratings">
+                          {ownerData.ratings.map((rating) => (
+                            <div
+                              className="relative flex gap-3 items-start border rounded-md p-4"
+                              key={rating.id}
+                            >
+                              <Avatar>
+                                <AvatarFallback>
+                                  {ownerData.first_name.slice(0, 2)}
+                                </AvatarFallback>
+                              </Avatar>
+                              <div className="flex flex-col w-full">
+                                <div className="flex justify-between">
+                                  <div>
+                                    {ownerData.first_name} {ownerData.last_name}
+                                  </div>
+                                  <div>
+                                    <div>
+                                      {new Date(
+                                        rating.created_at
+                                      ).toLocaleString("en", {
+                                        year: "numeric",
+                                        month: "long",
+                                        day: "numeric",
+                                      })}
+                                    </div>
+                                  </div>
+                                </div>
+                                <div className="flex justify-between">
+                                  <div className="flex">
+                                    {[...Array(5)].map((_, i) => (
+                                      <Star
+                                        key={i}
+                                        fill={i < rating.rating ? "yellow" : "gray"}
+                                        className="h-5 w-5"
+                                      />
+                                    ))}
+                                  </div>
+                                  <div className="text-primary text-sm">
+                                    <Link
+                                      href={`/store/${rating.store_id}`}
+                                      className="flex gap-2"
+                                    >
+                                      <Store />
+                                      {rating.store_name}
+                                    </Link>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </TabsContent>
+                      </Tabs>
                     </Card>
                   </TabsContent>
                 </Tabs>
               )}
               {data.store !== null && (
                 <div className={`grid grid-cols-1 gap-6`}>
-                  {/* ... Store Card ... */}
                   <Card key={data.store?.id} className="overflow-hidden">
                     <div className="relative h-32 w-full">
                       <img
-                        src={"/storeBanner.svg"}
+                        src={"/Banner.svg"}
                         alt={data.store?.store_name}
                         className="h-full w-full object-cover"
                       />
                       <div className="absolute bottom-4 left-4 bg-background/80 backdrop-blur-sm rounded-full p-1">
                         <img
-                          src={"/placeholder-store.png"}
+                          src={
+                            data.store.id_card_photo
+                              ? data.store.id_card_photo
+                              : "/placeholder-store.png"
+                          }
                           alt={`${data.store?.store_name} logo`}
                           className="h-12 w-12 rounded-full border-2 border-background"
                         />

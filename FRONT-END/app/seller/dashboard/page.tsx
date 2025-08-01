@@ -40,6 +40,7 @@ interface Store {
   average_rating: number;
   latitude: string;
   longitude: string;
+  id_card_photo_url: string;
 }
 
 interface Product {
@@ -83,6 +84,7 @@ export default function SellerDashboard() {
       average_rating: 0,
       latitude: "34",
       longitude: "31",
+      id_card_photo_url: ""
     },
   });
   const [user, setUser] = useState(null);
@@ -95,6 +97,7 @@ export default function SellerDashboard() {
     average_rating: 0,
     latitude: "34",
     longitude: "31",
+    id_card_photo_url: "",
   });
   const [products, setProducts] = useState<Product[]>([]);
   const [stats, setStats] = useState(0);
@@ -292,14 +295,16 @@ export default function SellerDashboard() {
                   <Card key={store.id} className="overflow-hidden">
                     <div className="relative h-32 w-full">
                       <img
-                        src={"/storeBanner.svg"}
+                        src={"/Banner.svg"}
                         alt={store.name}
                         className="h-full w-full object-cover"
                       />
                       <div className="absolute bottom-4 left-4 bg-background/80 backdrop-blur-sm rounded-full p-1">
-                        <img
-                          src={"/placeholder-store.png"}
+                        <Image
+                          src={ store.id_card_photo_url || "/placeholder-store.png"}
                           alt={`${store.name} logo`}
+                          width={20}
+                          height={20}
                           className="h-12 w-12 rounded-full border-2 border-background"
                         />
                       </div>
