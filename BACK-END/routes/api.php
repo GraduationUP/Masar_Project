@@ -107,6 +107,9 @@ Route::middleware('auth:sanctum')->group(function () {
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/reports', [ReportController::class, 'store']);
+    Route::get('/reports', [ReportController::class, 'index']); // فقط للأدمن
+    Route::put('/reports/{id}/status', [ReportController::class, 'updateStatus']);
+    Route::delete('/reports/{id}', [ReportController::class, 'destroy']);
 
     Route::get('/notifications', [NotificationController::class, 'index']);
     Route::patch('/notifications/{id}/read', [NotificationController::class, 'markAsRead']);
@@ -144,5 +147,4 @@ Route::middleware(['auth:sanctum'])->prefix('admin')->group(function () {
     Route::delete('/comments/{id}', [AdminCommentController::class, 'destroy']);
 
     Route::apiResource('categories', AdminCategoryController::class)->only(['index', 'store', 'update', 'destroy']);
-
 });

@@ -13,7 +13,7 @@ class ProductController extends Controller
 
         // تعديل المنتجات لإضافة رابط الصورة الكامل لكل منتج ولكل متجر
         $products = $products->map(function ($product) {
-            $product->photo_url = $product->photo ? asset('storage/' . $product->photo) : null;
+            $product->photo = $product->photo ? asset('storage/' . $product->photo) : null;
 
             if ($product->store) {
                 $product->store->id_card_photo_url = $product->store->id_card_photo

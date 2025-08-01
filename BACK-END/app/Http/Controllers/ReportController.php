@@ -30,4 +30,48 @@ class ReportController extends Controller
             'report' => $report,
         ], 201);
     }
+
+    public function index()
+    {
+        // فقط الأدمن يشوف البلاغات
+        if (!Auth::user()->hasRole('admin')) {
+            return response()->json(['message' => 'غير مصرح.'], 403);
+        }
+
+        $reports = Report::with(['user', 'reportedUser'])->latest()->get();
+        return response()->json($reports);
+    }
+
+    // داخل ReportController
+
+    // تحديث حالة البلاغ (مراجعته أو تجاهله)
+    public function updateStatus(Request $request, $id)
+    {
+        if (!Auth::user()->hasRole('admin')) {
+            return response()->json(['message' => 'غير مصرح.'], 403);
+        }
+
+        $request->validate([
+            'status' => 'required|in:pending,resolved,in_progress',
+        ]);
+
+        $report = Report::findOrFail($id);
+        $report->status = $request->status;
+        $report->save();
+
+        return response()->json(['message' => 'تم تحديث حالة البلاغ بنجاح.', 'report' => $report]);
+    }
+
+    // حذف البلاغ نهائياً
+    public function destroy($id)
+    {
+        if (!Auth::user()->hasRole('admin')) {
+            return response()->json(['message' => 'غير مصرح.'], 403);
+        }
+
+        $report = Report::findOrFail($id);
+        $report->delete();
+
+        return response()->json(['message' => 'تم حذف البلاغ بنجاح.']);
+    }
 }
