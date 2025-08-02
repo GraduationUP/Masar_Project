@@ -121,7 +121,7 @@ export default function reportsPage() {
         {reports.filter((report) => report.status === "resolved").length ===
         0 ? (
           <Image
-            src={"/admin/done.svg"}
+            src={"/admin/done_report.svg"}
             alt="resolved report"
             width={200}
             height={200}
