@@ -7,6 +7,7 @@ import { ArrowRight } from "lucide-react";
 import Image from "next/image";
 import { ReportCard } from "@/components/admin/ReportCard";
 import { useEffect, useState } from "react";
+import { Check, Hourglass, Clock } from "lucide-react";
 
 type User = {
   id: number;
@@ -98,7 +99,12 @@ export default function reportsPage() {
         ) : (
           reports
             .filter((report) => report.status === "pending")
-            .map((report) => <ReportCard key={report.id} report={report} />)
+            .map((report) => (
+              <ReportCard key={report.id} report={report}>
+                <Hourglass />
+                <Check />
+              </ReportCard>
+            ))
         )}
       </ReportSection>
       <ReportSection title="جار العمل عليها">
@@ -114,7 +120,12 @@ export default function reportsPage() {
         ) : (
           reports
             .filter((report) => report.status === "in_progress")
-            .map((report) => <ReportCard key={report.id} report={report} />)
+            .map((report) => (
+              <ReportCard key={report.id} report={report}>
+                <Clock />
+                <Check />
+              </ReportCard>
+            ))
         )}
       </ReportSection>
       <ReportSection title="تم حلها">
@@ -130,7 +141,12 @@ export default function reportsPage() {
         ) : (
           reports
             .filter((report) => report.status === "resolved")
-            .map((report) => <ReportCard key={report.id} report={report} />)
+            .map((report) => (
+              <ReportCard key={report.id} report={report}>
+                <Clock />
+                <Hourglass />
+              </ReportCard>
+            ))
         )}
       </ReportSection>
     </>
