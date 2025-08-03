@@ -10,7 +10,7 @@ class StoreController extends Controller
 {
     public function index()
     {
-        $stores = Store::where('status', true)->get()->map(function ($store) {
+        $stores = Store::where('status', 'active')->get()->map(function ($store) {
             $averageRating = round($store->ratings()->avg('score'), 1);
 
             return [
