@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { BarChart3, Package, Plus, Star, StoreIcon, Users } from "lucide-react";
+import { BarChart3, Bolt, Package, Plus, Star, StoreIcon, Users } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import Loading from "./loading";
 import Image from "next/image";
@@ -220,12 +220,20 @@ export default function SellerDashboard() {
                   </Link>
                 </Button>
               ) : (
-                <Button asChild variant="outline">
+                <div className="flex gap-2">
+                  <Button asChild variant="outline">
                   <Link href="/seller/products/new">
-                    <Package className="mr-2 h-4 w-4" />
+                    <Package className="h-4 w-4" />
                     إضافة منتج
                   </Link>
                 </Button>
+                <Button asChild>
+                  <Link href="/seller/edit-store">
+                    <Bolt className="h-4 w-4" />
+                    اعدادات المتجر
+                  </Link>
+                </Button>
+                </div>
               )}
             </div>
           </div>

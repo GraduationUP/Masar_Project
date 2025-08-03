@@ -9,6 +9,7 @@ import { ReportCard } from "@/components/admin/ReportCard";
 import { useEffect, useState } from "react";
 import { Check, Hourglass, Clock, Trash } from "lucide-react";
 import { CustomAlert } from "@/components/customAlert";
+import PageTitle from "@/components/main_layout/PageTitle";
 type User = {
   id: number;
   first_name: string;
@@ -133,20 +134,7 @@ export default function reportsPage() {
         onClose={() => setLoading(false)}
         success={true}
       />
-      <div className="flex">
-        <Button
-          variant={"ghost"}
-          onClick={() => window.history.back()}
-          className="rounded-full"
-        >
-          <ArrowRight />
-        </Button>
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">ادارة البلاغات</h1>
-          <p className="text-muted-foreground">إدارة بلاغات منصة مسار</p>
-        </div>
-      </div>
-
+      <PageTitle MainTitle="ادارة البلاغات" Subtitle="ادارة بلاغات منصة مسار" />
       <ReportSection title="معلقة">
         {reports.filter((report) => report.status === "pending").length ===
         0 ? (
