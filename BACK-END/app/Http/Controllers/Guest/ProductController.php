@@ -35,6 +35,20 @@ class ProductController extends Controller
     {
         $product = Product::with('store', 'category')->findOrFail($id);
 
+        // جلب منتجات ذات صلة بنفس التصنيف مع استثناء المنتج الحالي
+        $relatedProducts = Product::where('category_id', $product->category_id)
+            ->where('id', '!=', $product->id)
+            ->take(5) // أو استخدم 3 إذا كنت تفضل
+            ->get()
+            ->map(function ($related) {
+                return [
+                    'id' => $related->id,
+                    'name' => $related->name,
+                    'price' => $related->price,
+                    'photo' => $related->photo ? asset('storage/' . $related->photo) : null,
+                ];
+            });
+
         return response()->json([
             'status' => true,
             'data' => [
@@ -55,6 +69,7 @@ class ProductController extends Controller
                 'show_location' => $product->show_location,
                 'location_address' => $product->store?->location_address,
                 'created_at' => $product->created_at->toDateTimeString(),
+                'related_products' => $relatedProducts,
             ]
         ]);
     }

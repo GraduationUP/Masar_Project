@@ -65,7 +65,7 @@ class DashboardController extends Controller
                 'id' => $store->id,
                 'name' => $store->store_name,
                 'owner_phone' => $store->phone,
-                'status' => $store->is_active ? 'Active' : 'Inactive',
+                'status' => $store->status,
                 'created_at' => $store->created_at->toDateTimeString(),
                 'average_rating' => $averageRating,
                 'latitude' => $store->latitude,
@@ -80,6 +80,7 @@ class DashboardController extends Controller
                 return [
                     'id' => $product->id,
                     'name' => $product->name,
+                    'photo' => $product->photo ? asset('storage/' . $product->photo) : null,
                     'price' => $product->price,
                     'category' => $product->category?->name,
                     'created_at' => $product->created_at->toDateTimeString(),

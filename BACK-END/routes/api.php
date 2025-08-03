@@ -53,6 +53,7 @@ Route::middleware(['auth:sanctum'])->prefix('seller')->group(function () {
     Route::get('/store', [StoreController::class, 'show']);
     Route::put('/store', [StoreController::class, 'update']);
     Route::delete('/store', [StoreController::class, 'destroy']);
+    Route::post('/store/toggle-status', [StoreController::class, 'toggleStatus']);
 
 
 
@@ -61,6 +62,8 @@ Route::middleware(['auth:sanctum'])->prefix('seller')->group(function () {
     Route::put('/products/{product}', [ProductController::class, 'update']);
     Route::delete('/products/{product}', [ProductController::class, 'destroy']);
     Route::get('/dashboard', [DashboardController::class, 'index']);
+
+
 });
 
 Route::get('/guest/stores', [GuestStoreController::class, 'index']);
