@@ -23,7 +23,7 @@ class AdminStoreController extends Controller
                 'phone' => $store->phone,
                 'location_address' => $store->location_address,
                 'active' => $store->status,
-                'is_banned' => $store->status == 0,
+                'is_banned' => $store->is_banned,
                 'created_at' => $store->created_at->toIso8601String(),
                 'updated_at' => $store->updated_at->toIso8601String(),
                 'latitude' => $store->latitude,
@@ -69,7 +69,9 @@ class AdminStoreController extends Controller
     {
         $store = Store::findOrFail($id);
 
-        $store->status = false; // أو false حسب نوع العمود
+        // العمود الجديد للحظر فقط
+        $store->is_banned = 1;
+
         $store->save();
 
         return response()->json([
@@ -81,11 +83,13 @@ class AdminStoreController extends Controller
     {
         $store = Store::findOrFail($id);
 
-        $store->status = true; // أو true
+        // العمود الجديد للحظر فقط
+        $store->is_banned = 0;
+
         $store->save();
 
         return response()->json([
-            'message' => 'Store has been activated.'
+            'message' => 'Store has been unbanned.'
         ]);
     }
 
