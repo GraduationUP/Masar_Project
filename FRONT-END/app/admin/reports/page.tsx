@@ -134,139 +134,150 @@ export default function reportsPage() {
         onClose={() => setLoading(false)}
         success={true}
       />
-      <PageTitle MainTitle="ادارة البلاغات" Subtitle="ادارة بلاغات منصة مسار" />
-      <ReportSection title="معلقة">
-        {reports.filter((report) => report.status === "pending").length ===
-        0 ? (
-          <Image
-            src={"/admin/pending_report.svg"}
-            alt="pending report"
-            width={200}
-            height={200}
-            className={"m-auto"}
-          />
-        ) : (
-          reports
-            .filter((report) => report.status === "pending")
-            .map((report) => (
-              <ReportCard key={report.id} report={report}>
-                <Button
-                  variant={"ghost"}
-                  onClick={() => HandelDeleteReportStatus({ report })}
-                  disabled={sending}
-                >
-                  <Trash className="text-red-400" />
-                </Button>
-                <Button
-                  variant={"ghost"}
-                  onClick={() =>
-                    HandelUpdateReportStatus({ report, status: "in_progress" })
-                  }
-                  disabled={sending}
-                >
-                  <Hourglass />
-                </Button>
-                <Button
-                  variant={"ghost"}
-                  onClick={() =>
-                    HandelUpdateReportStatus({ report, status: "resolved" })
-                  }
-                  disabled={sending}
-                >
-                  <Check />
-                </Button>
-              </ReportCard>
-            ))
-        )}
-      </ReportSection>
-      <ReportSection title="جار العمل عليها">
-        {reports.filter((report) => report.status === "in_progress").length ===
-        0 ? (
-          <Image
-            src={"/admin/in_progress_report.svg"}
-            alt="in_progress report"
-            width={200}
-            height={200}
-            className={"m-auto"}
-          />
-        ) : (
-          reports
-            .filter((report) => report.status === "in_progress")
-            .map((report) => (
-              <ReportCard key={report.id} report={report}>
-                <Button
-                  variant={"ghost"}
-                  onClick={() => HandelDeleteReportStatus({ report })}
-                  disabled={sending}
-                >
-                  <Trash className="text-red-400" />
-                </Button>
-                <Button
-                  variant={"ghost"}
-                  onClick={() =>
-                    HandelUpdateReportStatus({ report, status: "pending" })
-                  }
-                  disabled={sending}
-                >
-                  <Clock />
-                </Button>
-                <Button
-                  variant={"ghost"}
-                  onClick={() =>
-                    HandelUpdateReportStatus({ report, status: "resolved" })
-                  }
-                  disabled={sending}
-                >
-                  <Check />
-                </Button>
-              </ReportCard>
-            ))
-        )}
-      </ReportSection>
-      <ReportSection title="تم حلها">
-        {reports.filter((report) => report.status === "resolved").length ===
-        0 ? (
-          <Image
-            src={"/admin/done_report.svg"}
-            alt="resolved report"
-            width={200}
-            height={200}
-            className={"m-auto"}
-          />
-        ) : (
-          reports
-            .filter((report) => report.status === "resolved")
-            .map((report) => (
-              <ReportCard key={report.id} report={report}>
-                <Button
-                  variant={"ghost"}
-                  onClick={() => HandelDeleteReportStatus({ report })}
-                  disabled={sending}
-                >
-                  <Trash className="text-red-400" />
-                </Button>
-                <Button
-                  variant={"ghost"}
-                  onClick={() =>
-                    HandelUpdateReportStatus({ report, status: "pending" })
-                  }
-                  disabled={sending}
-                >
-                  <Clock />
-                </Button>
-                <Button
-                  variant={"ghost"}
-                  onClick={() =>
-                    HandelUpdateReportStatus({ report, status: "in_progress" })
-                  }
-                  disabled={sending}
-                >
-                  <Hourglass />
-                </Button>
-              </ReportCard>
-            ))
-        )}
-      </ReportSection>
+      <div className="container">
+        <PageTitle
+          MainTitle="ادارة البلاغات"
+          Subtitle="ادارة بلاغات منصة مسار"
+        />
+        <ReportSection title="معلقة">
+          {reports.filter((report) => report.status === "pending").length ===
+          0 ? (
+            <Image
+              src={"/admin/pending_report.svg"}
+              alt="pending report"
+              width={200}
+              height={200}
+              className={"m-auto"}
+            />
+          ) : (
+            reports
+              .filter((report) => report.status === "pending")
+              .map((report) => (
+                <ReportCard key={report.id} report={report}>
+                  <Button
+                    variant={"ghost"}
+                    onClick={() => HandelDeleteReportStatus({ report })}
+                    disabled={sending}
+                  >
+                    <Trash className="text-red-400" />
+                  </Button>
+                  <Button
+                    variant={"ghost"}
+                    onClick={() =>
+                      HandelUpdateReportStatus({
+                        report,
+                        status: "in_progress",
+                      })
+                    }
+                    disabled={sending}
+                  >
+                    <Hourglass />
+                  </Button>
+                  <Button
+                    variant={"ghost"}
+                    onClick={() =>
+                      HandelUpdateReportStatus({ report, status: "resolved" })
+                    }
+                    disabled={sending}
+                  >
+                    <Check />
+                  </Button>
+                </ReportCard>
+              ))
+          )}
+        </ReportSection>
+        <ReportSection title="جار العمل عليها">
+          {reports.filter((report) => report.status === "in_progress")
+            .length === 0 ? (
+            <Image
+              src={"/admin/in_progress_report.svg"}
+              alt="in_progress report"
+              width={200}
+              height={200}
+              className={"m-auto"}
+            />
+          ) : (
+            reports
+              .filter((report) => report.status === "in_progress")
+              .map((report) => (
+                <ReportCard key={report.id} report={report}>
+                  <Button
+                    variant={"ghost"}
+                    onClick={() => HandelDeleteReportStatus({ report })}
+                    disabled={sending}
+                  >
+                    <Trash className="text-red-400" />
+                  </Button>
+                  <Button
+                    variant={"ghost"}
+                    onClick={() =>
+                      HandelUpdateReportStatus({ report, status: "pending" })
+                    }
+                    disabled={sending}
+                  >
+                    <Clock />
+                  </Button>
+                  <Button
+                    variant={"ghost"}
+                    onClick={() =>
+                      HandelUpdateReportStatus({ report, status: "resolved" })
+                    }
+                    disabled={sending}
+                  >
+                    <Check />
+                  </Button>
+                </ReportCard>
+              ))
+          )}
+        </ReportSection>
+        <ReportSection title="تم حلها">
+          {reports.filter((report) => report.status === "resolved").length ===
+          0 ? (
+            <Image
+              src={"/admin/done_report.svg"}
+              alt="resolved report"
+              width={200}
+              height={200}
+              className={"m-auto"}
+            />
+          ) : (
+            reports
+              .filter((report) => report.status === "resolved")
+              .map((report) => (
+                <ReportCard key={report.id} report={report}>
+                  <Button
+                    variant={"ghost"}
+                    onClick={() => HandelDeleteReportStatus({ report })}
+                    disabled={sending}
+                  >
+                    <Trash className="text-red-400" />
+                  </Button>
+                  <Button
+                    variant={"ghost"}
+                    onClick={() =>
+                      HandelUpdateReportStatus({ report, status: "pending" })
+                    }
+                    disabled={sending}
+                  >
+                    <Clock />
+                  </Button>
+                  <Button
+                    variant={"ghost"}
+                    onClick={() =>
+                      HandelUpdateReportStatus({
+                        report,
+                        status: "in_progress",
+                      })
+                    }
+                    disabled={sending}
+                  >
+                    <Hourglass />
+                  </Button>
+                </ReportCard>
+              ))
+          )}
+        </ReportSection>
+      </div>
     </>
   );
 }

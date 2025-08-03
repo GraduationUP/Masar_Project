@@ -5,7 +5,10 @@ export default function EditStore() {
   return (
     <>
       <Header />
-      <PageTitle MainTitle="تعديل المتجر" />
+      <div className="container">
+        <PageTitle MainTitle="تعديل المتجر" />
+        
+      </div>
     </>
   );
 }
