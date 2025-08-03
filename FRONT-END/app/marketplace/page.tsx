@@ -180,7 +180,7 @@ export default function MarketplacePage() {
     <>
       <Header />
       <PageBanner>
-        تسوق، استمتع، استرخ!
+        تسوق، استمتع، اختر، استرخِ!
       </PageBanner>
       <div className="container px-4 md:px-6 py-8">
         <div className="flex flex-col gap-6">

@@ -128,12 +128,13 @@ export default function StoresPage() {
   return (
     <>
       <Header />
-      <PageBanner>
-        مش عارف ايش مكتوب هنا بستنى النت يفتحلي ملف الفيجما
-      </PageBanner>
+      <PageBanner>استكشف عالمًا من المتاجر </PageBanner>
       <div className="container px-4 md:px-6 py-8">
         <div className="flex flex-col gap-6">
-          <PageTitle MainTitle="المتاجر" Subtitle="تصفح قائمة المتاجر المحلية المتاجة"/>
+          <PageTitle
+            MainTitle="المتاجر"
+            Subtitle="تصفح قائمة المتاجر المحلية المتاجة"
+          />
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
             {/* Filter/Sidebar Section */}
             <div className="md:col-span-1 space-y-6">
