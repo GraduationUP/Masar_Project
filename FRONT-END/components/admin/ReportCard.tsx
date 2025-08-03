@@ -6,6 +6,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import Link from "next/link";
 import React from "react";
 
 type User = {
@@ -51,31 +52,33 @@ export function ReportCard({ report, children }: ReportCardProps) {
   return (
     <Card className="w-[350px] relative">
       <CardHeader>
-        <div className="absolute left-2 top-2 flex gap-2">
-            {children}
-        </div>
+        <div className="absolute left-1 top-1 flex gap-1">{children}</div>
         <CardTitle>البلاغ رقم: {report.id}</CardTitle>
         <CardDescription>
           الحالة: <span className="font-semibold">{report.status}</span>
         </CardDescription>
       </CardHeader>
       <CardContent className="grid gap-4">
-        <div className="flex items-center space-x-4 rounded-md border p-4">
-          <div className="flex-1 space-y-1">
-            <p className="text-sm font-medium leading-none">صاحب البلاغ</p>
-            <p className="text-sm text-muted-foreground">
-              {reporterName} (@{report.user.username})
-            </p>
+        <Link href={`/profile/${report.user_id}`}>
+          <div className="flex items-center space-x-4 rounded-md border p-4 hover:bg-muted">
+            <div className="flex-1 space-y-1">
+              <p className="text-sm font-medium leading-none">صاحب البلاغ</p>
+              <p className="text-sm text-muted-foreground">
+                {reporterName} (@{report.user.username})
+              </p>
+            </div>
           </div>
-        </div>
-        <div className="flex items-center space-x-4 rounded-md border p-4">
-          <div className="flex-1 space-y-1">
-            <p className="text-sm font-medium leading-none">المبلغ عنه</p>
-            <p className="text-sm text-muted-foreground">
-              {reportedName} (@{report.reported_user.username})
-            </p>
+        </Link>
+        <Link href={`/profile/${report.reported_user_id}`}>
+          <div className="flex items-center space-x-4 rounded-md border p-4 hover:bg-muted">
+            <div className="flex-1 space-y-1">
+              <p className="text-sm font-medium leading-none">المبلغ عنه</p>
+              <p className="text-sm text-muted-foreground">
+                {reportedName} (@{report.reported_user.username})
+              </p>
+            </div>
           </div>
-        </div>
+        </Link>
         <div className="space-y-1">
           <p className="text-sm font-medium leading-none">رسالة البلاغ</p>
           <p className="text-sm text-muted-foreground">{report.message}</p>
