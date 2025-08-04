@@ -112,4 +112,27 @@ class StoreController extends Controller
 
         return response()->json(['message' => 'Store deleted successfully.']);
     }
+
+    public function toggleStatus(): JsonResponse
+{
+    $store = Auth::user()->store;
+
+    if (!$store) {
+        return response()->json(['message' => 'Store not found.'], 404);
+    }
+
+    if (in_array($store->status, ['pending', 'banned'])) {
+        return response()->json([
+            'message' => 'You cannot change the status of a store that is pending or banned.'
+        ], 403);
+    }
+
+    $store->status = $store->status === 'active' ? 'inactive' : 'active';
+    $store->save();
+
+    return response()->json([
+        'message' => 'Store status changed successfully.',
+        'new_status' => $store->status,
+    ]);
+}
 }

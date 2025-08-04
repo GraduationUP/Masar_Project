@@ -121,7 +121,18 @@ class ProductController extends Controller
 
             return response()->json([
                 'message' => 'Product updated successfully.',
-                'product' => $product->fresh()
+                'product' => [
+                    'id' => $product->id,
+                    'name' => $product->name,
+                    'description' => $product->description,
+                    'price' => $product->price,
+                    'photo' => $product->photo ? asset('storage/' . $product->photo) : null,
+                    'category_id' => $product->category_id,
+                    'latitude' => $product->latitude,
+                    'longitude' => $product->longitude,
+                    'show_location' => $product->show_location,
+                    'updated_at' => $product->updated_at->toDateTimeString(),
+                ]
             ]);
         } catch (\Exception $e) {
             Log::error('Product update failed', [

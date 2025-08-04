@@ -23,7 +23,6 @@ class AdminStoreController extends Controller
                 'phone' => $store->phone,
                 'location_address' => $store->location_address,
                 'active' => $store->status,
-                'is_banned' => $store->status == 0,
                 'created_at' => $store->created_at->toIso8601String(),
                 'updated_at' => $store->updated_at->toIso8601String(),
                 'latitude' => $store->latitude,
@@ -64,16 +63,15 @@ class AdminStoreController extends Controller
         ]);
     }
 
-
     public function banStore($id)
     {
         $store = Store::findOrFail($id);
 
-        $store->status = false; // أو false حسب نوع العمود
+        $store->status = 'banned';
         $store->save();
 
         return response()->json([
-            'message' => 'Store has been deactivated.'
+            'message' => 'The store has been banned successfully.'
         ]);
     }
 
@@ -81,13 +79,14 @@ class AdminStoreController extends Controller
     {
         $store = Store::findOrFail($id);
 
-        $store->status = true; // أو true
+        $store->status = 'inactive';
         $store->save();
 
         return response()->json([
-            'message' => 'Store has been activated.'
+            'message' => 'The store has been unbanned and set to inactive.'
         ]);
     }
+
 
 
     public function destroy($id)
@@ -104,7 +103,7 @@ class AdminStoreController extends Controller
     {
         $store = Store::findOrFail($id);
         $request->validate([
-            'status' => 'required|in:0,1',
+            'status' => 'required|in:pending,active,inactive,banned',
         ]);
 
         $store->status = $request->status;
