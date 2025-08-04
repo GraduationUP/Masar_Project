@@ -1,21 +1,21 @@
-"use client"
+"use client";
 
-import { useEffect } from "react"
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { AlertTriangle, RefreshCw } from "lucide-react"
+import { useEffect } from "react";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { AlertTriangle, RefreshCw } from "lucide-react";
 
 export default function Error({
   error,
   reset,
 }: {
-  error: Error & { digest?: string }
-  reset: () => void
+  error: Error & { digest?: string };
+  reset: () => void;
 }) {
   useEffect(() => {
     // Log the error to an error reporting service
-    console.error(error)
-  }, [error])
+    console.error(error);
+  }, [error]);
 
   return (
     <div className="container flex flex-col items-center justify-center min-h-[calc(100vh-16rem)] py-12 text-center">
@@ -25,10 +25,16 @@ export default function Error({
         </div>
 
         <h1 className="text-3xl font-bold tracking-tight">حدث خطأ ما!</h1>
-        <p className="text-muted-foreground">نعتذر عن أي إزعاج. حدث خطأ غير متوقع.</p>
+        <p className="text-muted-foreground">
+          نعتذر عن أي إزعاج. حدث خطأ غير متوقع.
+        </p>
 
         <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
-          <Button variant="outline" className="rounded-full" onClick={() => reset()}>
+          <Button
+            variant="outline"
+            className="rounded-full"
+            onClick={() => reset()}
+          >
             <RefreshCw className="mr-2 h-4 w-4" />
             حاول مجدداً
           </Button>
@@ -39,11 +45,7 @@ export default function Error({
             <Link href="/">الرجوع للصفحة الرئيسية</Link>
           </Button>
         </div>
-
-        <div className="pt-6 text-sm text-muted-foreground">
-          <p>Error reference: {error.digest}</p>
-        </div>
       </div>
     </div>
-  )
+  );
 }

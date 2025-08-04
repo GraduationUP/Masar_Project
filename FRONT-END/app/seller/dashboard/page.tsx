@@ -423,7 +423,7 @@ export default function SellerDashboard() {
                       </CardContent>
                       <CardFooter className="p-4 pt-0 flex justify-between">
                         <Button asChild size="sm" variant="outline">
-                          <Link href={`/seller/products/${product.id}/edit`}>
+                          <Link href={`/seller/products/edit/${product.id}`}>
                             تعديل
                           </Link>
                         </Button>
