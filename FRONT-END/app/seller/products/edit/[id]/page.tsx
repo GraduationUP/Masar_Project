@@ -16,7 +16,13 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import LeafletMap from "@/components/LeafLetMap";
 import { Loader } from "lucide-react";
 
@@ -52,7 +58,9 @@ interface product {
 export default function EditProduct() {
   const BASE_API_URL = process.env.NEXT_PUBLIC_API_URL;
   const [loading, setLoading] = useState(true);
-  const [categories, setCategories] = useState<{ id: string; name: string }[]>([]);
+  const [categories, setCategories] = useState<{ id: string; name: string }[]>(
+    []
+  );
   const [originalProduct, setOriginalProduct] = useState<originalProduct>();
   const [product, setProduct] = useState<product>({
     name: "",
@@ -192,63 +200,75 @@ export default function EditProduct() {
           }}
         >
           <CardContent>
-            <label htmlFor="name">اسم المنتج</label>
-            <Input
-              type="text"
-              id="name"
-              placeholder={originalProduct?.name}
-              value={product.name}
-              onChange={handleChange}
-              required
-            />
-
-            <label htmlFor="price">سعر المنتج</label>
-            <Input
-              type="number"
-              id="price"
-              placeholder={`${originalProduct?.price}`}
-              value={product.price}
-              onChange={handleChange}
-              required
-            />
-
-            <label htmlFor="discription">وصف المنتج</label>
-            <Input
-              type="text"
-              id="discription"
-              placeholder={`${originalProduct?.description}`}
-              value={product.description}
-              onChange={handleChange}
-              required
-            />
-
-            <label htmlFor="category_id">فئة المنتج</label>
-            <Select>
-              <SelectTrigger>
-                <SelectValue placeholder="Select a fruit" />
-              </SelectTrigger>
-              <SelectContent>
-                {categories.map((category) => (
-                  <SelectItem key={category.id} value={category.id}>
-                    {category.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-
-            <label htmlFor="show_location">عرض الموقع</label>
-            <Switch id="show_location" />
-
-            <label htmlFor="coordinats">الاحداثيات</label>
-            <Suspense fallback={<Loader />}>
-              <LeafletMap
-                latitude={product.latitude}
-                longitude={product.longitude}
-                onLocationChange={(lat: number, lng: number) =>
-                  handleLocationChange(lat, lng)
-                }
+            <div className="space-y-2">
+              <label htmlFor="name">اسم المنتج</label>
+              <Input
+                type="text"
+                id="name"
+                placeholder={originalProduct?.name}
+                value={product.name}
+                onChange={handleChange}
+                required
               />
-            </Suspense>
+            </div>
+
+            <div className="space-y-2">
+              <label htmlFor="price">سعر المنتج</label>
+              <Input
+                type="number"
+                id="price"
+                placeholder={`${originalProduct?.price}`}
+                value={product.price}
+                onChange={handleChange}
+                required
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label htmlFor="discription">وصف المنتج</label>
+              <Input
+                type="text"
+                id="discription"
+                placeholder={`${originalProduct?.description}`}
+                value={product.description}
+                onChange={handleChange}
+                required
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label htmlFor="category_id">فئة المنتج</label>
+              <Select>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a fruit" />
+                </SelectTrigger>
+                <SelectContent>
+                  {categories.map((category) => (
+                    <SelectItem key={category.id} value={category.id}>
+                      {category.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <label htmlFor="show_location">عرض الموقع</label>
+              <Switch id="show_location" style={{ direction: "ltr" }} />
+            </div>
+
+            <div className="space-y-2">
+              <label htmlFor="coordinats">الاحداثيات</label>
+              <Suspense fallback={<Loader />}>
+                <LeafletMap
+                  latitude={product.latitude}
+                  longitude={product.longitude}
+                  onLocationChange={(lat: number, lng: number) =>
+                    handleLocationChange(lat, lng)
+                  }
+                />
+              </Suspense>
+            </div>
           </CardContent>
           <CardFooter>
             <Button type="submit">ارسال</Button>
