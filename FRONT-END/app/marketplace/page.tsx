@@ -280,7 +280,6 @@ export default function MarketplacePage() {
                   <Select
                     value={sortBy}
                     onValueChange={setSortBy}
-                    className="md:hidden"
                   >
                     <SelectTrigger id="mobile-sort" className="w-[180px]">
                       <SelectValue placeholder="ترتيب بواسطة" />
@@ -293,7 +292,6 @@ export default function MarketplacePage() {
                       <SelectItem value="price-high">
                         السعر: الأعلى الى الأقل
                       </SelectItem>
-                      {/* Removed "rating" as it's not supported by your current data structure */}
                     </SelectContent>
                   </Select>
                 </div>
