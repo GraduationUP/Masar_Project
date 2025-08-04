@@ -126,8 +126,6 @@ export default function NewProductPage() {
         URL.revokeObjectURL(previewUrl);
         setPreviewUrl(null);
       }
-      // Optionally redirect after delay
-      setTimeout(() => redirect("/seller/dashboard"), 2000);
     } catch (error: any) {
       console.error("Error creating product:", error);
       setErrorMessage(error.message);

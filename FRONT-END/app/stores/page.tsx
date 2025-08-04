@@ -33,6 +33,8 @@ import dynamic from "next/dynamic";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import Image from "next/image";
 import Link from "next/link";
+import PageTitle from "@/components/main_layout/PageTitle";
+import PageBanner from "@/components/main_layout/PageBanner";
 
 const MapWithNoSSR = dynamic(() => import("@/components/mapWithNoSSR"), {
   ssr: false,
@@ -126,15 +128,13 @@ export default function StoresPage() {
   return (
     <>
       <Header />
+      <PageBanner>استكشف عالمًا من المتاجر </PageBanner>
       <div className="container px-4 md:px-6 py-8">
         <div className="flex flex-col gap-6">
-          <div className="flex flex-col gap-2">
-            <h1 className="text-3xl font-bold tracking-tight">المتاجر</h1>
-            <p className="text-muted-foreground">
-              تصفح قائمة المتاجر المحلية المتاحة
-            </p>
-          </div>
-
+          <PageTitle
+            MainTitle="المتاجر"
+            Subtitle="تصفح قائمة المتاجر المحلية المتاجة"
+          />
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
             {/* Filter/Sidebar Section */}
             <div className="md:col-span-1 space-y-6">
