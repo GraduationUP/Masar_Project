@@ -1,21 +1,18 @@
 "use client";
-
-import Header from "@/components/main_layout/header";
-import PageTitle from "@/components/main_layout/PageTitle";
-import { useState, useEffect, Suspense } from "react";
-import { useParams } from "next/navigation";
-import Loading from "./loading";
+import { Suspense, useState, lazy, useEffect } from "react";
 import {
   Card,
   CardContent,
-  CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
+  CardDescription,
 } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Switch } from "@/components/ui/switch";
+import { Button } from "@/components/ui/button";
+import { Loader2, Package, ChevronLeft } from "lucide-react";
+import Link from "next/link";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -23,258 +20,441 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import LeafletMap from "@/components/LeafLetMap";
-import { Loader } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { CustomAlert } from "@/components/customAlert";
+import Header from "@/components/main_layout/header";
+import { useParams } from "next/navigation";
 
-interface originalProduct {
-  id: number;
+const LeafletMap = lazy(() =>
+  import("@/components/LeafLetMap").then((module) => ({
+    default: module.default,
+  }))
+);
+
+interface Product {
   name: string;
   description: string;
-  price: string;
-  photo: string;
-  store_id: number;
-  store_name: string;
-  store_phone: string;
-  store_photo: string;
-  category_name: string;
-  latitude: number;
-  longitude: number;
-  show_location: number;
-  location_address: string;
-  created_at: string;
-}
-
-interface product {
-  name: string;
-  description: string;
-  price: string;
   photo: File | null;
   category_id: number;
+  price: number;
   latitude: number;
   longitude: number;
   show_location: number;
 }
 
-export default function EditProduct() {
+export default function NewProductPage() {
   const BASE_API_URL = process.env.NEXT_PUBLIC_API_URL;
-  const [loading, setLoading] = useState(true);
-  const [categories, setCategories] = useState<{ id: string; name: string }[]>(
-    []
-  );
-  const [originalProduct, setOriginalProduct] = useState<originalProduct>();
-  const [product, setProduct] = useState<product>({
+  const { id } = useParams();
+  const [success, setSuccess] = useState(false);
+  const [failure, setFailure] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [originalProduct, setOriginalProduct] = useState<Product | null>(null);
+  const [productData, setProductData] = useState<Product>({
     name: "",
     description: "",
-    price: "",
     photo: null,
     category_id: 1,
+    price: 0,
     latitude: 31.53157982870554,
     longitude: 34.46717173572411,
     show_location: 0,
   });
-  const { id } = useParams();
-  useEffect(() => {
-    (async () => {
-      setLoading(true);
-      try {
-        const response = await fetch(
-          `${BASE_API_URL}/api/guest/products/${id}`
-        );
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const data = await response.json();
-        setOriginalProduct(data.data);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      } finally {
-        setLoading(false);
-      }
-    })();
-  }, [id, BASE_API_URL]);
+  const [storeCategories, setStoreCategories] = useState<{
+    status: boolean;
+    data: { id: number; name: string }[]; // Assuming the category object has an 'id' and 'name'
+  }>({
+    status: false,
+    data: [],
+  });
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
-  useEffect(() => {
-    (async () => {
-      try {
-        const response = await fetch(`${BASE_API_URL}/api/guest/categories`);
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const data = await response.json();
-        if (data.status) {
-          setCategories(data.data);
-        } else {
-          console.error("API returned status false for categories:", data);
-        }
-      } catch (error) {
-        console.error("Failed to fetch categories:", error);
-      }
-    })();
-  }, [BASE_API_URL]);
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setIsSubmitting(true);
+    setErrorMessage(null);
 
-  async function handelProductUpdate({ id }: { id: number }) {
-    setLoading(true);
+    const authToken = localStorage.getItem("authToken");
+    if (!authToken) {
+      setErrorMessage("Authentication token missing");
+      setFailure(true);
+      setIsSubmitting(false);
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("name", productData.name);
+    formData.append("description", productData.description);
+    if (productData.photo) {
+      formData.append("photo", productData.photo);
+    }
+    formData.append("category_id", productData.category_id.toString());
+    formData.append("price", productData.price.toString());
+    formData.append("latitude", productData.latitude.toString());
+    formData.append("longitude", productData.longitude.toString());
+    formData.append("show_location", productData.show_location.toString());
+
     try {
-      const Auth_Token = localStorage.getItem("authToken");
-      if (!Auth_Token) {
-        setLoading(false);
-        return;
-      }
-      const formData = new FormData();
-      formData.append("name", product.name);
-      formData.append("description", product.description);
-      formData.append("price", product.price);
-      if (product.photo) formData.append("photo", product.photo);
-      formData.append("category_id", product.category_id.toString());
-      formData.append("latitude", product.latitude.toString());
-      formData.append("longitude", product.longitude.toString());
-      formData.append("show_location", product.show_location.toString());
-      const response = await fetch(
-        `${BASE_API_URL}/api/seller/products/${id}`,
-        {
-          method: "PUT",
-          headers: {
-            Authorization: `Bearer ${Auth_Token}`,
-          },
-          body: formData,
-        }
-      );
+      const response = await fetch(`${BASE_API_URL}/api/seller/products/${id}`, {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+        },
+        body: formData,
+      });
+
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        const errorData = await response.json();
+        setErrorMessage(errorData?.message);
+        setFailure(true);
+        throw new Error(errorData?.message);
       }
+
       const data = await response.json();
-      setOriginalProduct(data.data);
-    } catch (error) {
-      console.error("Error updating product:", error);
+      setSuccess(true);
+      console.log("Product created successfully:", data); // Log the response data
+      if (previewUrl) {
+        URL.revokeObjectURL(previewUrl);
+        setPreviewUrl(null);
+      }
+    } catch (error: any) {
+      console.error("Error creating product:", error);
+      setErrorMessage(error.message);
+      setFailure(true);
     } finally {
-      setLoading(false);
+      setIsSubmitting(false);
     }
   }
 
   const handleChange = (
-    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e:
+      | React.ChangeEvent<
+          HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+        >
+      | string // Add string to the type definition
   ) => {
-    if (
-      event.target.name === "id_card_photo" &&
-      event.target instanceof HTMLInputElement &&
-      event.target.files
-    ) {
-      setProduct((prev) => ({
+    if (typeof e === "string") {
+      // Handle Select component's onValueChange
+      setProductData((prev) => ({
         ...prev,
-        id_card_photo: event.target.files[0],
+        category_id: parseInt(e, 10), // Convert the string value back to a number
       }));
-    } else {
-      setProduct((prev) => ({
+    } else if (e?.target) {
+      // Handle Input and Textarea components' onChange
+      const { name, value } = e.target;
+      setProductData((prev) => ({
         ...prev,
-        [event.target.name]: event.target.value,
+        [name]: value,
       }));
     }
   };
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      setProductData((prev) => ({
+        ...prev,
+        photo: file,
+      }));
+      // Create preview URL
+      const url = URL.createObjectURL(file);
+      setPreviewUrl(url);
+    }
+  };
+
+  useEffect(() => {
+    async function fetchOriginalProduct() {
+      try {
+        const token = localStorage.getItem("authToken");
+        const response = await fetch(`${BASE_API_URL}/api/guest/products/${id}`, {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        });
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const responseData = await response.json();
+        setOriginalProduct(responseData.data);
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+      }
+    }
+    fetchOriginalProduct();
+  }, [])
+
+  useEffect(() => {
+    async function fetchCategories() {
+      try {
+        const token = localStorage.getItem("authToken");
+        const response = await fetch(`${BASE_API_URL}/api/guest/categories`, {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        });
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const responseData = await response.json();
+        setStoreCategories(
+          responseData as {
+            status: boolean;
+            data: { id: number; name: string }[];
+          } // Type assertion here
+        );
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+      }
+    }
+    fetchCategories();
+  }, []);
+
   const handleLocationChange = (lat: number, lng: number) => {
-    setProduct((prevData) => ({
-      ...prevData,
+    setProductData((prev) => ({
+      ...prev,
       latitude: lat,
       longitude: lng,
     }));
   };
 
-  if (loading) return <Loading />;
-
   return (
     <>
       <Header />
-      <PageTitle
-        MainTitle="تعديل المنتجات"
-        Subtitle={`تعديل المنتج {حط اسم المنتج}`}
-      />
-      <Card>
-        <CardHeader>
-          <CardTitle>البضاعة ({originalProduct?.name})</CardTitle>
-          <CardDescription>رقم المنتج: {originalProduct?.id}</CardDescription>
-        </CardHeader>
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            handelProductUpdate({ id: originalProduct?.id as number });
-          }}
-        >
-          <CardContent>
-            <div className="space-y-2">
-              <label htmlFor="name">اسم المنتج</label>
-              <Input
-                type="text"
-                id="name"
-                placeholder={originalProduct?.name}
-                value={product.name}
-                onChange={handleChange}
-                required
-              />
+      <div className="container px-4 md:px-6 py-8">
+        <div className="flex flex-col gap-8">
+          <div className="flex items-center gap-2">
+            <Button
+              variant="ghost"
+              size="icon"
+              asChild
+              className="rounded-full"
+            >
+              <Link href="/seller/dashboard">
+                <ChevronLeft className="h-5 w-5" />
+              </Link>
+            </Button>
+            <div>
+              <h1 className="text-3xl font-bold tracking-tight">
+                تعديل منتج
+              </h1>
+              <p className="text-muted-foreground">تعديل المنتج </p>
+            </div>
+          </div>
+
+          <CustomAlert
+            message="تم تعديل المنتج بنجاح"
+            show={success}
+            onClose={() => setSuccess(false)}
+            success
+          />
+          <CustomAlert
+            message={errorMessage || "حدث خطأ في تعديل المنتج"}
+            show={failure}
+            onClose={() => {
+              setFailure(false);
+              setErrorMessage(null);
+            }}
+            success={false}
+          />
+
+          <form
+            onSubmit={handleSubmit}
+            className="grid grid-cols-1 lg:grid-cols-3 gap-8"
+          >
+            <div className="lg:col-span-2 space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>معلومات المنتج</CardTitle>
+                  <CardDescription>تفاصيل أساسية عن منتجك</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="name">اسم المنتج *</Label>
+                    <Input
+                      id="name"
+                      name="name"
+                      placeholder={originalProduct?.name}
+                      value={productData.name}
+                      onChange={handleChange}
+                      required
+                      className="rounded-lg"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="description">وصف المنتج *</Label>
+                    <Textarea
+                      id="description"
+                      name="description"
+                      placeholder={originalProduct?.description}
+                      value={productData.description}
+                      onChange={handleChange}
+                      required
+                      className="min-h-[120px] rounded-lg"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="category">الفئة *</Label>
+                    <Select
+                      value={productData.category_id.toString()} // ← Convert number to string for UI
+                      onValueChange={handleChange}
+                      required
+                    >
+                      <SelectTrigger id="category" className="rounded-lg">
+                        <SelectValue placeholder="اختر فئة" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {storeCategories.data.map((category) => (
+                          <SelectItem
+                            key={category.id}
+                            value={category.id.toString()}
+                          >
+                            {category.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="price">السعر (بالشيكل) *</Label>
+                    <Input
+                      id="price"
+                      name="price"
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      placeholder={originalProduct?.price.toString()}
+                      value={productData.price}
+                      onChange={handleChange}
+                      required
+                      className="rounded-lg"
+                    />
+                  </div>
+                  <div className="flex items-center space-x-2 gap-1">
+                    <Switch
+                      id="show-location"
+                      checked={productData.show_location === 0 ? false : true}
+                      onCheckedChange={(checked) =>
+                        setProductData({
+                          ...productData,
+                          show_location: checked === true ? 1 : 0,
+                        })
+                      }
+                      className="flex flex-row-reverse"
+                    />
+                    <Label htmlFor="show-location">عرض الموقع</Label>
+                  </div>
+                  {productData.show_location && (
+                    <div className="space-y-4 mt-4">
+                      <Label>اختر موقع المنتج</Label>
+                      <Suspense fallback={<div>جار تحميل الخريطة...</div>}>
+                        <LeafletMap
+                          latitude={productData.latitude}
+                          longitude={productData.longitude}
+                          onLocationChange={handleLocationChange}
+                        />
+                      </Suspense>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
+                        <div>
+                          <Label htmlFor="latitude">Latitude:</Label>
+                          <Input
+                            type="number"
+                            id="latitude"
+                            value={productData.latitude}
+                            readOnly
+                            className="rounded-lg"
+                          />
+                        </div>
+                        <div>
+                          <Label htmlFor="longitude">Longitude:</Label>
+                          <Input
+                            type="number"
+                            id="longitude"
+                            value={productData.longitude}
+                            readOnly
+                            className="rounded-lg"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
             </div>
 
-            <div className="space-y-2">
-              <label htmlFor="price">سعر المنتج</label>
-              <Input
-                type="number"
-                id="price"
-                placeholder={`${originalProduct?.price}`}
-                value={product.price}
-                onChange={handleChange}
-                required
-              />
+            <div className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>صورة المنتج</CardTitle>
+                  <CardDescription>ارفع صورة منتجك</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="border-2 border-dashed rounded-lg p-4 text-center">
+                    <div className="flex flex-col items-center gap-2">
+                      <div className="h-40 w-full bg-muted/50 rounded-lg flex items-center justify-center overflow-hidden">
+                        {previewUrl ? (
+                          <img
+                            src={previewUrl}
+                            alt="صورة المنتج"
+                            className="h-full w-full object-cover"
+                          />
+                        ) : (
+                          <Package className="h-12 w-12 text-muted-foreground" />
+                        )}
+                      </div>
+                      <label className="inline-flex items-center rounded-full border border-input bg-background px-4 py-2 text-sm font-medium cursor-pointer hover:bg-accent hover:text-accent-foreground">
+                        <Input
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={handleFileChange}
+                          required
+                        />
+                        <Package className="h-4 w-4 ml-2" />
+                        رفع الصورة
+                      </label>
+                      <p className="text-xs text-muted-foreground">
+                        الحجم الموصى: 800x800px
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
             </div>
 
-            <div className="space-y-2">
-              <label htmlFor="discription">وصف المنتج</label>
-              <Input
-                type="text"
-                id="discription"
-                placeholder={`${originalProduct?.description}`}
-                value={product.description}
-                onChange={handleChange}
-                required
-              />
+            <div className="col-span-full mt-8 flex justify-between">
+              <Button
+                type="button"
+                variant="outline"
+                asChild
+                className="rounded-full"
+              >
+                <Link href="/seller/dashboard">الغاء</Link>
+              </Button>
+              <Button
+                type="submit"
+                className="rounded-full bg-gradient-to-r from-blue-400 to-blue-500 hover:from-blue-500 hover:to-blue-600"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    جار تعديل المنتج...
+                  </>
+                ) : (
+                  <>
+                    <Package className="mr-2 h-4 w-4" />
+                    تعديل المنتج
+                  </>
+                )}
+              </Button>
             </div>
-
-            <div className="space-y-2">
-              <label htmlFor="category_id">فئة المنتج</label>
-              <Select>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select a fruit" />
-                </SelectTrigger>
-                <SelectContent>
-                  {categories.map((category) => (
-                    <SelectItem key={category.id} value={category.id}>
-                      {category.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <label htmlFor="show_location">عرض الموقع</label>
-              <Switch id="show_location" style={{ direction: "ltr" }} />
-            </div>
-
-            <div className="space-y-2">
-              <label htmlFor="coordinats">الاحداثيات</label>
-              <Suspense fallback={<Loader />}>
-                <LeafletMap
-                  latitude={product.latitude}
-                  longitude={product.longitude}
-                  onLocationChange={(lat: number, lng: number) =>
-                    handleLocationChange(lat, lng)
-                  }
-                />
-              </Suspense>
-            </div>
-          </CardContent>
-          <CardFooter>
-            <Button type="submit">ارسال</Button>
-          </CardFooter>
-        </form>
-      </Card>
+          </form>
+        </div>
+      </div>
     </>
   );
 }

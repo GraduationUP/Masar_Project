@@ -23,7 +23,6 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { CustomAlert } from "@/components/customAlert";
 import Header from "@/components/main_layout/header";
-import { redirect } from "next/navigation";
 
 const LeafletMap = lazy(() =>
   import("@/components/LeafLetMap").then((module) => ({
