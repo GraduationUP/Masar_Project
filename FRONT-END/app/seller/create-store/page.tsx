@@ -181,7 +181,7 @@ export default function CreateStorePage() {
                   accept="image/*"
                 />
               </div>
-              <Label>اختر موقع المنتج</Label>
+              <Label>اختر موقع المتجر</Label>
               <Suspense fallback={<Loader />}>
                 <LeafletMap
                   latitude={parseFloat(storeData.latitude)}

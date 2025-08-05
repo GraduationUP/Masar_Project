@@ -15,12 +15,12 @@ export default function Loading() {
         </div>
 
         {/* Product Details */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {/* Product Image */}
           <div className="rounded-xl overflow-hidden bg-muted aspect-square"></div>
 
           {/* Product Info */}
-          <div className="space-y-6">
+          <div className="space-y-6 col-span-2">
             <div>
               <div className="h-6 w-20 bg-muted rounded-full mb-2"></div>
               <div className="h-8 w-3/4 bg-muted rounded-lg"></div>
@@ -62,14 +62,11 @@ export default function Loading() {
         {/* Product Tabs */}
         <div className="mt-8">
           <Tabs defaultValue="details" className="w-full">
-            <TabsList className="grid w-full grid-cols-3 rounded-lg mb-6">
+            <TabsList className="grid w-full grid-cols-2 rounded-lg mb-6">
               <TabsTrigger value="details" disabled>
                 ...
               </TabsTrigger>
               <TabsTrigger value="reviews" disabled>
-                ...
-              </TabsTrigger>
-              <TabsTrigger value="shipping" disabled>
                 ...
               </TabsTrigger>
             </TabsList>
