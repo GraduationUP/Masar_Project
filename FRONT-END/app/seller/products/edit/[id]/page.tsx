@@ -164,6 +164,7 @@ export default function NewProductPage() {
 
   useEffect(() => {
     async function fetchOriginalProduct() {
+      
       try {
         const token = localStorage.getItem("authToken");
         const response = await fetch(`${BASE_API_URL}/api/guest/products/${id}`, {
@@ -260,7 +261,6 @@ export default function NewProductPage() {
             }}
             success={false}
           />
-
           <form
             onSubmit={handleSubmit}
             className="grid grid-cols-1 lg:grid-cols-3 gap-8"
@@ -277,7 +277,7 @@ export default function NewProductPage() {
                     <Input
                       id="name"
                       name="name"
-                      placeholder={originalProduct?.name}
+                      placeholder={originalProduct?.name || "جار التحميل ..."}
                       value={productData.name}
                       onChange={handleChange}
                       required
@@ -289,7 +289,7 @@ export default function NewProductPage() {
                     <Textarea
                       id="description"
                       name="description"
-                      placeholder={originalProduct?.description}
+                      placeholder={originalProduct?.description || "جار التحميل ..."}
                       value={productData.description}
                       onChange={handleChange}
                       required
@@ -326,7 +326,7 @@ export default function NewProductPage() {
                       type="number"
                       step="0.01"
                       min="0"
-                      placeholder={originalProduct?.price.toString()}
+                      placeholder={originalProduct?.price.toString() || "جار التحميل ..."}
                       value={productData.price}
                       onChange={handleChange}
                       required
