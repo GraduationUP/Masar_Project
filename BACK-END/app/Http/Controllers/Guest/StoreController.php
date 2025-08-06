@@ -42,7 +42,7 @@ class StoreController extends Controller
 
     public function show($id)
     {
-        $store = Store::with(['products', 'ratings.user', 'comments.user', 'user'])->findOrFail($id);
+        $store = Store::with(['products.category', 'ratings.user', 'comments.user', 'user'])->findOrFail($id);
 
         $ratings = $store->ratings->keyBy('user_id');
         $comments = $store->comments->keyBy('user_id');
@@ -66,11 +66,23 @@ class StoreController extends Controller
 
         $averageRating = $store->ratings->avg('score');
 
-        // تعديل: إضافة photo_url لكل منتج
-        $products = $store->products->map(function ($product) {
-            $product->photo_url = $product->photo ? asset('storage/' . $product->photo) : null;
-            return $product;
+        $products = $store->products->load('category')->map(function ($product) {
+            return [
+                'id' => $product->id,
+                'store_id' => $product->store_id,
+                'name' => $product->name,
+                'description' => $product->description,
+                'photo' => $product->photo ? asset('storage/' . $product->photo) : null,
+                'category_name' => $product->category?->name ?? 'غير مصنف',
+                'price' => $product->price,
+                'latitude' => $product->latitude,
+                'longitude' => $product->longitude,
+                'show_location' => $product->show_location,
+                'created_at' => $product->created_at,
+                'updated_at' => $product->updated_at,
+            ];
         });
+
 
         return response()->json([
             'id' => $store->id,
