@@ -6,6 +6,12 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "../ui/badge";
 import Link from "next/link";
 import DeleteStoreDialog from "./DeleteStoreDialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface storeUser {
   id: number;
@@ -24,8 +30,7 @@ interface storeData {
   id_card_photo: string;
   phone: string;
   location_address: string;
-  active: number;
-  is_banned: boolean;
+  status: "pending" | "active" | "inactive" | "banned";
   created_at: string;
   updated_at: string;
   latitude: string | null;
@@ -38,9 +43,7 @@ interface StoreManagementTabProps {
   searchTerm: string;
   storeStatusFilter: string;
   storeStatusOptions: { value: string; label: string }[];
-  handelStoreBan: (id: number) => Promise<void>;
-  handelStoreUnban: (id: number) => Promise<void>;
-  handelStoreStatusUpdate: (id: number, status: number) => Promise<void>;
+  handelStoreStatusUpdate: (id: number, status: string) => Promise<void>;
   handleStoresSearch: (term: string, status: string) => void;
 }
 
@@ -49,12 +52,11 @@ const StoreManagementTab: React.FC<StoreManagementTabProps> = ({
   searchTerm,
   storeStatusFilter,
   storeStatusOptions,
-  handelStoreBan,
-  handelStoreUnban,
   handelStoreStatusUpdate,
   handleStoresSearch,
 }) => {
   const [openDialogId, setOpenDialogId] = useState<number | null>(null);
+  const [statusLoading, setStatusLoading] = useState<number | null>(null);
 
   const handleOpenChange = (storeId: number | null) => {
     setOpenDialogId(storeId);
@@ -64,37 +66,29 @@ const StoreManagementTab: React.FC<StoreManagementTabProps> = ({
     const storeNameLower = store.store_name.toLowerCase();
     const searchLower = searchTerm.toLowerCase();
     const statusMatch =
-      storeStatusFilter === "all" ||
-      (storeStatusFilter === "active" && store.active === 1) ||
-      (storeStatusFilter === "inactive" && store.active === 0);
+      storeStatusFilter === "all" || store.status === storeStatusFilter;
     return storeNameLower.includes(searchLower) && statusMatch;
   });
 
-  const [banLoading, setBanLoading] = useState<number | null>(null);
-  const [unbanLoading, setUnbanLoading] = useState<number | null>(null);
-  const [statusLoading, setStatusLoading] = useState<{
-    id: number;
-    status: number;
-  } | null>(null);
-
-  const handleBanClick = async (id: number) => {
-    setBanLoading(id);
-    await handelStoreBan(id);
-    setBanLoading(null);
-  };
-
-  const handleUnbanClick = async (id: number) => {
-    setUnbanLoading(id);
-    await handelStoreUnban(id);
-    setUnbanLoading(null);
-  };
-
-  const handleStatusUpdateClick = async (id: number) => {
-    const newStatus =
-      storeData.find((store) => store.id === id)?.active === 1 ? 0 : 1;
-    setStatusLoading({ id, status: newStatus });
-    await handelStoreStatusUpdate(id, newStatus);
+   const handleStatusUpdateClick = async (id: number, status: string) => {
+    setStatusLoading(id);
+     await handelStoreStatusUpdate(id, status);
     setStatusLoading(null);
+  };
+
+  const getStatusBadge = (status: storeData["status"]) => {
+    switch (status) {
+      case "active":
+        return <Badge>نشط</Badge>;
+      case "inactive":
+        return <Badge variant="destructive">معطل</Badge>;
+      case "pending":
+        return <Badge variant="secondary">قيد المراجعة</Badge>;
+      case "banned":
+        return <Badge variant="destructive">محظور</Badge>;
+      default:
+        return null;
+    }
   };
 
   return (
@@ -132,14 +126,7 @@ const StoreManagementTab: React.FC<StoreManagementTabProps> = ({
               <div className="flex justify-between items-start">
                 <div>
                   <h3 className="font-bold">{store.store_name}</h3>
-                  {store.active === 1 ? (
-                    <Badge>نشط</Badge>
-                  ) : (
-                    <Badge variant="destructive">معطل</Badge>
-                  )}
-                  {store.is_banned && (
-                    <Badge variant="destructive">محظور</Badge>
-                  )}
+                  {getStatusBadge(store.status)}
                 </div>
               </div>
             </CardContent>
@@ -155,42 +142,33 @@ const StoreManagementTab: React.FC<StoreManagementTabProps> = ({
                     handleOpenChange(open ? store.id : null)
                   }
                 />
-                <Button
-                  onClick={() =>
-                    store.is_banned
-                      ? handleUnbanClick(store.id)
-                      : handleBanClick(store.id)
-                  }
-                  variant={"outline"}
-                  size="sm"
-                  disabled={
-                    banLoading === store.id ||
-                    unbanLoading === store.id ||
-                    statusLoading?.id === store.id
-                  }
-                >
-                  {banLoading === store.id || unbanLoading === store.id
-                    ? store.is_banned
-                      ? "جاري الغاء الحظر..."
-                      : "جاري الحظر..."
-                    : store.is_banned
-                    ? "الغاء الحظر"
-                    : "حظر"}
-                </Button>
-                <Button
-                  onClick={() => handleStatusUpdateClick(store.id)}
-                  variant={"outline"}
-                  size="sm"
-                  disabled={
-                    banLoading === store.id ||
-                    unbanLoading === store.id ||
-                    statusLoading?.id === store.id
-                  }
-                >
-                  {statusLoading?.id === store.id
-                    ? "جاري تغيير الحالة..."
-                    : "تغيير الحالة"}
-                </Button>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant={"outline"}
+                      size="sm"
+                      disabled={statusLoading === store.id}
+                    >
+                      {statusLoading === store.id
+                        ? "جاري التحديث..."
+                        : "تغيير الحالة"}
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent>
+                    {storeStatusOptions
+                      .filter((option) => option.value !== "all")
+                      .map((option) => (
+                        <DropdownMenuItem
+                          key={option.value}
+                          onSelect={() =>
+                            handleStatusUpdateClick(store.id, option.value)
+                          }
+                        >
+                          {option.label}
+                        </DropdownMenuItem>
+                      ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
                 <Button asChild size="sm">
                   <Link href={`/stores/${store.id}`}>عرض</Link>
                 </Button>

@@ -80,7 +80,51 @@ export default function EditStore() {
     fetchData();
   }, []);
 
-  async function handelStoreUpdate() {}
+  async function handelStoreUpdate() {
+    if (!originalStore) return;
+
+    const Auth_Token = localStorage.getItem("authToken");
+    if (!Auth_Token) return;
+
+    const formData = new FormData();
+    formData.append("store_name", store.store_name);
+    formData.append("latitude", String(store.latitude));
+    formData.append("longitude", String(store.longitude));
+    if (store.id_card_photo) {
+      formData.append("id_card_photo", store.id_card_photo);
+    }
+    formData.append("phone", store.phone);
+
+    const response = await fetch(`${BASE_API_URL}/api/seller/store`, {
+      method: "PUT",
+      headers: {
+        Authorization: `Bearer ${Auth_Token}`,
+      },
+      body: formData,
+    });
+
+    if (!response.ok) {
+      console.error(`HTTP error! status: ${response.status}`);
+      return;
+    }
+
+    const responseData = await response.json();
+    console.log("Store updated successfully:", responseData);
+  }
+
+    const handleChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+      if (event.target.name === "id_card_photo" && event.target instanceof HTMLInputElement && event.target.files) {
+        setStore(prev => ({
+          ...prev,
+          id_card_photo: event.target.files[0]
+        }));
+      } else {
+        setStore(prev => ({
+          ...prev,
+          [event.target.name]: event.target.value
+        }));
+      }
+    };
 
   return (
     <>
@@ -88,7 +132,7 @@ export default function EditStore() {
       <div className="container">
         <PageTitle MainTitle="تعديل المتجر" />
         <Card className="w-full mt-5">
-          <form>
+          <form onSubmit={handelStoreUpdate}>
             <CardHeader>
               <CardTitle>{originalStore?.name}</CardTitle>
               <CardDescription>الحالة: {originalStore?.status}</CardDescription>
@@ -101,7 +145,10 @@ export default function EditStore() {
                 <Avatar>
                   <AvatarImage>
                     <Image
-                      src={originalStore?.id_card_photo_url || "/placeholder-store.png"}
+                      src={
+                        originalStore?.id_card_photo_url ||
+                        "/placeholder-store.png"
+                      }
                       alt={`ID card for ${originalStore?.name}`}
                       width={100}
                       height={100}
