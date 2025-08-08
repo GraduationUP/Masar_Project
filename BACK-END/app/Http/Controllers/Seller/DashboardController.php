@@ -66,6 +66,7 @@ class DashboardController extends Controller
                 'name' => $store->store_name,
                 'owner_phone' => $store->phone,
                 'status' => $store->status,
+                'location_address'=>$store->location_address,
                 'created_at' => $store->created_at->toDateTimeString(),
                 'average_rating' => $averageRating,
                 'latitude' => $store->latitude,
