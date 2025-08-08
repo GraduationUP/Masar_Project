@@ -52,6 +52,7 @@ interface StoreUser {
   created_at: string;
   updated_at: string;
 }
+// Updated StoreData interface
 interface StoreData {
   id: number;
   user_id: number;
@@ -59,8 +60,8 @@ interface StoreData {
   id_card_photo: string;
   phone: string;
   location_address: string;
-  active: number;
-  is_banned: boolean;
+  // Use a single status field
+  status: "pending" | "active" | "inactive" | "banned";
   created_at: string;
   updated_at: string;
   latitude: string | null;
@@ -107,7 +108,10 @@ export default function AdminDashboard() {
   const [showFailAlert, setShowFailAlert] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [userRoleFilter, setUserRoleFilter] = useState<string>("all");
-  const [storeStatusFilter, setStoreStatusFilter] = useState<string>("all");
+  // Updated storeStatusFilter
+  const [storeStatusFilter, setStoreStatusFilter] = useState<
+    "all" | "active" | "inactive" | "pending" | "banned"
+  >("all");
   const [userData, setUserData] = useState<UserData[]>([]);
   const [storeData, setStoreData] = useState<StoreData[]>([]);
   const [productData, setProductData] = useState<ProductData[]>([]);
@@ -124,10 +128,13 @@ export default function AdminDashboard() {
     { value: "user", label: "مستخدم" },
   ];
 
+  // Updated storeStatusOptions to include all statuses
   const storeStatusOptions = [
     { value: "all", label: "الكل" },
+    { value: "pending", label: "قيد المراجعة" },
     { value: "active", label: "نشط" },
     { value: "inactive", label: "غير نشط" },
+    { value: "banned", label: "محظور" },
   ];
 
   useEffect(() => {
@@ -356,7 +363,10 @@ export default function AdminDashboard() {
 
   const handleStoresSearch = (term: string, status: string) => {
     setSearchTerm(term);
-    setStoreStatusFilter(status);
+    // Updated setStoreStatusFilter to handle all statuses
+    setStoreStatusFilter(
+      status as "all" | "active" | "inactive" | "pending" | "banned"
+    );
   };
 
   const handleProductSearch = (term: string) => {
@@ -376,84 +386,10 @@ export default function AdminDashboard() {
     );
   };
 
-  const handleBanStore = async (id: number) => {
-    try {
-      const token = localStorage.getItem("authToken");
-      const response = await fetch(
-        `${API_BASE_URL}/api/admin/stores/${id}/ban`,
-        {
-          method: "PUT",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-      if (!response.ok) {
-        console.error("Error banning store");
-        setShowFailAlert(true);
-        return;
-      }
-      const updatedStore = await response.json();
-      updateStoreData(updatedStore);
-      setShowSuccessAlert(true);
-    } catch (error) {
-      console.error("Error banning store:", error);
-      setShowFailAlert(true);
-    }
-  };
-
-  const handleUnbanStore = async (id: number) => {
-    try {
-      const token = localStorage.getItem("authToken");
-      const response = await fetch(
-        `${API_BASE_URL}/api/admin/stores/${id}/unban`,
-        {
-          method: "PUT",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-      if (!response.ok) {
-        console.error("Error unbanning store");
-        setShowFailAlert(true);
-        return;
-      }
-      const updatedStore = await response.json();
-      updateStoreData(updatedStore);
-      setShowSuccessAlert(true);
-    } catch (error) {
-      console.error("Error unbanning store:", error);
-      setShowFailAlert(true);
-    }
-  };
-
-  const handleDeleteStore = async (id: number) => {
-    try {
-      const token = localStorage.getItem("authToken");
-      const response = await fetch(`${API_BASE_URL}/api/admin/stores/${id}`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      });
-      if (!response.ok) {
-        console.error("Error deleting store");
-        setShowFailAlert(true);
-        return;
-      }
-      setStoreData((prevData) => prevData.filter((store) => store.id !== id));
-      setShowSuccessAlert(true);
-    } catch (error) {
-      console.error("Error deleting store:", error);
-      setShowFailAlert(true);
-    }
-  };
-
-  const handleStatusUpdateStore = async (id: number, status: number) => {
+  const handelStatusUpdateStore = async (
+    id: number,
+    status: "pending" | "active" | "inactive" | "banned"
+  ) => {
     try {
       const token = localStorage.getItem("authToken");
       const response = await fetch(
@@ -557,9 +493,7 @@ export default function AdminDashboard() {
                 storeStatusFilter={storeStatusFilter}
                 storeStatusOptions={storeStatusOptions}
                 handleStoresSearch={handleStoresSearch}
-                handelStoreBan={handleBanStore}
-                handelStoreUnban={handleUnbanStore}
-                handelStoreStatusUpdate={handleStatusUpdateStore}
+                handelStoreStatusUpdate={handelStatusUpdateStore}
               />
             </TabsContent>
             <TabsContent value="products" className="space-y-4">

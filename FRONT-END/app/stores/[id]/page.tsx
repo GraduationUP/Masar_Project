@@ -243,15 +243,15 @@ export default function StorePage() {
       setSubmitting(false);
 
       // --- START: Update state for rating ---
-      // Assuming the API response for adding a rating gives back the user's name
+      // API response for adding a rating gives back the user's name
       // or you can retrieve it from localStorage
       const userInfo = JSON.parse(localStorage.getItem("userInfo") || "{}");
       const userName = userInfo.name || "Unknown User";
       const newRatingFeedback: Feedback = {
         user_name: userName,
         score: score,
-        content: userfeedback.content || "", // Keep existing comment if any
-        created_at: new Date().toLocaleDateString("en-US"), // Or use a timestamp from API
+        content: userfeedback.content || "", // Keeping existing comment if any
+        created_at: new Date().toLocaleDateString("en-US"),
       };
 
       // Update the user's own feedback status
@@ -272,7 +272,6 @@ export default function StorePage() {
           return item;
         });
 
-        // If user's feedback wasn't in the list, add it
         const userHasFeedback = updatedFeedback.some(
           (item) => item.user_name === userName
         );
