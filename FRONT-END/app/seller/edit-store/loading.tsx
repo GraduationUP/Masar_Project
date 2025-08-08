@@ -10,7 +10,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import PageTitle from "@/components/main_layout/PageTitle";
-import { Loader } from "lucide-react";
 import Header from "@/components/main_layout/header";
 
 export default function Loading() {

@@ -8,7 +8,6 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
-  CardDescription,
   CardFooter,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -18,6 +17,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Loader } from "lucide-react";
+import { CustomAlert } from "@/components/customAlert";
 
 const LeafletMap = lazy(() =>
   import("@/components/LeafLetMap").then((module) => ({
@@ -30,6 +30,7 @@ interface OriginalStroe {
   name: string;
   owner_phone: string;
   status: "active" | "inactive" | "pending" | "banned";
+  location_address: string;
   created_at: string;
   average_rating: number;
   latitude: string;
@@ -50,13 +51,15 @@ interface store {
 export default function EditStore() {
   const BASE_API_URL = process.env.NEXT_PUBLIC_API_URL;
   const [loading, setLoading] = useState(true);
+  const [success, setSuccess] = useState(false);
+  const [failuer, setFailuer] = useState(false);
   const [originalStore, setOriginalStore] = useState<OriginalStroe>();
   const [store, setStore] = useState<store>({
     store_name: "",
     id_card_photo: "",
     phone: "",
-    location_address: "",
     status: "active",
+    location_address: "",
     latitude: 31.523502842999026,
     longitude: 34.43004945503749,
   });
@@ -96,7 +99,7 @@ export default function EditStore() {
         store_name: originalStore.name,
         id_card_photo: originalStore.id_card_photo_url,
         phone: originalStore.owner_phone,
-        location_address: originalStore.location_address, // You may need to fetch this separately if not available
+        location_address: originalStore.location_address,
         status: originalStore.status,
         latitude: originalStore.latitude ?? 31.523502842999026,
         longitude: originalStore.longitude ?? 34.43004945503749,
@@ -119,7 +122,7 @@ export default function EditStore() {
     if (store.id_card_photo instanceof File) {
       formData.append("id_card_photo", store.id_card_photo);
     }
-
+    formData.append("location_address", store.location_address);
     formData.append("phone", store.phone);
 
     const response = await fetch(`${BASE_API_URL}/api/seller/store`, {
@@ -132,9 +135,10 @@ export default function EditStore() {
 
     if (!response.ok) {
       console.error(`HTTP error! status: ${response.status}`);
+      setFailuer(true);
       return;
     }
-
+    setSuccess(true);
     const responseData = await response.json();
     console.log("Store updated successfully:", responseData);
   }
@@ -172,6 +176,18 @@ export default function EditStore() {
   return (
     <>
       <Header />
+      <CustomAlert
+        message={"تم تحديث البيانات بنجاح"}
+        show={success}
+        onClose={() => setSuccess(false)}
+        success
+      />
+      <CustomAlert
+        message={"حدث خطأ ما!"}
+        show={failuer}
+        onClose={() => setFailuer(false)}
+        success={false}
+      />
       <div className="container">
         <PageTitle MainTitle="تعديل المتجر" />
         <Card className="w-full mt-5">
@@ -183,7 +199,9 @@ export default function EditStore() {
           >
             <CardHeader>
               <CardTitle>
-                <Label htmlFor="name">اسم المتجر</Label>
+                <Label htmlFor="name" className="mb-2">
+                  اسم المتجر
+                </Label>
                 <Input
                   id="name"
                   name="store_name"
@@ -237,7 +255,17 @@ export default function EditStore() {
                 />
               </div>
 
-              <Label>اختر موقع المتجر</Label>
+              <Label htmlFor="location_address"> عنوان المتجر</Label>
+              <Input
+                id="location_address"
+                type="text"
+                name="location_address"
+                value={store.location_address}
+                onChange={handleChange}
+                placeholder={originalStore?.location_address}
+              />
+
+              <Label>موقع المتجر</Label>
               <Suspense fallback={<Loader />}>
                 <LeafletMap
                   latitude={store.latitude}
