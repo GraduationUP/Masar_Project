@@ -2,7 +2,7 @@
 
 import Header from "@/components/main_layout/header";
 import PageTitle from "@/components/main_layout/PageTitle";
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense, lazy } from "react";
 import {
   Card,
   CardContent,
@@ -13,14 +13,23 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
-import { Avatar, AvatarFallback } from "@radix-ui/react-avatar";
-import { AvatarImage } from "@/components/ui/avatar";
+import Loading from "./loading";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Switch } from "@/components/ui/switch";
+import { Loader } from "lucide-react";
+
+const LeafletMap = lazy(() =>
+  import("@/components/LeafLetMap").then((module) => ({
+    default: module.default,
+  }))
+);
 
 interface OriginalStroe {
   id: number;
   name: string;
   owner_phone: string;
-  status: "active" | "inactive";
+  status: "active" | "inactive" | "pending" | "banned";
   created_at: string;
   average_rating: number;
   latitude: string;
@@ -30,10 +39,10 @@ interface OriginalStroe {
 
 interface store {
   store_name: string;
-  id_card_photo: string;
+  id_card_photo: File | string; // Changed the type to accept both File and string
   phone: string;
   location_address: string;
-  status: "active" | "inactive";
+  status: "active" | "inactive" | "pending" | "banned";
   latitude: number;
   longitude: number;
 }
@@ -48,8 +57,8 @@ export default function EditStore() {
     phone: "",
     location_address: "",
     status: "active",
-    latitude: 0,
-    longitude: 0,
+    latitude: 31.523502842999026,
+    longitude: 34.43004945503749,
   });
 
   useEffect(() => {
@@ -80,6 +89,21 @@ export default function EditStore() {
     fetchData();
   }, []);
 
+  // New useEffect to populate the store state with original data
+  useEffect(() => {
+    if (originalStore) {
+      setStore({
+        store_name: originalStore.name,
+        id_card_photo: originalStore.id_card_photo_url,
+        phone: originalStore.owner_phone,
+        location_address: originalStore.location_address, // You may need to fetch this separately if not available
+        status: originalStore.status,
+        latitude: originalStore.latitude ?? 31.523502842999026,
+        longitude: originalStore.longitude ?? 34.43004945503749,
+      });
+    }
+  }, [originalStore]);
+
   async function handelStoreUpdate() {
     if (!originalStore) return;
 
@@ -90,9 +114,12 @@ export default function EditStore() {
     formData.append("store_name", store.store_name);
     formData.append("latitude", String(store.latitude));
     formData.append("longitude", String(store.longitude));
-    if (store.id_card_photo) {
+
+    // Append the file only if it's a File object
+    if (store.id_card_photo instanceof File) {
       formData.append("id_card_photo", store.id_card_photo);
     }
+
     formData.append("phone", store.phone);
 
     const response = await fetch(`${BASE_API_URL}/api/seller/store`, {
@@ -112,19 +139,35 @@ export default function EditStore() {
     console.log("Store updated successfully:", responseData);
   }
 
-    const handleChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-      if (event.target.name === "id_card_photo" && event.target instanceof HTMLInputElement && event.target.files) {
-        setStore(prev => ({
-          ...prev,
-          id_card_photo: event.target.files[0]
-        }));
-      } else {
-        setStore(prev => ({
-          ...prev,
-          [event.target.name]: event.target.value
-        }));
-      }
-    };
+  const handleChange = (
+    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    if (
+      event.target.name === "id_card_photo" &&
+      event.target instanceof HTMLInputElement &&
+      event.target.files
+    ) {
+      setStore((prev) => ({
+        ...prev,
+        id_card_photo: event.target.files[0],
+      }));
+    } else {
+      setStore((prev) => ({
+        ...prev,
+        [event.target.name]: event.target.value,
+      }));
+    }
+  };
+
+  const handleLocationChange = (lat: number, lng: number) => {
+    setStore((prevData) => ({
+      ...prevData,
+      latitude: lat,
+      longitude: lng,
+    }));
+  };
+
+  if (loading) return <Loading />;
 
   return (
     <>
@@ -132,53 +175,99 @@ export default function EditStore() {
       <div className="container">
         <PageTitle MainTitle="تعديل المتجر" />
         <Card className="w-full mt-5">
-          <form onSubmit={handelStoreUpdate}>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              handelStoreUpdate();
+            }}
+          >
             <CardHeader>
-              <CardTitle>{originalStore?.name}</CardTitle>
-              <CardDescription>الحالة: {originalStore?.status}</CardDescription>
+              <CardTitle>
+                <Label htmlFor="name">اسم المتجر</Label>
+                <Input
+                  id="name"
+                  name="store_name"
+                  value={store.store_name}
+                  onChange={handleChange}
+                  placeholder={originalStore?.name}
+                />
+              </CardTitle>
+              <Switch
+                checked={store.status === "active"}
+                onCheckedChange={(checked) =>
+                  setStore((prev) => ({
+                    ...prev,
+                    status: checked ? "active" : "inactive",
+                  }))
+                }
+                style={{ direction: "ltr" }}
+              />
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
                 <h3 className="text-sm font-medium leading-none text-muted-foreground mb-2">
                   صورة المتجر
                 </h3>
-                <Avatar>
-                  <AvatarImage>
+                <Input
+                  type="file"
+                  name="id_card_photo"
+                  onChange={handleChange}
+                  accept="image/*"
+                  className="mt-1 block w-full px-3 py-2 text-base text-gray-700 transition duration-150 ease-in-out bg-white border border-gray-300 rounded-md shadow-sm appearance-none focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                />
+                {store.id_card_photo &&
+                  typeof store.id_card_photo === "string" && (
                     <Image
-                      src={
-                        originalStore?.id_card_photo_url ||
-                        "/placeholder-store.png"
-                      }
-                      alt={`ID card for ${originalStore?.name}`}
+                      src={store.id_card_photo}
+                      alt="Current ID card"
                       width={100}
                       height={100}
+                      className="mt-2"
                     />
-                  </AvatarImage>
-                  <AvatarFallback>
-                    <Image
-                      src={"/placeholder-store.png"}
-                      alt={`ID card for ${originalStore?.name}`}
-                      width={100}
-                      height={100}
-                    />
-                  </AvatarFallback>
-                </Avatar>
+                  )}
               </div>
               <div>
-                <h3 className="text-sm font-medium leading-none text-muted-foreground mb-2">
-                  رقم التواصل
-                </h3>
-                <p className="text-base">{originalStore?.owner_phone}</p>
+                <Label htmlFor="phone">رقم التواصل</Label>
+                <Input
+                  id="phone"
+                  name="phone"
+                  value={store.phone}
+                  onChange={handleChange}
+                  placeholder={originalStore?.owner_phone}
+                />
               </div>
-              <div>
-                <h3 className="text-sm font-medium leading-none text-muted-foreground mb-2">
-                  الموقع
-                </h3>
-                <p className="text-base"></p>
-                <p className="text-sm text-muted-foreground mt-1">
-                  Lat: {Number(originalStore?.latitude).toFixed(4)}, Long:{" "}
-                  {Number(originalStore?.longitude).toFixed(4)}
-                </p>
+
+              <Label>اختر موقع المتجر</Label>
+              <Suspense fallback={<Loader />}>
+                <LeafletMap
+                  latitude={store.latitude}
+                  longitude={store.longitude}
+                  onLocationChange={(lat: number, lng: number) =>
+                    handleLocationChange(lat, lng)
+                  }
+                />
+              </Suspense>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
+                <div>
+                  <Label htmlFor="latitude">Latitude:</Label>
+                  <Input
+                    type="number"
+                    id="latitude"
+                    value={store.latitude}
+                    readOnly
+                    className="rounded-lg"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="longitude">Longitude:</Label>
+                  <Input
+                    type="number"
+                    id="longitude"
+                    value={store.longitude}
+                    readOnly
+                    className="rounded-lg"
+                  />
+                </div>
               </div>
             </CardContent>
             <CardFooter>
