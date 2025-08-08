@@ -132,8 +132,6 @@ Route::middleware(['auth:sanctum'])->prefix('admin')->group(function () {
 
     Route::get('/stores', [AdminStoreController::class, 'index']);
     Route::get('/stores/{id}', [AdminStoreController::class, 'show']);
-    Route::put('/stores/{id}/ban', [AdminStoreController::class, 'banStore']);
-    Route::put('/stores/{id}/unban', [AdminStoreController::class, 'unbanStore']);
     Route::delete('/stores/{id}', [AdminStoreController::class, 'destroy']);
     Route::put('/stores/{id}/status', [AdminStoreController::class, 'updateStatus']);
 

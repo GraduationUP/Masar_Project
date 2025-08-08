@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Models\Store;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 
 class AdminStoreController extends Controller
 {
@@ -22,7 +23,7 @@ class AdminStoreController extends Controller
                 'store_image_url' => $store->id_card_photo ? asset('storage/' . $store->id_card_photo) : null,
                 'phone' => $store->phone,
                 'location_address' => $store->location_address,
-                'active' => $store->status,
+                'status' => $store->status,
                 'created_at' => $store->created_at->toIso8601String(),
                 'updated_at' => $store->updated_at->toIso8601String(),
                 'latitude' => $store->latitude,
@@ -63,29 +64,7 @@ class AdminStoreController extends Controller
         ]);
     }
 
-    public function banStore($id)
-    {
-        $store = Store::findOrFail($id);
 
-        $store->status = 'banned';
-        $store->save();
-
-        return response()->json([
-            'message' => 'The store has been banned successfully.'
-        ]);
-    }
-
-    public function unbanStore($id)
-    {
-        $store = Store::findOrFail($id);
-
-        $store->status = 'inactive';
-        $store->save();
-
-        return response()->json([
-            'message' => 'The store has been unbanned and set to inactive.'
-        ]);
-    }
 
 
 
@@ -101,6 +80,10 @@ class AdminStoreController extends Controller
 
     public function updateStatus(Request $request, $id)
     {
+        if (!Auth::user() || !Auth::user()->hasRole('admin')) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
         $store = Store::findOrFail($id);
         $request->validate([
             'status' => 'required|in:pending,active,inactive,banned',
