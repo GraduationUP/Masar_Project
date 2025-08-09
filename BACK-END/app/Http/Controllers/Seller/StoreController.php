@@ -81,7 +81,7 @@ class StoreController extends Controller
             return response()->json(['message' => 'No store found.'], 404);
         }
 
-        $data = $request->only(['store_name', 'phone', 'location_address', 'latitude', 'longitude']);
+        $data = $request->only(['store_name', 'phone', 'location_address', 'latitude', 'longitude','status']);
 
         if ($request->hasFile('id_card_photo')) {
             $data['id_card_photo'] = $request->file('id_card_photo')->store('id_cards', 'public');
