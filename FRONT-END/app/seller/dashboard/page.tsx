@@ -14,7 +14,16 @@ import {
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { BarChart3, Bolt, Package, Plus, Star, StoreIcon, Users } from "lucide-react";
+import {
+  AlertCircle,
+  BarChart3,
+  Bolt,
+  Package,
+  Plus,
+  Star,
+  StoreIcon,
+  Users,
+} from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import Loading from "./loading";
 import Image from "next/image";
@@ -84,7 +93,7 @@ export default function SellerDashboard() {
       average_rating: 0,
       latitude: "34",
       longitude: "31",
-      id_card_photo_url: ""
+      id_card_photo_url: "",
     },
   });
   const [user, setUser] = useState(null);
@@ -222,21 +231,40 @@ export default function SellerDashboard() {
               ) : (
                 <div className="flex gap-2">
                   <Button asChild variant="outline">
-                  <Link href="/seller/products/new">
-                    <Package className="h-4 w-4" />
-                    إضافة منتج
-                  </Link>
-                </Button>
-                <Button asChild>
-                  <Link href="/seller/edit-store">
-                    <Bolt className="h-4 w-4" />
-                    اعدادات المتجر
-                  </Link>
-                </Button>
+                    <Link href="/seller/products/new">
+                      <Package className="h-4 w-4" />
+                      إضافة منتج
+                    </Link>
+                  </Button>
+                  <Button asChild>
+                    <Link href="/seller/edit-store">
+                      <Bolt className="h-4 w-4" />
+                      اعدادات المتجر
+                    </Link>
+                  </Button>
                 </div>
               )}
             </div>
           </div>
+          {store.status !== "active" && (
+            <div className="flex items-center gap-2 text-amber-500 mb-2">
+              <AlertCircle className="h-5 w-5" />
+              <span className="text-sm font-medium">
+                {(() => {
+                  switch (store.status) {
+                    case "inactive":
+                      return "متجرك غير فعال! يمكنك تفعيله من خلال اعدادات المتجر";
+                    case "banned":
+                      return "متجرك محظور! يرجى التواصل مع الدعم.";
+                    case "pending":
+                      return "متجرك قيد المراجعة! سيتم تفعيله قريبًا.";
+                    default:
+                      return "";
+                  }
+                })()}
+              </span>
+            </div>
+          )}
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {store.name && (
@@ -309,7 +337,9 @@ export default function SellerDashboard() {
                       />
                       <div className="absolute bottom-4 left-4 bg-background/80 backdrop-blur-sm rounded-full p-1">
                         <Image
-                          src={ store.id_card_photo_url || "/placeholder-store.png"}
+                          src={
+                            store.id_card_photo_url || "/placeholder-store.png"
+                          }
                           alt={`${store.name} logo`}
                           width={20}
                           height={20}

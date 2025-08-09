@@ -109,7 +109,6 @@ export default function EditStore() {
   }, [originalStore]);
 
   async function handelStoreUpdate() {
-
     setSubmitting(true);
 
     if (!originalStore) return;
@@ -198,7 +197,7 @@ export default function EditStore() {
           >
             <CardHeader>
               <CardTitle>
-                <Label htmlFor="name" className="mb-2">
+                <Label htmlFor="name">
                   اسم المتجر
                 </Label>
                 <Input
@@ -207,16 +206,16 @@ export default function EditStore() {
                   value={store.store_name}
                   onChange={handleChange}
                   placeholder={originalStore?.name}
+                  className="mt-2"
                 />
               </CardTitle>
+              <Label htmlFor="status">حالة المتجر</Label>
               <Switch
                 checked={store.status === "active"}
-                onCheckedChange={(checked) =>
-                  setStore((prev) => ({
-                    ...prev,
-                    status: checked ? "active" : "inactive",
-                  }))
-                }
+                onCheckedChange={(checked) => {
+                  const newStatus = checked ? "active" : "inactive";
+                  setStore((prev) => ({ ...prev, status: newStatus }));
+                }}
                 style={{ direction: "ltr" }}
               />
             </CardHeader>
@@ -298,7 +297,12 @@ export default function EditStore() {
               </div>
             </CardContent>
             <CardFooter>
-              <Button type="submit" variant={submitting ? "secondary" : "default"}>ارسال</Button>
+              <Button
+                type="submit"
+                variant={submitting ? "secondary" : "default"}
+              >
+                ارسال
+              </Button>
             </CardFooter>
           </form>
         </Card>
