@@ -607,7 +607,7 @@ export default function StorePage() {
               <div className="p-6 flex items-center gap-4">
                 <div className="bg-background rounded-full p-1 shadow-lg">
                   <img
-                    src={"/placeholder-store.png"}
+                    src={data?.store_image}
                     alt={`${data?.name} logo`}
                     className="h-20 w-20 rounded-full border-2 border-background"
                   />
@@ -903,7 +903,7 @@ export default function StorePage() {
                                       height={40}
                                       width={40}
                                     />
-                                  )}
+                                    )}
                                 </AvatarImage>
                                 <AvatarFallback>
                                   {JSON.parse(
