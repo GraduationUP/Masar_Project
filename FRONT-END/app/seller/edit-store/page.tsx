@@ -51,6 +51,7 @@ interface store {
 export default function EditStore() {
   const BASE_API_URL = process.env.NEXT_PUBLIC_API_URL;
   const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
   const [failuer, setFailuer] = useState(false);
   const [originalStore, setOriginalStore] = useState<OriginalStroe>();
@@ -94,20 +95,22 @@ export default function EditStore() {
 
   // New useEffect to populate the store state with original data
   useEffect(() => {
-    if (originalStore) {
+    if (originalStore && store.store_name === "") {
       setStore({
         store_name: originalStore.name,
         id_card_photo: originalStore.id_card_photo_url,
         phone: originalStore.owner_phone,
         location_address: originalStore.location_address,
         status: originalStore.status,
-        latitude: originalStore.latitude ?? 31.523502842999026,
-        longitude: originalStore.longitude ?? 34.43004945503749,
+        latitude: Number(originalStore.latitude) ?? 31.523502842999026,
+        longitude: Number(originalStore.longitude) ?? 34.43004945503749,
       });
     }
   }, [originalStore]);
 
   async function handelStoreUpdate() {
+    setSubmitting(true);
+
     if (!originalStore) return;
 
     const Auth_Token = localStorage.getItem("authToken");
@@ -117,7 +120,8 @@ export default function EditStore() {
     formData.append("store_name", store.store_name);
     formData.append("latitude", String(store.latitude));
     formData.append("longitude", String(store.longitude));
-
+    formData.append("_method", "PUT");
+    formData.append("status", store.status);
     // Append the file only if it's a File object
     if (store.id_card_photo instanceof File) {
       formData.append("id_card_photo", store.id_card_photo);
@@ -126,7 +130,7 @@ export default function EditStore() {
     formData.append("phone", store.phone);
 
     const response = await fetch(`${BASE_API_URL}/api/seller/store`, {
-      method: "PUT",
+      method: "POST",
       headers: {
         Authorization: `Bearer ${Auth_Token}`,
       },
@@ -141,20 +145,14 @@ export default function EditStore() {
     setSuccess(true);
     const responseData = await response.json();
     console.log("Store updated successfully:", responseData);
+    setSubmitting(false);
   }
 
   const handleChange = (
     event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
-    if (
-      event.target.name === "id_card_photo" &&
-      event.target instanceof HTMLInputElement &&
-      event.target.files
-    ) {
-      setStore((prev) => ({
-        ...prev,
-        id_card_photo: event.target.files[0],
-      }));
+    if (event.target.name === "id_card_photo" && event.target.files?.[0]) {
+      setStore((prev) => ({ ...prev, id_card_photo: event.target.files[0] }));
     } else {
       setStore((prev) => ({
         ...prev,
@@ -189,7 +187,7 @@ export default function EditStore() {
         success={false}
       />
       <div className="container">
-        <PageTitle MainTitle="تعديل المتجر" />
+        <PageTitle MainTitle="اعدادات المتجر" />
         <Card className="w-full mt-5">
           <form
             onSubmit={(e) => {
@@ -199,7 +197,7 @@ export default function EditStore() {
           >
             <CardHeader>
               <CardTitle>
-                <Label htmlFor="name" className="mb-2">
+                <Label htmlFor="name">
                   اسم المتجر
                 </Label>
                 <Input
@@ -208,16 +206,16 @@ export default function EditStore() {
                   value={store.store_name}
                   onChange={handleChange}
                   placeholder={originalStore?.name}
+                  className="mt-2"
                 />
               </CardTitle>
+              <Label htmlFor="status">حالة المتجر</Label>
               <Switch
                 checked={store.status === "active"}
-                onCheckedChange={(checked) =>
-                  setStore((prev) => ({
-                    ...prev,
-                    status: checked ? "active" : "inactive",
-                  }))
-                }
+                onCheckedChange={(checked) => {
+                  const newStatus = checked ? "active" : "inactive";
+                  setStore((prev) => ({ ...prev, status: newStatus }));
+                }}
                 style={{ direction: "ltr" }}
               />
             </CardHeader>
@@ -299,7 +297,12 @@ export default function EditStore() {
               </div>
             </CardContent>
             <CardFooter>
-              <Button type="submit">ارسال</Button>
+              <Button
+                type="submit"
+                variant={submitting ? "secondary" : "default"}
+              >
+                ارسال
+              </Button>
             </CardFooter>
           </form>
         </Card>
