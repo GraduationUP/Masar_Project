@@ -40,20 +40,25 @@ interface DeleteStoreDialogProps {
   store: StoreData;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onStoreDeleted: (id: number) => void;
 }
 
 const DeleteStoreDialog: React.FC<DeleteStoreDialogProps> = ({
   store,
   open,
   onOpenChange,
+  onStoreDeleted,
 }) => {
   const [success, setSuccess] = useState(false);
-  const [failure, setFailuer] = useState(false);
+  const [failure, setFailure] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
   const handelStoreDelete = async (id: number) => {
     setDeleteLoading(true);
+    setSuccess(false);
+    setFailure(false);
+
     try {
       const token = localStorage.getItem("authToken");
       const response = await fetch(`${API_BASE_URL}/api/admin/stores/${id}`, {
@@ -67,16 +72,15 @@ const DeleteStoreDialog: React.FC<DeleteStoreDialogProps> = ({
       if (!response.ok) {
         const errorData = await response.json();
         console.error("Error deleting store:", errorData);
-        onOpenChange(false);
-        setFailuer(true);
-        return;
+        setFailure(true);
+      } else {
+        setSuccess(true);
+        // Notify parent component to update the store list
+        onStoreDeleted(id);
       }
-      onOpenChange(false);
-      setSuccess(true);
     } catch (error) {
       console.error("Error deleting store:", error);
-      onOpenChange(false);
-      setFailuer(true);
+      setFailure(true);
     } finally {
       setDeleteLoading(false);
       onOpenChange(false);
@@ -92,9 +96,9 @@ const DeleteStoreDialog: React.FC<DeleteStoreDialogProps> = ({
         success
       />
       <CustomAlert
-        message={"حدث خطأ اثناء حذف المتجر"}
+        message={"حدث خطأ اثناء حذف المتجر"}
         show={failure}
-        onClose={() => setFailuer(false)}
+        onClose={() => setFailure(false)}
         success={false}
       />
       <Dialog open={open} onOpenChange={onOpenChange}>
@@ -111,21 +115,19 @@ const DeleteStoreDialog: React.FC<DeleteStoreDialogProps> = ({
               الخطوة
             </DialogDescription>
           </DialogHeader>
-          <Button
-            onClick={() => handelStoreDelete(store.id)}
-            type="button"
-            variant={"destructive"}
-            className="block"
-            disabled={deleteLoading}
-          >
-            {deleteLoading ? "جاري الحذف..." : "حذف"}
-          </Button>
           <DialogFooter>
-            <DialogClose>
+            <DialogClose asChild>
               <Button variant={"secondary"} disabled={deleteLoading}>
                 الغاء
               </Button>
             </DialogClose>
+            <Button
+              onClick={() => handelStoreDelete(store.id)}
+              variant={"destructive"}
+              disabled={deleteLoading}
+            >
+              {deleteLoading ? "جاري الحذف..." : "حذف"}
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
