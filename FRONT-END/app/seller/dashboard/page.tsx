@@ -55,6 +55,7 @@ interface Store {
 interface Product {
   id: number;
   name: string;
+  photo: string;
   price: string;
   category: string;
   created_at: string;
@@ -431,7 +432,7 @@ export default function SellerDashboard() {
                     <Card key={product.id} className="overflow-hidden">
                       <div className="relative h-40 w-full">
                         <img
-                          src={"/boxes.png"}
+                          src={product.photo !== null ? product.photo : "boxes.png"}
                           alt={product.name}
                           className="h-full w-full object-contain"
                         />
