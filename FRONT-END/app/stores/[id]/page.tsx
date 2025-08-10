@@ -54,9 +54,8 @@ interface StoreData {
     created_at: string;
     updated_at: string;
   }[];
-  feedback: Feedback[]; // This is the array we need to update
+  feedback: Feedback[];
 }
-// Dynamically import the map component to avoid SSR issues
 const MapWithNoSSR = dynamic(() => import("@/components/mapWithNoSSR"), {
   ssr: false,
   loading: () => (
@@ -73,8 +72,8 @@ export default function StorePage() {
   const [data, setData] = useState<StoreData | null>(null);
   const [content, setContent] = useState("");
   const [score, setScore] = useState(1);
-  const [isUser, setIsUser] = useState(false); // Initialize with false
-  const [notOwner, setNotOwner] = useState(true); // Initialize with true
+  const [isUser, setIsUser] = useState(false);
+  const [notOwner, setNotOwner] = useState(true);
   const [success, setSuccess] = useState(false);
   const [failure, setFailure] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -90,44 +89,39 @@ export default function StorePage() {
     content_id: null,
   });
 
-  // Fetch feedback status
-  useEffect(() => {
-    async function fetchFeedbackStatus() {
-      // setLoading(true); // Only set loading for initial store data fetch, not for every feedback status check
-      try {
-        const Auth_Token = localStorage.getItem("authToken");
-        if (!Auth_Token) return; // Only fetch if authenticated
+  const fetchFeedbackStatus = async () => {
+    try {
+      const Auth_Token = localStorage.getItem("authToken");
+      if (!Auth_Token) return;
 
-        const response = await fetch(
-          `${BASE_API_URL}/api/store/${id}/feedback-status`,
-          {
-            method: "GET",
-            headers: {
-              Authorization: `Bearer ${Auth_Token}`,
-            },
-          }
-        );
-
-        if (!response.ok) {
-          // Handle cases like 401 Unauthorized if token is invalid/expired
-          console.warn("Failed to fetch feedback status or not authorized.");
-          return;
+      const response = await fetch(
+        `${BASE_API_URL}/api/store/${id}/feedback-status`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${Auth_Token}`,
+          },
         }
+      );
 
-        const responseData = await response.json();
-        console.log("Feedback status:", responseData);
-        setUserFeedback(responseData);
-      } catch (error) {
-        console.error("Error fetching feedback status:", error);
-      } // finally { setLoading(false); }
+      if (!response.ok) {
+        console.warn("Failed to fetch feedback status or not authorized.");
+        return;
+      }
+
+      const responseData = await response.json();
+      console.log("Feedback status:", responseData);
+      setUserFeedback(responseData);
+    } catch (error) {
+      console.error("Error fetching feedback status:", error);
     }
-    fetchFeedbackStatus();
-  }, [id, BASE_API_URL]);
+  };
 
   // Fetch store data
   useEffect(() => {
+    fetchFeedbackStatus();
     async function fetchStoreData() {
-      setLoading(true); // Set loading to true before the fetch
+      setLoading(true);
       try {
         const response = await fetch(`${BASE_API_URL}/api/guest/stores/${id}`, {
           method: "GET",
@@ -183,7 +177,7 @@ export default function StorePage() {
       } catch (error) {
         console.error("Error fetching categories:", error);
         setCategories([]);
-      } // finally { setLoading(false); }
+      }
     }
     fetchCategories();
   }, [BASE_API_URL]);
@@ -198,7 +192,6 @@ export default function StorePage() {
     return acc;
   }, [] as Array<{ id: number; name: string }>);
 
-  // Determine if the current user is the store owner or just a user
   useEffect(() => {
     const user = localStorage.getItem("userInfo");
     const userData = user ? JSON.parse(user) : null;
@@ -211,9 +204,9 @@ export default function StorePage() {
       }
     } else {
       setIsUser(false);
-      setNotOwner(true); // If no user logged in, they are not the owner
+      setNotOwner(true);
     }
-  }, [data]); // Re-run when data changes (store data is fetched)
+  }, [data]);
 
   const handelRatingSend = async () => {
     setSubmitting(true);
@@ -241,33 +234,29 @@ export default function StorePage() {
       console.log("Rating added successfully:", responseData);
       setSuccess(true);
       setSubmitting(false);
+      fetchFeedbackStatus();
 
       // --- START: Update state for rating ---
-      // API response for adding a rating gives back the user's name
-      // or you can retrieve it from localStorage
       const userInfo = JSON.parse(localStorage.getItem("userInfo") || "{}");
       const userName = userInfo.name || "Unknown User";
       const newRatingFeedback: Feedback = {
         user_name: userName,
         score: score,
-        content: userfeedback.content || "", // Keeping existing comment if any
+        content: userfeedback.content || "",
         created_at: new Date().toLocaleDateString("en-US"),
       };
 
-      // Update the user's own feedback status
       setUserFeedback((prev) => ({
         ...prev,
         score: score,
         score_id: responseData.id,
-      })); // Assuming responseData.id is the score_id
-
-      // Update the main 'data' state to show the new rating
+      }));
       setData((prevData) => {
         if (!prevData) return null;
 
         const updatedFeedback = prevData.feedback.map((item) => {
           if (item.user_name === userName) {
-            return { ...item, score: score }; // Update existing user's feedback
+            return { ...item, score: score };
           }
           return item;
         });
@@ -276,7 +265,7 @@ export default function StorePage() {
           (item) => item.user_name === userName
         );
         if (!userHasFeedback) {
-          updatedFeedback.unshift(newRatingFeedback); // Prepend for immediate visibility
+          updatedFeedback.unshift(newRatingFeedback);
         }
 
         return { ...prevData, feedback: updatedFeedback };
@@ -316,50 +305,44 @@ export default function StorePage() {
       console.log("Comment added successfully:", responseData);
       setSuccess(true);
       setSubmitting(false);
-      setContent(""); // Clear the textarea after successful submission
+      setContent("");
+      fetchFeedbackStatus();
 
       // --- START: Update state for new comment ---
       const userInfo = JSON.parse(localStorage.getItem("userInfo") || "{}");
       const userName = userInfo.name || "Unknown User";
 
-      // Create the new feedback object
       const newCommentFeedback: Feedback = {
         user_name: userName,
-        score: userfeedback.score || 0, // Use existing score if available, otherwise 0 or null
+        score: userfeedback.score || 0,
         content: content,
-        created_at: new Date().toLocaleDateString("en-US"), // Use actual timestamp from API if available
+        created_at: new Date().toLocaleDateString("en-US"),
       };
 
-      // Update the user's own feedback status
       setUserFeedback((prev) => ({
         ...prev,
         content: content,
         content_id: responseData.id,
-      })); // Assuming responseData.id is the comment_id
+      }));
 
-      // Update the main 'data' state
       setData((prevData) => {
-        if (!prevData) return null; // If data is null, cannot update
+        if (!prevData) return null;
 
-        // Check if the user already has an entry in the feedback array
         const userHasFeedback = prevData.feedback.some(
           (item) => item.user_name === userName
         );
 
         let updatedFeedback: Feedback[];
         if (userHasFeedback) {
-          // If the user already has feedback, update their existing entry
           updatedFeedback = prevData.feedback.map((item) =>
             item.user_name === userName
-              ? { ...item, content: content } // Only update content
+              ? { ...item, content: content }
               : item
           );
         } else {
-          // If the user does not have feedback, add the new entry to the array
-          updatedFeedback = [newCommentFeedback, ...prevData.feedback]; // Prepend for immediate visibility
+          updatedFeedback = [newCommentFeedback, ...prevData.feedback];
         }
 
-        // Return the new StoreData object with the updated feedback array
         return { ...prevData, feedback: updatedFeedback };
       });
       // --- END: Update state for new comment ---
@@ -394,16 +377,14 @@ export default function StorePage() {
       console.log("Comment edited successfully:", responseData);
       setSuccess(true);
       setSubmitting(false);
-      setContent(updatedContent); // Update local content state
+      setContent(updatedContent);
 
       // --- START: Update state for comment update ---
       const userInfo = JSON.parse(localStorage.getItem("userInfo") || "{}");
       const userName = userInfo.name || "Unknown User";
 
-      // Update the user's own feedback status
       setUserFeedback((prev) => ({ ...prev, content: updatedContent }));
 
-      // Update the main 'data' state
       setData((prevData) => {
         if (!prevData) return null;
         const updatedFeedback = prevData.feedback.map((item) => {
@@ -447,16 +428,14 @@ export default function StorePage() {
       console.log("Rating edited successfully:", responseData);
       setSuccess(true);
       setSubmitting(false);
-      setScore(updatedScore); // Update local score state
+      setScore(updatedScore);
 
       // --- START: Update state for rating update ---
       const userInfo = JSON.parse(localStorage.getItem("userInfo") || "{}");
       const userName = userInfo.name || "Unknown User";
 
-      // Update the user's own feedback status
       setUserFeedback((prev) => ({ ...prev, score: updatedScore }));
 
-      // Update the main 'data' state
       setData((prevData) => {
         if (!prevData) return null;
         const updatedFeedback = prevData.feedback.map((item) => {
@@ -504,20 +483,16 @@ export default function StorePage() {
       const userInfo = JSON.parse(localStorage.getItem("userInfo") || "{}");
       const userName = userInfo.name || "Unknown User";
 
-      // Clear the user's own score and score_id
       setUserFeedback((prev) => ({ ...prev, score: null, score_id: null }));
-
-      // Remove the rating from the main 'data' state or update its score to null
       setData((prevData) => {
         if (!prevData) return null;
         const updatedFeedback = prevData.feedback
           .map((item) => {
             if (item.user_name === userName) {
-              return { ...item, score: 0 }; // Set score to 0 or null
+              return { ...item, score: 0 };
             }
             return item;
           })
-          // Optional: filter out if both score and content are null for a user
           .filter((item) => item.score !== 0 || item.content);
         return { ...prevData, feedback: updatedFeedback };
       });
@@ -525,8 +500,6 @@ export default function StorePage() {
     } catch (error) {
       console.error("Error deleting rating:", error);
       setFailure(true);
-    } finally {
-      // No reload here
     }
   };
 
@@ -555,26 +528,23 @@ export default function StorePage() {
       }
       setSuccess(true);
       setSubmitting(false);
-      setContent(""); // Clear content input
+      setContent("");
 
       // --- START: Update state for comment deletion ---
       const userInfo = JSON.parse(localStorage.getItem("userInfo") || "{}");
       const userName = userInfo.name || "Unknown User";
 
-      // Clear the user's own content and content_id
       setUserFeedback((prev) => ({ ...prev, content: null, content_id: null }));
 
-      // Remove the comment from the main 'data' state or update its content to empty
       setData((prevData) => {
         if (!prevData) return null;
         const updatedFeedback = prevData.feedback
           .map((item) => {
             if (item.user_name === userName) {
-              return { ...item, content: "" }; // Set content to empty string
+              return { ...item, content: "" };
             }
             return item;
           })
-          // Optional: filter out if both score and content are null/empty for a user
           .filter((item) => item.score !== 0 || item.content !== "");
         return { ...prevData, feedback: updatedFeedback };
       });
@@ -582,8 +552,6 @@ export default function StorePage() {
     } catch (error) {
       console.error("Error deleting comment:", error);
       setFailure(true);
-    } finally {
-      // No reload here
     }
   };
 
@@ -887,7 +855,7 @@ export default function StorePage() {
                       </>
                     )}
                     {(userfeedback.content || userfeedback.score) && (
-                      <Card className="card-hover">
+                      <Card className="card-hover bg-gray-200">
                         <span className="text-xs text-muted-foreground pt-4 pl-4">
                           مراجعتك الشخصية
                         </span>
@@ -903,7 +871,7 @@ export default function StorePage() {
                                       height={40}
                                       width={40}
                                     />
-                                    )}
+                                  )}
                                 </AvatarImage>
                                 <AvatarFallback>
                                   {JSON.parse(
@@ -962,7 +930,12 @@ export default function StorePage() {
                                     )
                                   }
                                 >
-                                  <Image src={'/ui/trash_comment.svg'} alt="حذف التعليق" height={20} width={20} />
+                                  <Image
+                                    src={"/ui/trash_comment.svg"}
+                                    alt="حذف التعليق"
+                                    height={20}
+                                    width={20}
+                                  />
                                 </Button>
                               )}
                               {userfeedback.score && (
@@ -974,7 +947,12 @@ export default function StorePage() {
                                     )
                                   }
                                 >
-                                 <Image src={'/ui/trash_rating.svg'} alt="حذف التقييم" height={20} width={20} />
+                                  <Image
+                                    src={"/ui/trash_rating.svg"}
+                                    alt="حذف التقييم"
+                                    height={20}
+                                    width={20}
+                                  />
                                 </Button>
                               )}
                             </div>
