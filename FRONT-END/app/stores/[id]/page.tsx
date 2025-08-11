@@ -701,7 +701,7 @@ export default function StorePage() {
                                   <img
                                     src={product.photo || "/boxes.png"}
                                     alt={product.name}
-                                    className="size-1/2 object-contain"
+                                    className="size-full object-contain"
                                   />
                                 </div>
                                 <div className="absolute top-4 left-4">
