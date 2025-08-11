@@ -107,9 +107,7 @@ export default function NewProductPage() {
         throw new Error(errorData?.message || "Failed to create product");
       }
 
-      const data = await response.json();
       setSuccess(true);
-      console.log("Product created successfully:", data); // Log the response data
       // Reset form after successful submission
       setProductData({
         name: "",
