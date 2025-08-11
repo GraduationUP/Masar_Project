@@ -115,7 +115,6 @@ export default function NewProductPage() {
 
       const data = await response.json();
       setSuccess(true);
-      console.log("Product created successfully:", data); // Log the response data
       if (previewUrl) {
         URL.revokeObjectURL(previewUrl);
         setPreviewUrl(null);

@@ -143,8 +143,6 @@ export default function EditStore() {
       return;
     }
     setSuccess(true);
-    const responseData = await response.json();
-    console.log("Store updated successfully:", responseData);
     setSubmitting(false);
   }
 

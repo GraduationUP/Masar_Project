@@ -191,7 +191,6 @@ export default function SellerDashboard() {
           errorData?.message || "Failed to send report. Please try again."
         );
       }
-      console.log("Report sent successfully:", response);
       setOpen(false);
       setSuccessAlert(true);
     } catch (error: any) {

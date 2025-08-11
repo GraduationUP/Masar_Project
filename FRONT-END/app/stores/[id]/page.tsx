@@ -110,7 +110,6 @@ export default function StorePage() {
       }
 
       const responseData = await response.json();
-      console.log("Feedback status:", responseData);
       setUserFeedback(responseData);
     } catch (error) {
       console.error("Error fetching feedback status:", error);
@@ -231,7 +230,6 @@ export default function StorePage() {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       const responseData = await response.json();
-      console.log("Rating added successfully:", responseData);
       setSuccess(true);
       setSubmitting(false);
       fetchFeedbackStatus();
@@ -302,7 +300,6 @@ export default function StorePage() {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       const responseData = await response.json();
-      console.log("Comment added successfully:", responseData);
       setSuccess(true);
       setSubmitting(false);
       setContent("");
@@ -374,7 +371,6 @@ export default function StorePage() {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       const responseData = await response.json();
-      console.log("Comment edited successfully:", responseData);
       setSuccess(true);
       setSubmitting(false);
       setContent(updatedContent);
@@ -424,8 +420,6 @@ export default function StorePage() {
         setSubmitting(false);
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      const responseData = await response.json();
-      console.log("Rating edited successfully:", responseData);
       setSuccess(true);
       setSubmitting(false);
       setScore(updatedScore);
