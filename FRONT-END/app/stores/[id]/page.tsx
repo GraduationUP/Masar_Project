@@ -370,7 +370,6 @@ export default function StorePage() {
         setSubmitting(false);
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      const responseData = await response.json();
       setSuccess(true);
       setSubmitting(false);
       setContent(updatedContent);
