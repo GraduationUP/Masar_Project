@@ -10,52 +10,7 @@ use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
-    public function show($id)
-    {
-        $user = User::with(['store', 'comments.store', 'ratings.store'])->findOrFail($id);
 
-        $authUser = Auth::user();
-
-        if (! $authUser || (
-            ! $authUser->hasRole('admin') && $authUser->id !== $user->id
-        )) {
-            return response()->json(['message' => 'Unauthorized'], 403);
-        }
-
-        $feedback = collect();
-
-        $storesIds = $user->comments->pluck('store_id')
-            ->merge($user->ratings->pluck('store_id'))
-            ->unique();
-
-        foreach ($storesIds as $storeId) {
-            $comment = $user->comments->firstWhere('store_id', $storeId);
-            $rating = $user->ratings->firstWhere('store_id', $storeId);
-
-            $feedback->push([
-                'store_id'   => $storeId,
-                'store_name' => optional($comment?->store ?? $rating?->store)->store_name,
-                'comment'    => $comment?->content,
-                'rating'     => $rating?->score,
-                'created_at' => collect([
-                    $comment?->created_at,
-                    $rating?->created_at
-                ])->filter()->max(), // الأحدث بينهم
-            ]);
-        }
-        $feedback = $feedback->sortByDesc('created_at')->values();
-
-        return response()->json([
-            'id' => $user->id,
-            'first_name' => $user->first_name,
-            'last_name' => $user->last_name,
-            'username' => $user->username,
-            'email' => $user->email,
-            'role' => $user->getRoleNames()->first(),
-            'store' => $user->store,
-            'feedback' => $feedback,
-        ]);
-    }
 
 
     public function update(Request $request, $id)

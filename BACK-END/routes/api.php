@@ -7,6 +7,7 @@ use App\Http\Controllers\User\UserController;
 use App\Http\Controllers\User\RatingController;
 use App\Http\Controllers\Seller\StoreController;
 use App\Http\Controllers\User\CommentController;
+use App\Http\Controllers\User\FeedbackController;
 use App\Http\Controllers\Admin\AdminMapController;
 use App\Http\Controllers\Guest\CategoryController;
 use App\Http\Controllers\Seller\ProductController;
@@ -16,8 +17,8 @@ use App\Http\Controllers\Auth\VerifyEmailController;
 use App\Http\Controllers\Seller\DashboardController;
 use App\Http\Controllers\User\NotificationController;
 use App\Http\Controllers\Admin\AdminCommentController;
-use App\Http\Controllers\Admin\AdminProductController;
 
+use App\Http\Controllers\Admin\AdminProductController;
 use App\Http\Controllers\Admin\AdminCategoryController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\User\FeedbackStatusController;
@@ -94,7 +95,6 @@ Route::middleware('auth:sanctum')->group(function () {
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/stores/{store}/ratings', [RatingController::class, 'store']);
     Route::put('/ratings/{rating}', [RatingController::class, 'update']);
-    Route::delete('/ratings/{rating}', [RatingController::class, 'destroy']);
     Route::get('/store/{store}/feedback-status', [FeedbackStatusController::class, 'check']);
     Route::delete('/notifications/clear', [NotificationController::class, 'clearAll']);
 });
@@ -103,9 +103,10 @@ Route::middleware(['auth:sanctum'])->group(function () {
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/stores/{store}/comments', [CommentController::class, 'store']);
     Route::put('/comments/{comment}', [CommentController::class, 'update']);
-    Route::delete('/comments/{comment}', [CommentController::class, 'destroy']);
     Route::post('/comments/{comment}/report', [CommentController::class, 'report']);
+
 });
+
 
 
 Route::middleware('auth:sanctum')->group(function () {
@@ -149,3 +150,6 @@ Route::middleware(['auth:sanctum'])->prefix('admin')->group(function () {
 
     Route::apiResource('categories', AdminCategoryController::class)->only(['index', 'store', 'update', 'destroy']);
 });
+
+Route::delete('/stores/{storeId}/feedback', [FeedbackController::class, 'destroy'])
+    ->middleware('auth:sanctum');
