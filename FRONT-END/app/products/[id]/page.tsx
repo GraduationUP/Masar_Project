@@ -321,7 +321,7 @@ export default function ProductPage() {
                             />
                             <div className="flex flex-col justify-end">
                               <span className="text-lg font-bold">{product?.name}</span>
-                              <span className="text-sm">{product?.price}</span>
+                              <span className="text-sm">{product?.price} ₪</span>
                             </div>
                           </CardContent>
                         </Card>

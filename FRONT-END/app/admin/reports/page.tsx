@@ -3,12 +3,12 @@
 import ReportSection from "@/components/admin/ReportSection";
 import Header from "@/components/main_layout/header";
 import { Button } from "@/components/ui/button";
-import { ArrowRight } from "lucide-react";
+import { Loader} from "lucide-react";
 import Image from "next/image";
 import { ReportCard } from "@/components/admin/ReportCard";
 import { useEffect, useState } from "react";
 import { Check, Hourglass, Clock, Trash } from "lucide-react";
-import { CustomAlert } from "@/components/customAlert";
+import { Alert, AlertTitle } from "@/components/ui/alert";
 import PageTitle from "@/components/main_layout/PageTitle";
 type User = {
   id: number;
@@ -128,12 +128,12 @@ export default function reportsPage() {
   return (
     <>
       <Header />
-      <CustomAlert
-        message="جار التحميل ..."
-        show={loading}
-        onClose={() => setLoading(false)}
-        success={true}
-      />
+      {loading && (
+        <Alert className="fixed bottom-4 right-4 max-w-sm">
+          <Loader className="animate-spin" />
+          <AlertTitle>جار التحميل</AlertTitle>
+        </Alert>
+      )}
       <div className="container">
         <PageTitle
           MainTitle="ادارة البلاغات"

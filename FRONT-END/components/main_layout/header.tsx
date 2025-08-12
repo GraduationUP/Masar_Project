@@ -36,6 +36,7 @@ import { Badge } from "@/components/ui/badge";
 import Image from "next/image";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { UserInfo } from "@/lib/types";
+import { useRouter } from "next/navigation";
 
 interface Notifications {
   id: number;
@@ -87,6 +88,7 @@ interface suggestion {
 
 export default function Header() {
   const BASE_API_URL = process.env.NEXT_PUBLIC_API_URL;
+  const Router = useRouter();
   const { theme, setTheme } = useTheme();
   const [notifications, setNotifications] = useState<Notifications[]>([]);
   const pathname = usePathname();
@@ -149,7 +151,7 @@ export default function Header() {
     localStorage.removeItem("tokenType");
     localStorage.removeItem("userInfo");
     localStorage.removeItem("authToken");
-    redirect("/");
+    Router.push("/");
   }
 
   const markAsRead = async (id: number) => {

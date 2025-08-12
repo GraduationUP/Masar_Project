@@ -34,11 +34,17 @@ class CommentController extends Controller
         return response()->json(['message' => 'Unauthorized'], 403);
     }
 
+
     // إذا كانت القيمة فاضية، نحذف التعليق
     if (trim($request->content) === '') {
         $comment->delete();
         return response()->json(['message' => 'Comment deleted because it was empty']);
     }
+=======
+        $request->validate([
+            'content' => 'string|max:1000',
+        ]);
+
 
     $request->validate([
         'content' => 'required|string|max:1000',

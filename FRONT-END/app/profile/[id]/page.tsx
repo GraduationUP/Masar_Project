@@ -161,10 +161,6 @@ export default function ProfilePage() {
     password_confirmation: "",
   });
 
-  const handlePrint = () => {
-    console.log(passwordFromData);
-  };
-
   // For the page owner
   useEffect(() => {
     async function fetchData() {
@@ -270,7 +266,6 @@ export default function ProfilePage() {
       if (!response.ok) {
         throw new Error("Failed to change password. Please try again.");
       }
-      console.log(response);
       setPasswordFormData({
         current_password: "",
         password: "",
@@ -322,7 +317,6 @@ export default function ProfilePage() {
           errorData?.message || "Failed to send report. Please try again."
         );
       }
-      console.log("Report sent successfully:", response);
       setOpen(false);
       setMessage("");
       setSucssesAlert(true);

@@ -213,8 +213,6 @@ export default function AdminMapPage() {
         setFail(true);
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      const data = await response.json();
-      console.log("Success:", data);
       setSuccess(true);
     } catch (error) {
       setFail(true);
@@ -240,7 +238,6 @@ const handleDeleteService = async (id: number) => {
       return;
     }
     setSuccess(true);
-    console.log("Product deleted successfully");
   } catch (error) {
     console.error("Error deleting product:", error);
     setFail(true);

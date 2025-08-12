@@ -95,13 +95,16 @@ export default function NewProductPage() {
     formData.append("show_location", productData.show_location.toString());
 
     try {
-      const response = await fetch(`${BASE_API_URL}/api/seller/products/${id}`, {
-        method: "PUT",
-        headers: {
-          Authorization: `Bearer ${authToken}`,
-        },
-        body: formData,
-      });
+      const response = await fetch(
+        `${BASE_API_URL}/api/seller/products/${id}`,
+        {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+          },
+          body: formData,
+        }
+      );
 
       if (!response.ok) {
         const errorData = await response.json();
@@ -112,7 +115,6 @@ export default function NewProductPage() {
 
       const data = await response.json();
       setSuccess(true);
-      console.log("Product created successfully:", data); // Log the response data
       if (previewUrl) {
         URL.revokeObjectURL(previewUrl);
         setPreviewUrl(null);
@@ -164,16 +166,18 @@ export default function NewProductPage() {
 
   useEffect(() => {
     async function fetchOriginalProduct() {
-      
       try {
         const token = localStorage.getItem("authToken");
-        const response = await fetch(`${BASE_API_URL}/api/guest/products/${id}`, {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        });
+        const response = await fetch(
+          `${BASE_API_URL}/api/guest/products/${id}`,
+          {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
@@ -184,7 +188,7 @@ export default function NewProductPage() {
       }
     }
     fetchOriginalProduct();
-  }, [])
+  }, []);
 
   useEffect(() => {
     async function fetchCategories() {
@@ -214,6 +218,24 @@ export default function NewProductPage() {
     fetchCategories();
   }, []);
 
+  useEffect(() => {
+    if (originalProduct) {
+      setProductData({
+        name: originalProduct.name,
+        description: originalProduct.description,
+        photo: originalProduct.photo,
+        category_id: originalProduct.category_id,
+        price: originalProduct.price,
+        latitude: originalProduct.latitude,
+        longitude: originalProduct.longitude,
+        show_location: originalProduct.show_location,
+      });
+    }
+    if(originalProduct?.photo){
+      setPreviewUrl(originalProduct.photo);
+    }
+  },[originalProduct]);
+
   const handleLocationChange = (lat: number, lng: number) => {
     setProductData((prev) => ({
       ...prev,
@@ -239,9 +261,7 @@ export default function NewProductPage() {
               </Link>
             </Button>
             <div>
-              <h1 className="text-3xl font-bold tracking-tight">
-                تعديل منتج
-              </h1>
+              <h1 className="text-3xl font-bold tracking-tight">تعديل منتج</h1>
               <p className="text-muted-foreground">تعديل المنتج </p>
             </div>
           </div>
@@ -289,7 +309,9 @@ export default function NewProductPage() {
                     <Textarea
                       id="description"
                       name="description"
-                      placeholder={originalProduct?.description || "جار التحميل ..."}
+                      placeholder={
+                        originalProduct?.description || "جار التحميل ..."
+                      }
                       value={productData.description}
                       onChange={handleChange}
                       required
@@ -326,7 +348,9 @@ export default function NewProductPage() {
                       type="number"
                       step="0.01"
                       min="0"
-                      placeholder={originalProduct?.price.toString() || "جار التحميل ..."}
+                      placeholder={
+                        originalProduct?.price.toString() || "جار التحميل ..."
+                      }
                       value={productData.price}
                       onChange={handleChange}
                       required
