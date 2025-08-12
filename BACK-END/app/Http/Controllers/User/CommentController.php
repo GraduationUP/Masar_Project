@@ -36,7 +36,7 @@ class CommentController extends Controller
         }
 
         $request->validate([
-            'content' => 'required|string|max:1000',
+            'content' => 'string|max:1000',
         ]);
 
         $comment->update(['content' => $request->content]);
