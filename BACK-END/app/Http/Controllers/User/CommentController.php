@@ -26,23 +26,35 @@ class CommentController extends Controller
         return response()->json(['message' => 'Comment added successfully', 'comment' => $comment], 201);
     }
 
-    // تعديل تعليق
-    public function update(Request $request, Comment $comment)
-    {
-        $user = Auth::user();
+  public function update(Request $request, Comment $comment)
+{
+    $user = Auth::user();
 
-        if ($user->id !== $comment->user_id && !$user->can('edit comment')) {
-            return response()->json(['message' => 'Unauthorized'], 403);
-        }
+    if ($user->id !== $comment->user_id && !$user->can('edit comment')) {
+        return response()->json(['message' => 'Unauthorized'], 403);
+    }
 
+
+    // إذا كانت القيمة فاضية، نحذف التعليق
+    if (trim($request->content) === '') {
+        $comment->delete();
+        return response()->json(['message' => 'Comment deleted because it was empty']);
+    }
+=======
         $request->validate([
             'content' => 'string|max:1000',
         ]);
 
-        $comment->update(['content' => $request->content]);
 
-        return response()->json(['message' => 'Comment updated successfully']);
-    }
+    $request->validate([
+        'content' => 'required|string|max:1000',
+    ]);
+
+    $comment->update(['content' => $request->content]);
+
+    return response()->json(['message' => 'Comment updated successfully']);
+}
+
 
     // حذف تعليق
     public function destroy(Comment $comment)
