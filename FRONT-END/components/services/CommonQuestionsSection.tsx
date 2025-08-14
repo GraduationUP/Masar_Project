@@ -4,7 +4,6 @@ import ServicesTitle from "./ServicesTitle";
 export default function CommonQuestionsSection() {
   return (
     <div className="flex">
-      {/* Adjusted this div */}
       <div className="relative flex-1">
         <Image
           src={"/images/Services.png"}
