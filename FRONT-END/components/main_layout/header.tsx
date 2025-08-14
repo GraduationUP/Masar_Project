@@ -145,6 +145,7 @@ export default function Header() {
     { name: "الخريطة", href: "/map" },
     { name: "السوق", href: "/marketplace" },
     { name: "المتاجر", href: "/stores" },
+    { name: "الخدمات", href: "/services" },
   ];
 
   function HandelLogout() {
