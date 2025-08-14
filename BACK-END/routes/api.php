@@ -9,6 +9,7 @@ use App\Http\Controllers\Seller\StoreController;
 use App\Http\Controllers\User\CommentController;
 use App\Http\Controllers\User\FeedbackController;
 use App\Http\Controllers\Admin\AdminMapController;
+use App\Http\Controllers\User\FavouriteStoreController;
 use App\Http\Controllers\Guest\CategoryController;
 use App\Http\Controllers\Seller\ProductController;
 use App\Http\Controllers\Admin\AdminStoreController;
@@ -16,8 +17,8 @@ use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\VerifyEmailController;
 use App\Http\Controllers\Seller\DashboardController;
 use App\Http\Controllers\User\NotificationController;
-use App\Http\Controllers\Admin\AdminCommentController;
 
+use App\Http\Controllers\Admin\AdminCommentController;
 use App\Http\Controllers\Admin\AdminProductController;
 use App\Http\Controllers\Admin\AdminCategoryController;
 use App\Http\Controllers\Auth\RegisteredUserController;
@@ -153,3 +154,9 @@ Route::middleware(['auth:sanctum'])->prefix('admin')->group(function () {
 
 Route::delete('/stores/{storeId}/feedback', [FeedbackController::class, 'destroy'])
     ->middleware('auth:sanctum');
+
+    Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/favourites', [FavouriteStoreController::class, 'index']);
+    Route::post('/favourites/{storeId}', [FavouriteStoreController::class, 'store']);
+    Route::delete('/favourites/{storeId}', [FavouriteStoreController::class, 'destroy']);
+});

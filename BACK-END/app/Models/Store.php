@@ -32,5 +32,18 @@ public function scopeActive($query)
    return $query->where('status', true);
 }
 
+public function favouritedBy()
+{
+    return $this->belongsToMany(User::class, 'favourite_stores')->withTimestamps();
+}
+
+public function getStorePhotoUrlAttribute()
+{
+    return $this->id_card_photo
+        ? asset('storage/' . $this->id_card_photo)
+        : null;
+}
+
+
 
 }

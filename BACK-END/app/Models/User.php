@@ -47,6 +47,11 @@ public function admin()
     return $this->belongsTo(\App\Models\User::class, 'banned_by');
 }
 
+public function favouriteStores()
+{
+    return $this->belongsToMany(Store::class, 'favourite_stores')->withTimestamps();
+}
+
 
 
 
