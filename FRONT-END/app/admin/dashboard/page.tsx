@@ -351,8 +351,7 @@ export default function AdminDashboard() {
     }
   }
 
-  async function handelProductDelete(id: number) {
-    console.log(`Deleting product with ID: ${id}`);
+  async function handelProductDelete(id: number) { // TODO
     setShowSuccessAlert(true);
   }
 

@@ -101,7 +101,6 @@ export default function RegisterStep2({
       setFailure(true);
       console.error("Error during registration:", error);
     } finally {
-      console.log(registrationData);
       setIsSubmitting(false);
     }
   };

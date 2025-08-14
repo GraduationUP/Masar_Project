@@ -64,6 +64,7 @@ class ProductController extends Controller
                     ? asset('storage/' . $product->store->id_card_photo)
                     : null,
                 'category_name' => $product->category?->name,
+                'category_id' => $product->category_id,
                 'latitude' => $product->latitude,
                 'longitude' => $product->longitude,
                 'show_location' => $product->show_location,
