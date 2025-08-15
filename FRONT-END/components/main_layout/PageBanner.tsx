@@ -7,7 +7,7 @@ export default function PageBanner({
 }) {
   return (
     <div
-      className="bg-no-repeat bg-center bg-cover h-[412px] flex justify-center items-center text-5xl text-white font-bold text-center"
+      className="bg-no-repeat bg-center bg-cover h-[412px] flex justify-center items-center md:text-5xl text-3xl text-white font-bold text-center"
       style={{ backgroundImage: 'url("/Banner.svg")' }}
     >
       {children}

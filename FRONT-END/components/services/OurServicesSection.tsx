@@ -60,7 +60,7 @@ export default function OurServicesSection() {
   return (
     <div className="container">
       <ServicesTitle SubTitle="خدماتنا" MainTitle="نقدم أفضل جودة" centralize />
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-4 gap-4">
         {categories.map((category) => (
           <ServiceCard
             key={category.name}
