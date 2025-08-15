@@ -9,7 +9,14 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import StarRating from "@/components/starRating";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { MapPin, MessageSquare, Phone, ShoppingBag, Star } from "lucide-react";
+import {
+  Heart,
+  MapPin,
+  MessageSquare,
+  Phone,
+  ShoppingBag,
+  Star,
+} from "lucide-react";
 import dynamic from "next/dynamic";
 import Loading from "./loading";
 import Image from "next/image";
@@ -138,7 +145,7 @@ export default function StorePage() {
     }
   };
 
-  useEffect( () => {
+  useEffect(() => {
     setLoading(true);
     fetchStoreData();
     fetchFeedbackStatus();
@@ -415,13 +422,16 @@ export default function StorePage() {
         setSubmitting(false);
         return;
       }
-      const response = await fetch(`${BASE_API_URL}/api/stores/${id}/feedback`, {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${Auth_Token}`,
-        },
-      });
+      const response = await fetch(
+        `${BASE_API_URL}/api/stores/${id}/feedback`,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${Auth_Token}`,
+          },
+        }
+      );
       if (!response.ok) {
         setFailure(true);
         setSubmitting(false);
@@ -430,12 +440,12 @@ export default function StorePage() {
       setSuccess(true);
       setSubmitting(false);
       fetchStoreData();
-      fetchFeedbackStatus();      
+      fetchFeedbackStatus();
     } catch (error) {
       console.error("Error editing rating:", error);
       setFailure(true);
     }
-  }
+  };
 
   if (loading) {
     return <Loading />;
@@ -488,7 +498,7 @@ export default function StorePage() {
           </div>
 
           {/* Action Buttons */}
-          <div className="flex flex-wrap gap-4">
+          <div className="flex flex-wrap gap-4 items-center">
             <Button variant="outline" className="gap-2 rounded-full">
               <Image
                 src="/whatsapp.svg"
@@ -503,6 +513,9 @@ export default function StorePage() {
               >
                 Whatsapp
               </Link>
+            </Button>
+            <Button variant="outline" className="gap-2 rounded-full">
+              <Heart />
             </Button>
           </div>
 
@@ -667,8 +680,9 @@ export default function StorePage() {
                                 تعليق
                               </Button>
                             ) : (
-                              <Button onClick={handleAddComment} type="submit"> // TODO
-                                تعليق
+                              <Button onClick={handleAddComment} type="submit">
+                                {" "}
+                                // TODO تعليق
                               </Button>
                             )}
                           </form>
@@ -806,7 +820,9 @@ export default function StorePage() {
                               {(userfeedback.content || userfeedback.score) && (
                                 <Button
                                   variant={"destructive"}
-                                  onClick={() =>{handelDeleteFeedback(data?.id as number)}}
+                                  onClick={() => {
+                                    handelDeleteFeedback(data?.id as number);
+                                  }}
                                 >
                                   حذف
                                 </Button>
