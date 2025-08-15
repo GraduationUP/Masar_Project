@@ -12,7 +12,7 @@ export default function CommonQuestionsSection() {
     setExpandedQuestion(expandedQuestion === question ? null : question);
   };
   return (
-    <div className="flex md:h-[750px]">
+    <div className="flex md:h-[750px] lg:min-w-[1400px]">
       <div className="relative flex-1 md:block hidden" style={{ background: 'url("/ui/Rectangle.svg")', backgroundRepeat: "no-repeat", backgroundSize: "cover" }}>
         <Image
           src={"/OurServices/Services.png"}
@@ -21,7 +21,7 @@ export default function CommonQuestionsSection() {
           className="object-cover"
         />
       </div>
-      <div className="flex-1 container px-4 md:px-6 py-12">
+      <div className="flex-1 mx-auto px-4 md:px-16 py-12">
         <ServicesTitle
           SubTitle="اطلع على الأسئلة الشائعة"
           MainTitle="حافظ على أمان عملك وضمان توفر عالي"
