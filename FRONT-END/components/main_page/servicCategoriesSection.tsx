@@ -19,7 +19,7 @@ export default function ServiceCategoriesSection() {
             </p>
           </div>
         </div>
-        <div className="flex">
+        <div className="hidden md:flex">
           <Link href={"/map"}>
             <div className="flex gap-2 text-primary">
               اكتشف المزيد

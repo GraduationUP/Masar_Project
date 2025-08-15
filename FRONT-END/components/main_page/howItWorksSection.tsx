@@ -14,7 +14,7 @@ export default function HowItWorksSection() {
     }
   }, []);
   return (
-    <section className="container px-4 md:px-6 section-padding">
+    <section className="container px-4 md:px-6 section-padding mt-16 md:mt-0">
       <div className="flex flex-col gap-8 items-center text-center">
         <div className="max-w-[800px]">
           <div className="inline-block rounded-full px-3 py-1 text-xl text-primary mb-4">
