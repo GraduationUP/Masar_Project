@@ -79,7 +79,7 @@ export default function TalkToUsSection() {
             name="message"
             placeholder="رسالتك"
             required
-            className="text-black"
+            className="text-foreground"
           />
           <Button variant={"secondary"} type="submit">
             ارسال الرسالة
