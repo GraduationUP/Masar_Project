@@ -34,7 +34,7 @@ public function scopeActive($query)
 
 public function favouritedBy()
 {
-    return $this->belongsToMany(User::class, 'favourite_stores')->withTimestamps();
+    return $this->belongsToMany(User::class, 'favourite_stores', 'store_id', 'user_id')->withTimestamps();
 }
 
 public function getStorePhotoUrlAttribute()
