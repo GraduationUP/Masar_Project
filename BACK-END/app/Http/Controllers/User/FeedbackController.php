@@ -14,7 +14,7 @@ class FeedbackController extends Controller
     {
         $user = Auth::user();
 
-        // حذف التقييم
+        // حذف التقييم0.3
         Rating::where('store_id', $storeId)
               ->where('user_id', $user->id)
               ->delete();

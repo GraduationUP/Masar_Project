@@ -29,11 +29,18 @@ class FeedbackStatusController extends Controller
             ->where('user_id', $user->id)
             ->first();
 
+       $isFavorite = \DB::table('favourite_stores')
+    ->where('user_id', $user->id)
+    ->where('store_id', $store->id)
+    ->exists();
+
         return response()->json([
             'score' => $rating?->score,
             'score_id' => $rating?->id,
             'content' => $comment?->content,
             'content_id' => $comment?->id,
+            'is_favorite' => $isFavorite,
+
         ]);
     }
 }
