@@ -9,14 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import StarRating from "@/components/starRating";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import {
-  Heart,
-  MapPin,
-  MessageSquare,
-  Phone,
-  ShoppingBag,
-  Star,
-} from "lucide-react";
+import { MapPin, MessageSquare, Phone, ShoppingBag, Star } from "lucide-react";
 import dynamic from "next/dynamic";
 import Loading from "./loading";
 import Image from "next/image";
@@ -77,6 +70,7 @@ export default function StorePage() {
   const BASE_API_URL = process.env.NEXT_PUBLIC_API_URL;
   const router = useRouter();
   const [data, setData] = useState<StoreData | null>(null);
+  const [fav, setFav] = useState(false);
   const [content, setContent] = useState("");
   const [score, setScore] = useState(1);
   const [isUser, setIsUser] = useState(false);
@@ -498,7 +492,7 @@ export default function StorePage() {
           </div>
 
           {/* Action Buttons */}
-          <div className="flex flex-wrap gap-4 items-center">
+          <div className="flex flex-wrap gap-1 items-center">
             <Button variant="outline" className="gap-2 rounded-full">
               <Image
                 src="/whatsapp.svg"
@@ -514,8 +508,24 @@ export default function StorePage() {
                 Whatsapp
               </Link>
             </Button>
-            <Button variant="outline" className="gap-2 rounded-full">
-              <Heart />
+            <Button variant="ghost" className="rounded-full" onClick={() => setFav(!fav)}>
+              {fav ? (
+                <Image
+                  src={"/ui/Heart-full.svg"}
+                  alt="heart"
+                  width={50}
+                  height={50}
+                  className="h-5 w-5"
+                />
+              ) : (
+                <Image
+                  src={"/ui/Heart-empty.svg"}
+                  alt="heart"
+                  width={50}
+                  height={50}
+                  className="h-5 w-5"
+                />
+              )}
             </Button>
           </div>
 
