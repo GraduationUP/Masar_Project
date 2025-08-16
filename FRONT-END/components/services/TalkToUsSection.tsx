@@ -51,7 +51,7 @@ export default function TalkToUsSection() {
           white
         />
         <form className="flex flex-col gap-4" onSubmit={send}>
-          <div className="flex w-full gap-4">
+          <div className={`md:flex md:w-full md:gap-4`}>
             <div className="flex-1">
               <Label htmlFor="email">بريدك الالكتروني*</Label>
               <Input

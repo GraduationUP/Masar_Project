@@ -9,7 +9,14 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import StarRating from "@/components/starRating";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { MapPin, MessageSquare, Phone, ShoppingBag, Star } from "lucide-react";
+import {
+  Heart,
+  MapPin,
+  MessageSquare,
+  Phone,
+  ShoppingBag,
+  Star,
+} from "lucide-react";
 import dynamic from "next/dynamic";
 import Loading from "./loading";
 import Image from "next/image";
@@ -117,33 +124,32 @@ export default function StorePage() {
   };
 
   // Fetch store data
-  useEffect(() => {
-    fetchFeedbackStatus();
-    async function fetchStoreData() {
-      setLoading(true);
-      try {
-        const response = await fetch(`${BASE_API_URL}/api/guest/stores/${id}`, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        });
+  const fetchStoreData = async () => {
+    try {
+      const response = await fetch(`${BASE_API_URL}/api/guest/stores/${id}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
 
-        if (!response.ok) {
-          router.push("/");
-          return;
-        }
-
-        const responseData = await response.json();
-        setData(responseData);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      } finally {
-        setLoading(false);
+      if (!response.ok) {
+        router.push("/");
+        return;
       }
-    }
 
+      const responseData = await response.json();
+      setData(responseData);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  };
+
+  useEffect(() => {
+    setLoading(true);
     fetchStoreData();
+    fetchFeedbackStatus();
+    setLoading(false);
   }, [id, BASE_API_URL, router]);
 
   // Fetch categories
@@ -304,45 +310,6 @@ export default function StorePage() {
       setSubmitting(false);
       setContent("");
       fetchFeedbackStatus();
-
-      // --- START: Update state for new comment ---
-      const userInfo = JSON.parse(localStorage.getItem("userInfo") || "{}");
-      const userName = userInfo.name || "Unknown User";
-
-      const newCommentFeedback: Feedback = {
-        user_name: userName,
-        score: userfeedback.score || 0,
-        content: content,
-        created_at: new Date().toLocaleDateString("en-US"),
-      };
-
-      setUserFeedback((prev) => ({
-        ...prev,
-        content: content,
-        content_id: responseData.id,
-      }));
-
-      setData((prevData) => {
-        if (!prevData) return null;
-
-        const userHasFeedback = prevData.feedback.some(
-          (item) => item.user_name === userName
-        );
-
-        let updatedFeedback: Feedback[];
-        if (userHasFeedback) {
-          updatedFeedback = prevData.feedback.map((item) =>
-            item.user_name === userName
-              ? { ...item, content: content }
-              : item
-          );
-        } else {
-          updatedFeedback = [newCommentFeedback, ...prevData.feedback];
-        }
-
-        return { ...prevData, feedback: updatedFeedback };
-      });
-      // --- END: Update state for new comment ---
     } catch (error) {
       console.error("Error adding comment:", error);
     }
@@ -446,104 +413,36 @@ export default function StorePage() {
     }
   };
 
-  const handelRatingDelete = async (id: number) => {
+  const handelDeleteFeedback = async (id: number) => {
     setSubmitting(true);
     try {
-      const token = localStorage.getItem("authToken");
-      if (!token) {
+      const Auth_Token = localStorage.getItem("authToken");
+      if (!Auth_Token) {
         setFailure(true);
         setSubmitting(false);
         return;
       }
-      const response = await fetch(`${BASE_API_URL}/api/ratings/${id}`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      });
-
+      const response = await fetch(
+        `${BASE_API_URL}/api/stores/${id}/feedback`,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${Auth_Token}`,
+          },
+        }
+      );
       if (!response.ok) {
-        const errorData = await response.json();
-        console.error("Error deleting rating:", errorData);
-        setFailure(true);
-        return;
-      }
-      setSuccess(true);
-      setSubmitting(false);
-
-      // --- START: Update state for rating deletion ---
-      const userInfo = JSON.parse(localStorage.getItem("userInfo") || "{}");
-      const userName = userInfo.name || "Unknown User";
-
-      setUserFeedback((prev) => ({ ...prev, score: null, score_id: null }));
-      setData((prevData) => {
-        if (!prevData) return null;
-        const updatedFeedback = prevData.feedback
-          .map((item) => {
-            if (item.user_name === userName) {
-              return { ...item, score: 0 };
-            }
-            return item;
-          })
-          .filter((item) => item.score !== 0 || item.content);
-        return { ...prevData, feedback: updatedFeedback };
-      });
-      // --- END: Update state for rating deletion ---
-    } catch (error) {
-      console.error("Error deleting rating:", error);
-      setFailure(true);
-    }
-  };
-
-  const handelCommentDelete = async (id: number) => {
-    setSubmitting(true);
-    try {
-      const token = localStorage.getItem("authToken");
-      if (!token) {
         setFailure(true);
         setSubmitting(false);
-        return;
-      }
-      const response = await fetch(`${BASE_API_URL}/api/comments/${id}`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        console.error("Error deleting comment:", errorData);
-        setFailure(true);
-        return;
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
       setSuccess(true);
       setSubmitting(false);
-      setContent("");
-
-      // --- START: Update state for comment deletion ---
-      const userInfo = JSON.parse(localStorage.getItem("userInfo") || "{}");
-      const userName = userInfo.name || "Unknown User";
-
-      setUserFeedback((prev) => ({ ...prev, content: null, content_id: null }));
-
-      setData((prevData) => {
-        if (!prevData) return null;
-        const updatedFeedback = prevData.feedback
-          .map((item) => {
-            if (item.user_name === userName) {
-              return { ...item, content: "" };
-            }
-            return item;
-          })
-          .filter((item) => item.score !== 0 || item.content !== "");
-        return { ...prevData, feedback: updatedFeedback };
-      });
-      // --- END: Update state for comment deletion ---
+      fetchStoreData();
+      fetchFeedbackStatus();
     } catch (error) {
-      console.error("Error deleting comment:", error);
+      console.error("Error editing rating:", error);
       setFailure(true);
     }
   };
@@ -599,7 +498,7 @@ export default function StorePage() {
           </div>
 
           {/* Action Buttons */}
-          <div className="flex flex-wrap gap-4">
+          <div className="flex flex-wrap gap-4 items-center">
             <Button variant="outline" className="gap-2 rounded-full">
               <Image
                 src="/whatsapp.svg"
@@ -614,6 +513,9 @@ export default function StorePage() {
               >
                 Whatsapp
               </Link>
+            </Button>
+            <Button variant="outline" className="gap-2 rounded-full">
+              <Heart />
             </Button>
           </div>
 
@@ -779,7 +681,8 @@ export default function StorePage() {
                               </Button>
                             ) : (
                               <Button onClick={handleAddComment} type="submit">
-                                تعليق
+                                {" "}
+                                // TODO تعليق
                               </Button>
                             )}
                           </form>
@@ -914,38 +817,14 @@ export default function StorePage() {
                               >
                                 تعديل
                               </Button>
-                              {userfeedback.content && (
+                              {(userfeedback.content || userfeedback.score) && (
                                 <Button
-                                  variant={"secondary"}
-                                  onClick={() =>
-                                    handelCommentDelete(
-                                      userfeedback.content_id as number
-                                    )
-                                  }
+                                  variant={"destructive"}
+                                  onClick={() => {
+                                    handelDeleteFeedback(data?.id as number);
+                                  }}
                                 >
-                                  <Image
-                                    src={"/ui/trash_comment.svg"}
-                                    alt="حذف التعليق"
-                                    height={20}
-                                    width={20}
-                                  />
-                                </Button>
-                              )}
-                              {userfeedback.score && (
-                                <Button
-                                  variant={"secondary"}
-                                  onClick={() =>
-                                    handelRatingDelete(
-                                      userfeedback.score_id as number
-                                    )
-                                  }
-                                >
-                                  <Image
-                                    src={"/ui/trash_rating.svg"}
-                                    alt="حذف التقييم"
-                                    height={20}
-                                    width={20}
-                                  />
+                                  حذف
                                 </Button>
                               )}
                             </div>
@@ -956,7 +835,7 @@ export default function StorePage() {
                     <CustomAlert
                       show={success}
                       onClose={() => setSuccess(false)}
-                      message="تم الارسال بنجاح"
+                      message="تم تحديث البيانات بنجاح"
                       success
                     />
                     <CustomAlert
