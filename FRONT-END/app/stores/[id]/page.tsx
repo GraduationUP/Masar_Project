@@ -77,6 +77,7 @@ export default function StorePage() {
   const [notOwner, setNotOwner] = useState(true);
   const [success, setSuccess] = useState(false);
   const [failure, setFailure] = useState(false);
+  const [message, setMessage] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [openUserUpdate, setOpenUserUpdate] = useState(false);
   const [categories, setCategories] = useState<
@@ -231,6 +232,7 @@ export default function StorePage() {
       }
       const responseData = await response.json();
       setSuccess(true);
+      setMessage("تم التقييم بنجاح");
       setSubmitting(false);
       fetchFeedbackStatus();
 
@@ -301,6 +303,7 @@ export default function StorePage() {
       }
       const responseData = await response.json();
       setSuccess(true);
+      setMessage("تم إضافة التعليق بنجاح");
       setSubmitting(false);
       setContent("");
       fetchFeedbackStatus();
@@ -332,6 +335,7 @@ export default function StorePage() {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       setSuccess(true);
+      setMessage("تم تعديل التعليق بنجاح");
       setSubmitting(false);
       setContent(updatedContent);
 
@@ -381,6 +385,7 @@ export default function StorePage() {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       setSuccess(true);
+      setMessage("تم تعديل التقييم بنجاح");
       setSubmitting(false);
       setScore(updatedScore);
 
@@ -432,6 +437,7 @@ export default function StorePage() {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       setSuccess(true);
+      setMessage("تم حذف المراجعة بنجاح");
       setSubmitting(false);
       fetchStoreData();
       fetchFeedbackStatus();
@@ -845,7 +851,7 @@ export default function StorePage() {
                     <CustomAlert
                       show={success}
                       onClose={() => setSuccess(false)}
-                      message="تم تحديث البيانات بنجاح"
+                      message={message}
                       success
                     />
                     <CustomAlert
