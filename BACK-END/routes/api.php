@@ -157,6 +157,5 @@ Route::delete('/stores/{storeId}/feedback', [FeedbackController::class, 'destroy
 
     Route::middleware('auth:sanctum')->group(function () {
     Route::get('/favourites', [FavouriteStoreController::class, 'index']);
-    Route::post('/favourites/{storeId}', [FavouriteStoreController::class, 'store']);
-    Route::delete('/favourites/{storeId}', [FavouriteStoreController::class, 'destroy']);
+    Route::post('/favourites/{storeId}', [FavouriteStoreController::class, 'toggle']);
 });
