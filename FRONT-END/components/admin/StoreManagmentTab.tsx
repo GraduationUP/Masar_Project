@@ -43,8 +43,9 @@ interface StoreManagementTabProps {
   searchTerm: string;
   storeStatusFilter: string;
   storeStatusOptions: { value: string; label: string }[];
-  handelStoreStatusUpdate: (id: number, status: string) => Promise<void>;
+  handelStoreStatusUpdate: (id: number, status: "pending" | "active" | "inactive" | "banned") => Promise<void>;
   handleStoresSearch: (term: string, status: string) => void;
+  onStoreDeleted: (id: number) => void;
 }
 
 const StoreManagementTab: React.FC<StoreManagementTabProps> = ({
@@ -54,6 +55,7 @@ const StoreManagementTab: React.FC<StoreManagementTabProps> = ({
   storeStatusOptions,
   handelStoreStatusUpdate,
   handleStoresSearch,
+  onStoreDeleted,
 }) => {
   const [openDialogId, setOpenDialogId] = useState<number | null>(null);
   const [statusLoading, setStatusLoading] = useState<number | null>(null);
@@ -72,7 +74,7 @@ const StoreManagementTab: React.FC<StoreManagementTabProps> = ({
 
    const handleStatusUpdateClick = async (id: number, status: string) => {
     setStatusLoading(id);
-     await handelStoreStatusUpdate(id, status);
+     await handelStoreStatusUpdate(id, status as "pending" | "active" | "inactive" | "banned");
     setStatusLoading(null);
   };
 
@@ -81,7 +83,7 @@ const StoreManagementTab: React.FC<StoreManagementTabProps> = ({
       case "active":
         return <Badge>نشط</Badge>;
       case "inactive":
-        return <Badge variant="destructive">معطل</Badge>;
+        return <Badge variant="destructive">غير نشط</Badge>;
       case "pending":
         return <Badge variant="secondary">قيد المراجعة</Badge>;
       case "banned":
@@ -141,6 +143,7 @@ const StoreManagementTab: React.FC<StoreManagementTabProps> = ({
                   onOpenChange={(open) =>
                     handleOpenChange(open ? store.id : null)
                   }
+                  onStoreDeleted={onStoreDeleted}
                 />
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>

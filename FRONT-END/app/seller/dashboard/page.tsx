@@ -206,7 +206,7 @@ export default function SellerDashboard() {
     <>
       <Header />
       <CustomAlert
-        message="تم ارسال البيانات بنجاح"
+        message="تم تحديث البيانات بنجاح"
         show={successAlert}
         onClose={() => setSuccessAlert(false)}
         success

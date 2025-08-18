@@ -10,7 +10,6 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { CustomAlert } from "../customAlert";
 
 interface StoreUser {
   id: number;
@@ -28,8 +27,7 @@ interface StoreData {
   id_card_photo: string;
   phone: string;
   location_address: string;
-  active: number;
-  is_banned: boolean;
+  status: "pending" | "active" | "inactive" | "banned";
   created_at: string;
   updated_at: string;
   latitude: string | null;
@@ -49,15 +47,11 @@ const DeleteStoreDialog: React.FC<DeleteStoreDialogProps> = ({
   onOpenChange,
   onStoreDeleted,
 }) => {
-  const [success, setSuccess] = useState(false);
-  const [failure, setFailure] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
   const handelStoreDelete = async (id: number) => {
     setDeleteLoading(true);
-    setSuccess(false);
-    setFailure(false);
 
     try {
       const token = localStorage.getItem("authToken");
@@ -72,15 +66,11 @@ const DeleteStoreDialog: React.FC<DeleteStoreDialogProps> = ({
       if (!response.ok) {
         const errorData = await response.json();
         console.error("Error deleting store:", errorData);
-        setFailure(true);
       } else {
-        setSuccess(true);
-        // Notify parent component to update the store list
         onStoreDeleted(id);
       }
     } catch (error) {
       console.error("Error deleting store:", error);
-      setFailure(true);
     } finally {
       setDeleteLoading(false);
       onOpenChange(false);
@@ -89,18 +79,6 @@ const DeleteStoreDialog: React.FC<DeleteStoreDialogProps> = ({
 
   return (
     <>
-      <CustomAlert
-        message={"تم حذف المتجر بنجاح"}
-        show={success}
-        onClose={() => setSuccess(false)}
-        success
-      />
-      <CustomAlert
-        message={"حدث خطأ اثناء حذف المتجر"}
-        show={failure}
-        onClose={() => setFailure(false)}
-        success={false}
-      />
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogTrigger asChild>
           <Button variant="destructive" size="sm">

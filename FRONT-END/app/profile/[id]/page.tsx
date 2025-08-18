@@ -54,6 +54,7 @@ export default function ProfilePage() {
   const params = useParams();
   const [loading, setLoading] = useState(true);
   const [successAlert, setSucssesAlert] = useState(false);
+  const [failure, setFailure] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [showErrorMessage, setShowErrorMessage] = useState(false);
   const [showFormError, setShowFormError] = useState(false);
@@ -231,6 +232,7 @@ export default function ProfilePage() {
 
       if (!response.ok) {
         throw new Error("Failed to submit the data. Please try again.");
+        setFailure(true);
       }
 
       const data = await response.json();
@@ -241,6 +243,7 @@ export default function ProfilePage() {
     } catch (error) {
       console.error(error);
       setShowFormError(true);
+      setFailure(true);
     } finally {
       setIsEditing(false);
     }
@@ -265,6 +268,7 @@ export default function ProfilePage() {
 
       if (!response.ok) {
         throw new Error("Failed to change password. Please try again.");
+        setFailure(true);
       }
       setPasswordFormData({
         current_password: "",
@@ -276,6 +280,7 @@ export default function ProfilePage() {
     } catch (error) {
       console.error(error);
       setShowFormError(true);
+      setFailure(true);
     } finally {
       setIsEditing(false);
     }
@@ -316,13 +321,14 @@ export default function ProfilePage() {
         throw new Error(
           errorData?.message || "Failed to send report. Please try again."
         );
+        setFailure(true);
       }
       setOpen(false);
       setMessage("");
       setSucssesAlert(true);
     } catch (error: any) {
+      setFailure(true);
       console.error("Error sending report:", error);
-      // You might want to set an error state here to display an error message to the user
     }
   };
 
@@ -365,6 +371,12 @@ export default function ProfilePage() {
               show={successAlert}
               onClose={() => setSucssesAlert(false)}
               success
+            />
+            <CustomAlert
+              message=""
+              show={failure}
+              onClose={() => setFailure(false)}
+              success={false}
             />
             {/* Sidebar */}
             <Card className="w-full md:w-1/3 h-fit">
@@ -905,7 +917,9 @@ export default function ProfilePage() {
                                     {[...Array(5)].map((_, i) => (
                                       <Star
                                         key={i}
-                                        fill={i < rating.rating ? "yellow" : "gray"}
+                                        fill={
+                                          i < rating.rating ? "yellow" : "gray"
+                                        }
                                         className="h-5 w-5"
                                       />
                                     ))}

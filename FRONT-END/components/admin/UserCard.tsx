@@ -52,6 +52,7 @@ interface UserCardProps {
     duration: number,
     durationType: string
   ) => Promise<void>;
+  onUnBan: (id: number) => Promise<void>;
   onBlock: (id: number) => Promise<void>;
   onNotify: (
     type: string,
@@ -76,6 +77,7 @@ interface UserCardProps {
 const UserCard: React.FC<UserCardProps> = ({
   user,
   onBan,
+  onUnBan,
   onBlock,
   onNotify,
   openBanDialog,
@@ -101,7 +103,10 @@ const UserCard: React.FC<UserCardProps> = ({
         </CardTitle>
       </CardHeader>
       {/* ... other CardContent */}
-      <CardFooter className="flex gap-2">
+      <CardFooter className="flex gap-2 flex-wrap">
+        <Button variant="outline" size="sm" onClick={() => onUnBan(user.id)}>
+          الغاء الحظر
+        </Button>
         <Button variant="outline" size="sm" onClick={() => openBanDialog(user)}>
           حظر
         </Button>
@@ -113,7 +118,11 @@ const UserCard: React.FC<UserCardProps> = ({
             onOpenChange={closeBanDialog}
           />
         )}
-        <Button variant="destructive" size="sm" onClick={() => openDisableDialog(user)}>
+        <Button
+          variant="destructive"
+          size="sm"
+          onClick={() => openDisableDialog(user)}
+        >
           تعطيل الحساب
         </Button>
         {isDisableDialogOpen && (

@@ -13,6 +13,7 @@ import UserManagementTab from "@/components/admin/UserMangmentTab";
 import StoreManagementTab from "@/components/admin/StoreManagmentTab";
 import ProductManagementTab from "@/components/admin/ProductManagmentTab";
 import Header from "@/components/main_layout/header";
+import { set } from "react-hook-form";
 
 // Import your interfaces here
 interface Roles {
@@ -60,7 +61,6 @@ interface StoreData {
   id_card_photo: string;
   phone: string;
   location_address: string;
-  // Use a single status field
   status: "pending" | "active" | "inactive" | "banned";
   created_at: string;
   updated_at: string;
@@ -151,79 +151,69 @@ export default function AdminDashboard() {
     }
   }, [user, loading]);
 
-  useEffect(() => {
-    async function fetchUsersData() {
-      setLoading(true);
-      try {
-        const token = localStorage.getItem("authToken");
-        const response = await fetch(`${API_BASE_URL}/api/admin/users`, {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        });
-        if (!response.ok)
-          throw new Error(`HTTP error! status: ${response.status}`);
-        const responseData = await response.json();
-        setUserData(responseData);
-      } catch (error) {
-        console.error("Error fetching users data:", error);
-      } finally {
-        setLoading(false);
-      }
+  async function fetchUsersData() {
+    try {
+      const token = localStorage.getItem("authToken");
+      const response = await fetch(`${API_BASE_URL}/api/admin/users`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+      if (!response.ok)
+        throw new Error(`HTTP error! status: ${response.status}`);
+      const responseData = await response.json();
+      setUserData(responseData);
+    } catch (error) {
+      console.error("Error fetching users data:", error);
     }
-    fetchUsersData();
-  }, []);
+  }
+
+  async function fetchStoresData() {
+    try {
+      const token = localStorage.getItem("authToken");
+      const response = await fetch(`${API_BASE_URL}/api/admin/stores`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+      if (!response.ok)
+        throw new Error(`HTTP error! status: ${response.status}`);
+      const responseData = await response.json();
+      setStoreData(responseData.data);
+    } catch (error) {
+      console.error("Error fetching stores data:", error);
+    }
+  }
+
+  async function fetchProductsData() {
+    try {
+      const token = localStorage.getItem("authToken");
+      const response = await fetch(`${API_BASE_URL}/api/admin/products`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+      if (!response.ok)
+        throw new Error(`HTTP error! status: ${response.status}`);
+      const responseData = await response.json();
+      setProductData(responseData.data);
+    } catch (error) {
+      console.error("Error fetching stores data:", error);
+    }
+  }
 
   useEffect(() => {
-    async function fetchStoresData() {
-      setLoading(true);
-      try {
-        const token = localStorage.getItem("authToken");
-        const response = await fetch(`${API_BASE_URL}/api/admin/stores`, {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        });
-        if (!response.ok)
-          throw new Error(`HTTP error! status: ${response.status}`);
-        const responseData = await response.json();
-        setStoreData(responseData.data);
-      } catch (error) {
-        console.error("Error fetching stores data:", error);
-      } finally {
-        setLoading(false);
-      }
-    }
+    setLoading(true);
     fetchStoresData();
-  }, []);
-
-  useEffect(() => {
-    async function fetchProductsData() {
-      setLoading(true);
-      try {
-        const token = localStorage.getItem("authToken");
-        const response = await fetch(`${API_BASE_URL}/api/admin/products`, {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        });
-        if (!response.ok)
-          throw new Error(`HTTP error! status: ${response.status}`);
-        const responseData = await response.json();
-        setProductData(responseData.data);
-      } catch (error) {
-        console.error("Error fetching stores data:", error);
-      } finally {
-        setLoading(false);
-      }
-    }
+    fetchUsersData();
     fetchProductsData();
+    setLoading(false);
   }, []);
 
   useEffect(() => {
@@ -264,6 +254,7 @@ export default function AdminDashboard() {
       if (!response.ok)
         throw new Error(`HTTP error! status: ${response.status}`);
       setShowSuccessAlert(true);
+      fetchUsersData();
     } catch (error) {
       console.error("Error fetching stores data:", error);
       setShowFailAlert(true);
@@ -278,7 +269,6 @@ export default function AdminDashboard() {
     durationValue: number,
     durationUnit: string
   ) {
-    setLoading(true);
     try {
       const token = localStorage.getItem("authToken");
       const response = await fetch(
@@ -304,11 +294,39 @@ export default function AdminDashboard() {
         return;
       }
       setShowSuccessAlert(true);
+      fetchUsersData();
     } catch (error) {
       console.error("Error banning user:", error);
       setShowFailAlert(true);
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function handelUserUnBan(id: number) {
+    try {
+      const token = localStorage.getItem("authToken");
+      const response = await fetch(
+        `${API_BASE_URL}/api/admin/users/${id}/unban`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error("Error unbanning user:", errorData);
+        setShowFailAlert(true);
+        return;
+      }
+      setShowSuccessAlert(true);
+      fetchUsersData();
+    } catch (error) {
+      console.error("Error unbanning user:", error);
+      setShowFailAlert(true);
     }
   }
 
@@ -351,9 +369,10 @@ export default function AdminDashboard() {
     }
   }
 
-  async function handelProductDelete(id: number) { // TODO
+  const handelProductDelete = (id: number) => {
+    fetchProductsData();
     setShowSuccessAlert(true);
-  }
+  };
 
   const handleUsersSearch = (term: string, role: string) => {
     setSearchTerm(term);
@@ -376,14 +395,6 @@ export default function AdminDashboard() {
     servicesData.aids.length +
     servicesData.GasStations.length +
     servicesData.markets.length;
-
-  const updateStoreData = (updatedStore: StoreData) => {
-    setStoreData((prevData) =>
-      prevData.map((store) =>
-        store.id === updatedStore.id ? updatedStore : store
-      )
-    );
-  };
 
   const handelStatusUpdateStore = async (
     id: number,
@@ -408,10 +419,33 @@ export default function AdminDashboard() {
         return;
       }
       const updatedStore = await response.json();
-      updateStoreData(updatedStore);
       setShowSuccessAlert(true);
+      fetchStoresData();
     } catch (error) {
       console.error("Error updating store status:", error);
+      setShowFailAlert(true);
+    }
+  };
+
+  const handelStoreDelete = async (id: number) => {
+    try {
+      const token = localStorage.getItem("authToken");
+      const response = await fetch(`${API_BASE_URL}/api/admin/stores/${id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+      if (!response.ok) {
+        console.error("Error deleting store");
+        setShowFailAlert(true);
+        return;
+      }
+      setShowSuccessAlert(true);
+      fetchStoresData();
+    } catch (error) {
+      console.error("Error deleting store:", error);
       setShowFailAlert(true);
     }
   };
@@ -483,6 +517,7 @@ export default function AdminDashboard() {
                 handelUserBan={handelUserBan}
                 handelUserBlock={handelUserBlock}
                 handelUserNotify={handelUserNotify}
+                handelUserUnBan={handelUserUnBan}
               />
             </TabsContent>
             <TabsContent value="stores" className="space-y-4">
@@ -493,6 +528,7 @@ export default function AdminDashboard() {
                 storeStatusOptions={storeStatusOptions}
                 handleStoresSearch={handleStoresSearch}
                 handelStoreStatusUpdate={handelStatusUpdateStore}
+                onStoreDeleted={handelStoreDelete}
               />
             </TabsContent>
             <TabsContent value="products" className="space-y-4">
@@ -500,6 +536,7 @@ export default function AdminDashboard() {
                 productData={productData}
                 searchTerm={searchTerm}
                 handleProductSearch={handleProductSearch}
+                onProductDeleted={handelProductDelete}
               />
             </TabsContent>
           </Tabs>
