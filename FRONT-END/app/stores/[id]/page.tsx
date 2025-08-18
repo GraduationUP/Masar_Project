@@ -140,6 +140,33 @@ export default function StorePage() {
     }
   };
 
+  const addFav = async () => {
+    try {
+      const Auth_Token = localStorage.getItem("authToken");
+      if (!Auth_Token) return;
+      const response = await fetch(
+        `${BASE_API_URL}/api/favourites/${id}`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${Auth_Token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      setFav(true);
+      setSuccess(true);
+    } catch (error) {
+      console.error("Error adding favorite:", error);
+      setFailure(true);
+    }
+  };
+
+  
+
   useEffect(() => {
     setLoading(true);
     fetchStoreData();
@@ -514,7 +541,11 @@ export default function StorePage() {
                 Whatsapp
               </Link>
             </Button>
-            <Button variant="ghost" className="rounded-full" onClick={() => setFav(!fav)}>
+            <Button
+              variant="ghost"
+              className="rounded-full"
+              onClick={addFav}
+            >
               {fav ? (
                 <Image
                   src={"/ui/Heart-full.svg"}
