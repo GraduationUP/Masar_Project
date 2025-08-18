@@ -49,7 +49,7 @@ public function admin()
 
 public function favouriteStores()
 {
-    return $this->belongsToMany(Store::class, 'favourite_stores')->withTimestamps();
+    return $this->belongsToMany(Store::class, 'favourite_stores', 'user_id', 'store_id')->withTimestamps();
 }
 
 
