@@ -33,14 +33,15 @@ interface productData {
 
 interface ManageProductDialogProps {
   product: productData;
+  onProductDeleted: (id: number) => void;
 }
 
 const ManageProductDialog: React.FC<ManageProductDialogProps> = ({
   product,
+  onProductDeleted,
 }) => {
   const [loading, setLoading] = useState(false);
-  const [success, setSuccess] = useState(false);
-  const [faliuer, setFailuer] = useState(false);
+  const [open, onOpenChange] = useState(false);
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
   const handelProductDelete = async (id: number) => {
@@ -58,19 +59,20 @@ const ManageProductDialog: React.FC<ManageProductDialogProps> = ({
       if (!response.ok) {
         const errorData = await response.json();
         console.error("Error deleting product:", errorData);
-        setFailuer(true);
         return;
+      } else {
+        onProductDeleted(id);
       }
-      setSuccess(true);
     } catch (error) {
       console.error("Error deleting product:", error);
     } finally {
       setLoading(false);
+      onOpenChange(false);
     }
   };
 
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogTrigger asChild>
         <Button variant="outline" size="sm">
           ادارة المنتج
@@ -105,12 +107,6 @@ const ManageProductDialog: React.FC<ManageProductDialogProps> = ({
             </Button>
           </DialogClose>
         </DialogFooter>
-        {success && (
-          <p className="text-sm text-green-400">تم حذف المنتج بنجاح</p>
-        )}
-        {faliuer && (
-          <p className="text-sm text-red-400">حدث خطأ ما! حاول مجدداً</p>
-        )}
       </DialogContent>
     </Dialog>
   );

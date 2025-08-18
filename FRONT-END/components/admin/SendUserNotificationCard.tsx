@@ -10,13 +10,6 @@ import {
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "../ui/select";
 
 interface Roles {
   id: number;
@@ -69,7 +62,6 @@ const SendUserNotificationDialog: React.FC<SendUserNotificationDialogProps> = ({
 }) => {
   const [message, setMessage] = useState(""); // Use useState from React
   const [type, setType] = useState("");   // Use useState from React
-  // const [target, setTarget] = useState(""); // 'target' seems to be hardcoded, so no need for state here
 
   const handleSendNotification = async () => {
     await onNotify(type, message, "user", user.id); // Target is "user"

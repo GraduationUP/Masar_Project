@@ -54,6 +54,7 @@ interface UserManagementTabProps {
     durationValue: number,
     durationUnit: string
   ) => Promise<void>;
+  handelUserUnBan: (id: number) => Promise<void>;
   handelUserBlock: (id: number) => Promise<void>;
   handelUserNotify: (
     type: string,
@@ -70,6 +71,7 @@ const UserManagementTab: React.FC<UserManagementTabProps> = ({
   userRoleOptions,
   handleUsersSearch,
   handelUserBan,
+  handelUserUnBan,
   handelUserBlock,
   handelUserNotify,
 }) => {
@@ -165,6 +167,7 @@ const UserManagementTab: React.FC<UserManagementTabProps> = ({
                   key={user.id}
                   user={user}
                   onBan={handelUserBan}
+                  onUnBan={handelUserUnBan}
                   onBlock={handelUserBlock}
                   onNotify={handelUserNotify}
                   // Ban Dialog Props

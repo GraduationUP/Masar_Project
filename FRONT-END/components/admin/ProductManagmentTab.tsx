@@ -1,4 +1,5 @@
-import React from "react";
+"use client";
+import React, { useState } from "react";
 import {
   Card,
   CardContent,
@@ -35,18 +36,26 @@ interface ProductManagementTabProps {
   productData: productData[];
   searchTerm: string;
   handleProductSearch: (term: string) => void;
+  onProductDeleted: (id: number) => void;
 }
 
 const ProductManagementTab: React.FC<ProductManagementTabProps> = ({
   productData,
   searchTerm,
   handleProductSearch,
+  onProductDeleted,
 }) => {
   const filteredProducts = productData.filter((product) => {
     const productNameLower = product.name.toLowerCase();
     const searchLower = searchTerm.toLowerCase();
     return productNameLower.includes(searchLower);
   });
+
+  const [openDialogId, setOpenDialogId] = useState<number | null>(null);
+
+  const handleOpenChange = (productId: number | null) => {
+    setOpenDialogId(productId);
+  };
 
   return (
     <div className="space-y-4">
@@ -74,7 +83,10 @@ const ProductManagementTab: React.FC<ProductManagementTabProps> = ({
               <p className="font-semibold mt-2">السعر: {product.price}</p>
             </CardContent>
             <CardFooter className="flex justify-end">
-              <ManageProductDialog product={product} />
+              <ManageProductDialog
+                product={product}
+                onProductDeleted={onProductDeleted}
+              />
             </CardFooter>
           </Card>
         ))}
