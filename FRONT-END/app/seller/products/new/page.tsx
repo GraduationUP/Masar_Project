@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Loader2, Package, ChevronLeft } from "lucide-react";
+import { Loader2, Package, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -217,7 +217,7 @@ export default function NewProductPage() {
               className="rounded-full"
             >
               <Link href="/seller/dashboard">
-                <ChevronLeft className="h-5 w-5" />
+                <ChevronRight className="h-5 w-5" />
               </Link>
             </Button>
             <div>

@@ -134,11 +134,12 @@ export default function reportsPage() {
           <AlertTitle>جار التحميل</AlertTitle>
         </Alert>
       )}
-      <div className="container">
-        <PageTitle
+      <PageTitle
           MainTitle="ادارة البلاغات"
           Subtitle="ادارة بلاغات منصة مسار"
+          Arrow
         />
+      <div className="container">
         <ReportSection title="معلقة">
           {reports.filter((report) => report.status === "pending").length ===
           0 ? (
