@@ -86,7 +86,7 @@ Route::get('/search', [GuestUserController::class, 'search']);
 
 
 Route::middleware('auth:sanctum')->group(function () {
-    Route::get('/users/{id}', [UserController::class, 'show']);   // عرض الملف الشخصي
+    Route::get('/users/', [UserController::class, 'show']);   // عرض الملف الشخصي
     Route::put('/users/{id}', [UserController::class, 'update']); // تعديل الملف الشخصي
     Route::post('/users/change-password', [UserController::class, 'changePassword']);
 });
