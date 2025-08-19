@@ -22,13 +22,16 @@ interface userFeedback {
   score_id: number | null;
   content: string | null;
   content_id: number | null;
+  is_favorite: boolean;
 }
 
 interface Feedback {
   user_name: string;
+  user_id: number;
   score: number;
   content: string;
   created_at: string;
+  is_owner: boolean;
 }
 interface StoreData {
   id: number;
@@ -89,12 +92,12 @@ export default function StorePage() {
     score_id: null,
     content: null,
     content_id: null,
+    is_favorite: false,
   });
 
   const fetchFeedbackStatus = async () => {
     try {
       const Auth_Token = localStorage.getItem("authToken");
-      if (!Auth_Token) return;
 
       const response = await fetch(
         `${BASE_API_URL}/api/store/${id}/feedback-status`,
@@ -121,10 +124,12 @@ export default function StorePage() {
   // Fetch store data
   const fetchStoreData = async () => {
     try {
+      const Auth_Token = localStorage.getItem("authToken");
       const response = await fetch(`${BASE_API_URL}/api/guest/stores/${id}`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${Auth_Token}`,
         },
       });
 
@@ -144,28 +149,26 @@ export default function StorePage() {
     try {
       const Auth_Token = localStorage.getItem("authToken");
       if (!Auth_Token) return;
-      const response = await fetch(
-        `${BASE_API_URL}/api/favourites/${id}`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${Auth_Token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      const response = await fetch(`${BASE_API_URL}/api/favourites/${id}`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${Auth_Token}`,
+          "Content-Type": "application/json",
+        },
+      });
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      setFav(true);
+      const responseMsg = await response.json();
       setSuccess(true);
+      setFav(true);
+      fetchFeedbackStatus();
+      setMessage(responseMsg.message);
     } catch (error) {
       console.error("Error adding favorite:", error);
       setFailure(true);
     }
   };
-
-  
 
   useEffect(() => {
     setLoading(true);
@@ -257,47 +260,10 @@ export default function StorePage() {
         setSubmitting(false);
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      const responseData = await response.json();
       setSuccess(true);
       setMessage("تم التقييم بنجاح");
       setSubmitting(false);
       fetchFeedbackStatus();
-
-      // --- START: Update state for rating ---
-      const userInfo = JSON.parse(localStorage.getItem("userInfo") || "{}");
-      const userName = userInfo.name || "Unknown User";
-      const newRatingFeedback: Feedback = {
-        user_name: userName,
-        score: score,
-        content: userfeedback.content || "",
-        created_at: new Date().toLocaleDateString("en-US"),
-      };
-
-      setUserFeedback((prev) => ({
-        ...prev,
-        score: score,
-        score_id: responseData.id,
-      }));
-      setData((prevData) => {
-        if (!prevData) return null;
-
-        const updatedFeedback = prevData.feedback.map((item) => {
-          if (item.user_name === userName) {
-            return { ...item, score: score };
-          }
-          return item;
-        });
-
-        const userHasFeedback = updatedFeedback.some(
-          (item) => item.user_name === userName
-        );
-        if (!userHasFeedback) {
-          updatedFeedback.unshift(newRatingFeedback);
-        }
-
-        return { ...prevData, feedback: updatedFeedback };
-      });
-      // --- END: Update state for rating ---
     } catch (error) {
       console.error(error);
     }
@@ -307,11 +273,6 @@ export default function StorePage() {
     setSubmitting(true);
     try {
       const Auth_Token = localStorage.getItem("authToken");
-      if (!Auth_Token) {
-        setFailure(true);
-        setSubmitting(false);
-        return;
-      }
       const response = await fetch(
         `${BASE_API_URL}/api/stores/${id}/comments`,
         {
@@ -365,24 +326,8 @@ export default function StorePage() {
       setMessage("تم تعديل التعليق بنجاح");
       setSubmitting(false);
       setContent(updatedContent);
+      fetchFeedbackStatus();
 
-      // --- START: Update state for comment update ---
-      const userInfo = JSON.parse(localStorage.getItem("userInfo") || "{}");
-      const userName = userInfo.name || "Unknown User";
-
-      setUserFeedback((prev) => ({ ...prev, content: updatedContent }));
-
-      setData((prevData) => {
-        if (!prevData) return null;
-        const updatedFeedback = prevData.feedback.map((item) => {
-          if (item.user_name === userName) {
-            return { ...item, content: updatedContent };
-          }
-          return item;
-        });
-        return { ...prevData, feedback: updatedFeedback };
-      });
-      // --- END: Update state for comment update ---
     } catch (error) {
       console.error("Error editing comment:", error);
       setFailure(true);
@@ -415,24 +360,7 @@ export default function StorePage() {
       setMessage("تم تعديل التقييم بنجاح");
       setSubmitting(false);
       setScore(updatedScore);
-
-      // --- START: Update state for rating update ---
-      const userInfo = JSON.parse(localStorage.getItem("userInfo") || "{}");
-      const userName = userInfo.name || "Unknown User";
-
-      setUserFeedback((prev) => ({ ...prev, score: updatedScore }));
-
-      setData((prevData) => {
-        if (!prevData) return null;
-        const updatedFeedback = prevData.feedback.map((item) => {
-          if (item.user_name === userName) {
-            return { ...item, score: updatedScore };
-          }
-          return item;
-        });
-        return { ...prevData, feedback: updatedFeedback };
-      });
-      // --- END: Update state for rating update ---
+      fetchFeedbackStatus();
     } catch (error) {
       console.error("Error editing rating:", error);
       setFailure(true);
@@ -481,6 +409,18 @@ export default function StorePage() {
   return (
     <>
       <Header />
+      <CustomAlert
+        show={success}
+        onClose={() => setSuccess(false)}
+        message={message}
+        success
+      />
+      <CustomAlert
+        show={failure}
+        onClose={() => setFailure(false)}
+        message="حدث خطأ ما حاول مجدداً!"
+        success={false}
+      />
       <div className="container px-4 md:px-6 py-8">
         <div className="flex flex-col gap-8">
           {/* Store Header */}
@@ -541,29 +481,27 @@ export default function StorePage() {
                 Whatsapp
               </Link>
             </Button>
-            <Button
-              variant="ghost"
-              className="rounded-full"
-              onClick={addFav}
-            >
-              {fav ? (
-                <Image
-                  src={"/ui/Heart-full.svg"}
-                  alt="heart"
-                  width={50}
-                  height={50}
-                  className="h-5 w-5"
-                />
-              ) : (
-                <Image
-                  src={"/ui/Heart-empty.svg"}
-                  alt="heart"
-                  width={50}
-                  height={50}
-                  className="h-5 w-5"
-                />
-              )}
-            </Button>
+            {isUser && notOwner && (
+              <Button variant="ghost" className="rounded-full" onClick={addFav}>
+                {userfeedback.is_favorite ? (
+                  <Image
+                    src={"/ui/Heart-full.svg"}
+                    alt="heart"
+                    width={50}
+                    height={50}
+                    className="h-5 w-5"
+                  />
+                ) : (
+                  <Image
+                    src={"/ui/Heart-empty.svg"}
+                    alt="heart"
+                    width={50}
+                    height={50}
+                    className="h-5 w-5"
+                  />
+                )}
+              </Button>
+            )}
           </div>
 
           {/* Store Content */}
@@ -798,7 +736,7 @@ export default function StorePage() {
                       </>
                     )}
                     {(userfeedback.content || userfeedback.score) && (
-                      <Card className="card-hover bg-gray-200">
+                      <Card className="card-hover bg-background border">
                         <span className="text-xs text-muted-foreground pt-4 pl-4">
                           مراجعتك الشخصية
                         </span>
@@ -879,18 +817,6 @@ export default function StorePage() {
                         </CardContent>
                       </Card>
                     )}
-                    <CustomAlert
-                      show={success}
-                      onClose={() => setSuccess(false)}
-                      message={message}
-                      success
-                    />
-                    <CustomAlert
-                      show={failure}
-                      onClose={() => setFailure(false)}
-                      message="حدث خطأ ما حاول مجدداً!"
-                      success={false}
-                    />
                     <br />
                     {data?.feedback.length === 0 ? (
                       <div className="flex flex-col items-center justify-center py-12 text-center">
@@ -902,52 +828,59 @@ export default function StorePage() {
                       </div>
                     ) : (
                       <div className="space-y-4">
-                        {data?.feedback.map((review, index) => (
-                          <Card
-                            key={review.user_name + index}
-                            className="card-hover"
-                          >
-                            <CardContent className="p-4">
-                              <div className="flex justify-between gap-4">
-                                <div className="flex gap-2">
-                                  <Avatar>
-                                    {/* Consider getting user avatar from backend */}
-                                    <AvatarFallback>
-                                      {review.user_name.slice(0, 2)}
-                                    </AvatarFallback>
-                                  </Avatar>
-                                  <div className="flex">
-                                    <div className="flex flex-col">
-                                      <div className="flex items-center">
-                                        <h3 className="font-medium">
-                                          {review.user_name}
-                                        </h3>
-                                        <div className="flex">
-                                          {review.score !== null &&
-                                            Array.from({ length: 5 }).map(
-                                              (_, i) => (
-                                                <Star
-                                                  key={i}
-                                                  className={`h-4 w-4 ${
-                                                    i < review.score
-                                                      ? "fill-yellow-400 text-yellow-400"
-                                                      : "text-muted-foreground"
-                                                  }`}
-                                                />
-                                              )
-                                            )}
+                        {data?.feedback
+                          .filter((review) => !review.is_owner)
+                          .map((review, index) => (
+                            <Card
+                              key={review.user_name + index}
+                              className="card-hover"
+                            >
+                              <CardContent className="p-4">
+                                <div className="flex justify-between gap-4">
+                                  <div className="flex gap-2">
+                                    <Link href={`/profile/${review.user_id}`}>
+                                      <Avatar>
+                                        <AvatarFallback>
+                                          {review.user_name.slice(0, 2)}
+                                        </AvatarFallback>
+                                      </Avatar>
+                                    </Link>
+                                    <div className="flex">
+                                      <div className="flex flex-col">
+                                        <div className="flex items-center">
+                                          <Link
+                                            href={`/profile/${review.user_id}`}
+                                          >
+                                            <h3 className="font-medium">
+                                              {review.user_name}
+                                            </h3>
+                                          </Link>
+                                          <div className="flex">
+                                            {review.score !== null &&
+                                              Array.from({ length: 5 }).map(
+                                                (_, i) => (
+                                                  <Star
+                                                    key={i}
+                                                    className={`h-4 w-4 ${
+                                                      i < review.score
+                                                        ? "fill-yellow-400 text-yellow-400"
+                                                        : "text-muted-foreground"
+                                                    }`}
+                                                  />
+                                                )
+                                              )}
+                                          </div>
                                         </div>
+                                        <p className="text-sm mt-2">
+                                          {review.content}
+                                        </p>
                                       </div>
-                                      <p className="text-sm mt-2">
-                                        {review.content}
-                                      </p>
                                     </div>
                                   </div>
                                 </div>
-                              </div>
-                            </CardContent>
-                          </Card>
-                        ))}
+                              </CardContent>
+                            </Card>
+                          ))}
                       </div>
                     )}
                   </div>

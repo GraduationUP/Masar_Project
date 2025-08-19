@@ -44,11 +44,11 @@ class FavouriteStoreController extends Controller
         if ($user->favouriteStores()->where('store_id', $storeId)->exists()) {
             // إذا موجود، يشيل المتجر
             $user->favouriteStores()->detach($storeId);
-            return response()->json(['message' => 'Store removed from favourites']);
+            return response()->json(['message' => 'تم ازالة المتجر من المفضلة']);
         } else {
             // إذا مش موجود، يضيف المتجر
             $user->favouriteStores()->attach($storeId);
-            return response()->json(['message' => 'Store added to favourites']);
+            return response()->json(['message' => 'تم اضافة المتجر الى المفضلة']);
         }
     }
 }
