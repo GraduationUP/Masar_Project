@@ -40,7 +40,7 @@ class CommentController extends Controller
         $comment->delete();
         return response()->json(['message' => 'Comment deleted because it was empty']);
     }
-=======
+
         $request->validate([
             'content' => 'string|max:1000',
         ]);
