@@ -11,6 +11,53 @@ use Illuminate\Support\Facades\Hash;
 class UserController extends Controller
 {
 
+public function show()
+    {
+        $user = Auth::user(); // المستخدم الحالي
+
+        $user->load([
+            'store',       // لتحميل المتجر إذا موجود
+            'comments.store', // لتحميل اسم المتجر مع التعليقات
+            'ratings.store'   // لتحميل اسم المتجر مع التقييمات
+        ]);
+
+        // تجهيز response
+        $response = [
+            'id' => $user->id,
+            'first_name' => $user->first_name,
+            'last_name' => $user->last_name,
+            'username' => $user->username,
+            'email' => $user->email,
+            'role' => $user->getRoleNames()->first() ?? null,
+            'store' => $user->store ? [
+                'id' => $user->store->id,
+                'name' => $user->store->store_name,
+                'description' => $user->store->description,
+                'created_at' => $user->store->created_at,
+            ] : null,
+            'comments' => $user->comments->map(function ($comment) {
+                return [
+                    'id' => $comment->id,
+                    'store_id' => $comment->store->id,
+                    'store_name' => $comment->store->store_name,
+                    'comment' => $comment->content,
+                    'created_at' => $comment->created_at,
+                ];
+            }),
+            'ratings' => $user->ratings->map(function ($rating) {
+                return [
+                    'id' => $rating->id,
+                    'store_id' => $rating->store->id,
+                    'store_name' => $rating->store->store_name,
+                    'rating' => $rating->score,
+                    'created_at' => $rating->created_at,
+                ];
+            }),
+        ];
+
+        return response()->json($response);
+    }
+
 
 
     public function update(Request $request, $id)
