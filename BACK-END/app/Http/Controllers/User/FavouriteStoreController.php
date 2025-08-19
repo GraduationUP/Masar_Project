@@ -12,9 +12,9 @@ class FavouriteStoreController extends Controller
     // عرض المفضلات
     public function index()
     {
-        $favourites = auth::user()
+        $favourites = Auth::user()
             ->favouriteStores()
-            ->select('stores.*') // نضمن إرجاع أعمدة المتجر
+            ->select('stores.*')
             ->get()
             ->map(function ($store) {
                 return [
@@ -35,20 +35,20 @@ class FavouriteStoreController extends Controller
         return response()->json($favourites);
     }
 
-
-    // إضافة متجر للمفضلة
-    public function store($storeId)
+    // إضافة أو إزالة المتجر من المفضلة
+    public function toggle($storeId)
     {
         $store = Store::findOrFail($storeId);
-        Auth::user()->favouriteStores()->syncWithoutDetaching([$store->id]);
+        $user = Auth::user();
 
-        return response()->json(['message' => 'Store added to favourites']);
-    }
-
-    // إزالة متجر من المفضلة
-    public function destroy($storeId)
-    {
-        Auth::user()->favouriteStores()->detach($storeId);
-        return response()->json(['message' => 'Store removed from favourites']);
+        if ($user->favouriteStores()->where('store_id', $storeId)->exists()) {
+            // إذا موجود، يشيل المتجر
+            $user->favouriteStores()->detach($storeId);
+            return response()->json(['message' => 'Store removed from favourites']);
+        } else {
+            // إذا مش موجود، يضيف المتجر
+            $user->favouriteStores()->attach($storeId);
+            return response()->json(['message' => 'Store added to favourites']);
+        }
     }
 }
