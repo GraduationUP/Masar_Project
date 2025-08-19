@@ -17,7 +17,10 @@ return new class extends Migration
             $table->string('name');
             $table->text('description')->nullable();
             $table->string('photo')->nullable();
-            $table->foreignId('category_id')->constrained('categories');
+            $table->foreignId('category_id')
+                ->nullable()                  
+                ->constrained('categories')
+                ->nullOnDelete();
             $table->decimal('price', 10, 2);
             $table->string('latitude')->nullable();
             $table->string('longitude')->nullable();
