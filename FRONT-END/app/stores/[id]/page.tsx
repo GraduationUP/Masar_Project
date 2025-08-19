@@ -129,6 +129,7 @@ export default function StorePage() {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${Auth_Token}`,
         },
       });
 
