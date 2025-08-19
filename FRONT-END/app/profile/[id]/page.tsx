@@ -317,11 +317,11 @@ export default function ProfilePage() {
       });
 
       if (!response.ok) {
+        setFailure(true);
         const errorData = await response.json();
         throw new Error(
           errorData?.message || "Failed to send report. Please try again."
         );
-        setFailure(true);
       }
       setOpen(false);
       setMessage("");
@@ -616,7 +616,6 @@ export default function ProfilePage() {
                     </Card>
                   </TabsContent>
 
-                  {/* ... Security Tab Content ... TODO : Make this form works */}
                   <TabsContent
                     value="security"
                     className="space-y-6 animate-fade-in"
