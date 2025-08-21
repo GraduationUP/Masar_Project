@@ -16,7 +16,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Switch } from "@/components/ui/switch";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -163,13 +163,12 @@ export default function ProfilePage() {
   });
 
   // For the page owner
-  useEffect(() => {
-    async function fetchData() {
-      setLoading(true); // Set loading to true before the fetch
 
-      try {
-        const token = localStorage.getItem("authToken");
-        const response = await fetch(`${API_BASE_URL}/api/users/${params.id}`, {
+  async function fetchData() {
+    try {
+      const token = localStorage.getItem("authToken");
+      if (token) {
+        const response = await fetch(`${API_BASE_URL}/api/users`, {
           method: "GET",
           headers: {
             Authorization: `Bearer ${token}`,
@@ -183,15 +182,11 @@ export default function ProfilePage() {
 
         const responseData = await response.json();
         setOwnerData(responseData);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      } finally {
-        setLoading(false);
       }
+    } catch (error) {
+      console.error("Error fetching data:", error);
     }
-
-    fetchData();
-  }, []);
+  }
 
   function HandelLogout() {
     localStorage.removeItem("tokenType");
@@ -201,19 +196,32 @@ export default function ProfilePage() {
   }
 
   // Fetch for visitors
+  async function fetchDataForVisitors() {
+    try {
+      const response = await fetch(
+        `${API_BASE_URL}/api/guest/users/${params.id}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+        }
+      );
+
+      const data = await response.json();
+      setData(data);
+      setLoading(false);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  }
+
   useEffect(() => {
-    fetch(`${API_BASE_URL}/api/guest/users/${params.id}`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-      },
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        setData(data);
-        setLoading(false);
-      });
+    setLoading(true);
+    fetchData();
+    fetchDataForVisitors();
+    setLoading(false);
   }, []);
 
   async function handleUserInfoEdit(event: FormEvent<HTMLFormElement>) {
@@ -231,15 +239,16 @@ export default function ProfilePage() {
       });
 
       if (!response.ok) {
-        throw new Error("Failed to submit the data. Please try again.");
         setFailure(true);
+        throw new Error("Failed to submit the data. Please try again.");
       }
 
       const data = await response.json();
       // Update state with new data if needed
-      setOwnerData(data);
       setSucssesAlert(true);
       setShowFormError(false);
+      fetchData();
+      fetchDataForVisitors();
     } catch (error) {
       console.error(error);
       setShowFormError(true);
@@ -267,8 +276,8 @@ export default function ProfilePage() {
       );
 
       if (!response.ok) {
-        throw new Error("Failed to change password. Please try again.");
         setFailure(true);
+        throw new Error("Failed to change password. Please try again.");
       }
       setPasswordFormData({
         current_password: "",

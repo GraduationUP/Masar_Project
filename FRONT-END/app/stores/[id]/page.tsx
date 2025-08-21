@@ -327,7 +327,6 @@ export default function StorePage() {
       setSubmitting(false);
       setContent(updatedContent);
       fetchFeedbackStatus();
-
     } catch (error) {
       console.error("Error editing comment:", error);
       setFailure(true);
@@ -666,8 +665,7 @@ export default function StorePage() {
                               </Button>
                             ) : (
                               <Button onClick={handleAddComment} type="submit">
-                                {" "}
-                                // TODO تعليق
+                                تعليق
                               </Button>
                             )}
                           </form>
