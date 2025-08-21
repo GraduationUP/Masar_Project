@@ -359,7 +359,7 @@ export default function ProfilePage() {
                 قم بادارة اعدادت ملفك الشخصي
               </p>
             </div>
-            {ownerData.first_name === data.first_name && (
+            {ownerData.username === data.username && (
               <div className="flex gap-2">
                 <form onSubmit={HandelLogout}>
                   <Button
@@ -393,7 +393,7 @@ export default function ProfilePage() {
                 <div className="flex" title="ابلاغ">
                   {ownerData.role === "seller" && <Badge>صاحب متجر</Badge>}
                 </div>
-                {isUser && ownerData.first_name === "" && (
+                {isUser && ownerData.username === "" && (
                   <Dialog open={open} onOpenChange={setOpen}>
                     <DialogTrigger asChild>
                       <Button variant={"outline"} title="ابلاغ">
@@ -448,7 +448,7 @@ export default function ProfilePage() {
                         {data.first_name.slice(0, 2)}
                       </AvatarFallback>
                     </Avatar>
-                    {ownerData.first_name === data.first_name && (
+                    {ownerData.username === data.username && (
                       <Button
                         size="icon"
                         variant="secondary"
@@ -488,7 +488,7 @@ export default function ProfilePage() {
 
             {/* Main Content */}
             <div className={`flex-grow space-y-6 w-full md:w-2/3`}>
-              {ownerData.first_name === data.first_name && (
+              {ownerData.username === data.username && (
                 <Tabs defaultValue="account" className="w-full">
                   <TabsList className="grid w-full grid-cols-4 rounded-lg mb-6">
                     <TabsTrigger value="account" className="rounded-md">
@@ -515,7 +515,7 @@ export default function ProfilePage() {
                       <CardHeader className="flex flex-row items-center justify-between">
                         <div>
                           <CardTitle>المعلومات الشخصية</CardTitle>
-                          {ownerData.first_name === data.first_name && (
+                          {ownerData.username === data.username && (
                             <CardDescription>
                               قم بادارة معلوماتك الشخصية
                             </CardDescription>
@@ -989,7 +989,7 @@ export default function ProfilePage() {
                     </CardContent>
                     <CardFooter className="p-4 pt-0 flex justify-between">
                       <div className="flex gap-2">
-                        {ownerData.first_name === data.first_name && (
+                        {ownerData.username === data.username && (
                           <Button asChild size="sm" variant="outline">
                             <Link href={`/seller/dashboard`}>إدارة</Link>
                           </Button>
