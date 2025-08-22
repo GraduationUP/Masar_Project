@@ -16,7 +16,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Switch } from "@/components/ui/switch";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -163,13 +163,12 @@ export default function ProfilePage() {
   });
 
   // For the page owner
-  useEffect(() => {
-    async function fetchData() {
-      setLoading(true); // Set loading to true before the fetch
 
-      try {
-        const token = localStorage.getItem("authToken");
-        const response = await fetch(`${API_BASE_URL}/api/users/${params.id}`, {
+  async function fetchData() {
+    try {
+      const token = localStorage.getItem("authToken");
+      if (token) {
+        const response = await fetch(`${API_BASE_URL}/api/users`, {
           method: "GET",
           headers: {
             Authorization: `Bearer ${token}`,
@@ -183,15 +182,11 @@ export default function ProfilePage() {
 
         const responseData = await response.json();
         setOwnerData(responseData);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      } finally {
-        setLoading(false);
       }
+    } catch (error) {
+      console.error("Error fetching data:", error);
     }
-
-    fetchData();
-  }, []);
+  }
 
   function HandelLogout() {
     localStorage.removeItem("tokenType");
@@ -201,19 +196,32 @@ export default function ProfilePage() {
   }
 
   // Fetch for visitors
+  async function fetchDataForVisitors() {
+    try {
+      const response = await fetch(
+        `${API_BASE_URL}/api/guest/users/${params.id}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+        }
+      );
+
+      const data = await response.json();
+      setData(data);
+      setLoading(false);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  }
+
   useEffect(() => {
-    fetch(`${API_BASE_URL}/api/guest/users/${params.id}`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-      },
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        setData(data);
-        setLoading(false);
-      });
+    setLoading(true);
+    fetchData();
+    fetchDataForVisitors();
+    setLoading(false);
   }, []);
 
   async function handleUserInfoEdit(event: FormEvent<HTMLFormElement>) {
@@ -231,15 +239,16 @@ export default function ProfilePage() {
       });
 
       if (!response.ok) {
-        throw new Error("Failed to submit the data. Please try again.");
         setFailure(true);
+        throw new Error("Failed to submit the data. Please try again.");
       }
 
       const data = await response.json();
       // Update state with new data if needed
-      setOwnerData(data);
       setSucssesAlert(true);
       setShowFormError(false);
+      fetchData();
+      fetchDataForVisitors();
     } catch (error) {
       console.error(error);
       setShowFormError(true);
@@ -267,8 +276,8 @@ export default function ProfilePage() {
       );
 
       if (!response.ok) {
-        throw new Error("Failed to change password. Please try again.");
         setFailure(true);
+        throw new Error("Failed to change password. Please try again.");
       }
       setPasswordFormData({
         current_password: "",
@@ -350,7 +359,7 @@ export default function ProfilePage() {
                 قم بادارة اعدادت ملفك الشخصي
               </p>
             </div>
-            {ownerData.first_name !== "" && (
+            {ownerData.username === data.username && (
               <div className="flex gap-2">
                 <form onSubmit={HandelLogout}>
                   <Button
@@ -384,7 +393,7 @@ export default function ProfilePage() {
                 <div className="flex" title="ابلاغ">
                   {ownerData.role === "seller" && <Badge>صاحب متجر</Badge>}
                 </div>
-                {isUser && ownerData.first_name === "" && (
+                {isUser && ownerData.username === "" && (
                   <Dialog open={open} onOpenChange={setOpen}>
                     <DialogTrigger asChild>
                       <Button variant={"outline"} title="ابلاغ">
@@ -439,7 +448,7 @@ export default function ProfilePage() {
                         {data.first_name.slice(0, 2)}
                       </AvatarFallback>
                     </Avatar>
-                    {ownerData.first_name !== "" && (
+                    {ownerData.username === data.username && (
                       <Button
                         size="icon"
                         variant="secondary"
@@ -479,7 +488,7 @@ export default function ProfilePage() {
 
             {/* Main Content */}
             <div className={`flex-grow space-y-6 w-full md:w-2/3`}>
-              {ownerData.first_name !== "" && (
+              {ownerData.username === data.username && (
                 <Tabs defaultValue="account" className="w-full">
                   <TabsList className="grid w-full grid-cols-4 rounded-lg mb-6">
                     <TabsTrigger value="account" className="rounded-md">
@@ -506,7 +515,7 @@ export default function ProfilePage() {
                       <CardHeader className="flex flex-row items-center justify-between">
                         <div>
                           <CardTitle>المعلومات الشخصية</CardTitle>
-                          {ownerData.first_name !== "" && (
+                          {ownerData.username === data.username && (
                             <CardDescription>
                               قم بادارة معلوماتك الشخصية
                             </CardDescription>
@@ -980,7 +989,7 @@ export default function ProfilePage() {
                     </CardContent>
                     <CardFooter className="p-4 pt-0 flex justify-between">
                       <div className="flex gap-2">
-                        {ownerData.first_name !== "" && (
+                        {ownerData.username === data.username && (
                           <Button asChild size="sm" variant="outline">
                             <Link href={`/seller/dashboard`}>إدارة</Link>
                           </Button>

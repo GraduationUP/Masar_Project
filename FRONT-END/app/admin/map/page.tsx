@@ -143,7 +143,7 @@ export default function AdminMapPage() {
     stores: [],
   });
 
-  useEffect(() => {
+  
     async function fetchStoresData() {
       try {
         const token = localStorage.getItem("authToken");
@@ -162,8 +162,11 @@ export default function AdminMapPage() {
         console.error("Error fetching stores data:", error);
       }
     }
-    fetchStoresData();
-  }, []);
+    
+
+    useEffect(() => {
+      fetchStoresData();
+    });
 
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setName(e.target.value);
@@ -214,6 +217,7 @@ export default function AdminMapPage() {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       setSuccess(true);
+      fetchStoresData();
     } catch (error) {
       setFail(true);
       console.error("Error adding service:", error);
@@ -238,6 +242,7 @@ const handleDeleteService = async (id: number) => {
       return;
     }
     setSuccess(true);
+    fetchStoresData();
   } catch (error) {
     console.error("Error deleting product:", error);
     setFail(true);
@@ -468,7 +473,7 @@ const handleDeleteService = async (id: number) => {
                     ) : (
                       <Button type="submit">اضافة الخدمة</Button>
                     )}
-                  </DialogFooter>
+                    </DialogFooter>
                   {success && (
                     <p className="text-green-500">تم اضافة الخدمة بنجاح</p>
                   )}
