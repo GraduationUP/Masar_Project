@@ -16,38 +16,46 @@ class AdminMapController extends Controller
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
-        return response()->json([
-            'city' => 'غزة',
+        $serviceTypes = [
+            'stores',
+            'market',
+            'aids',
+            'gas_station',
+            'restaurants',
+            'car_services',
+            'petrol_station',
+            'internet',
+            'delivery'
+        ];
 
-            'aids' => Service::where('type', 'aid')->get()->map(fn($s) => [
+        $services = [];
+        foreach ($serviceTypes as $type) {
+            $services[$type] = Service::where('type', $type)->get()->map(fn($s) => [
                 'id' => $s->id,
                 'name' => $s->name,
                 'status' => (bool) $s->status,
                 'coordinates' => json_decode($s->coordinates),
-            ]),
+            ]);
+        }
 
-            'markets' => Service::where('type', 'market')->get()->map(fn($s) => [
-                'id' => $s->id,
-                'name' => $s->name,
-                'status' => (bool) $s->status,
-                'coordinates' => json_decode($s->coordinates),
-            ]),
-
-            'GasStations' => Service::where('type', 'gas_station')->get()->map(fn($s) => [
-                'id' => $s->id,
-                'name' => $s->name,
-                'status' => (bool) $s->status,
-                'coordinates' => json_decode($s->coordinates),
-            ]),
-
-            'stores' => Store::all()->map(fn($store) => [
+        // إضافة المتاجر مع الإحداثيات
+        $services['stores'] = Store::whereNotNull('latitude')
+            ->whereNotNull('longitude')
+            ->where('status', 'active')
+            ->get()
+            ->map(fn($store) => [
                 'id' => $store->id,
                 'name' => $store->store_name,
-                'status' => (bool) $store->status,
+                'status' => $store->status,
                 'coordinates' => [(float) $store->latitude, (float) $store->longitude],
-            ]),
+            ]);
+
+        return response()->json([
+            'city' => 'غزة',
+            'services' => $services,
         ]);
     }
+
 
 
     public function store(Request $request)
@@ -59,10 +67,11 @@ class AdminMapController extends Controller
 
         $request->validate([
             'name' => 'required|string|max:255',
-            'type' => 'required|in:stores,market,aids,gas_station',
+            'type' => 'required|in:stores,market,aids,gas_station,restaurants,car_services,petrol_station,internet,delivery',
             'coordinates' => 'required|array',
             'status' => 'boolean',
         ]);
+
 
         $service = Service::create([
             'name' => $request->name,
@@ -86,10 +95,10 @@ class AdminMapController extends Controller
         $service = Service::findOrFail($id);
 
         $request->validate([
-            'name' => 'sometimes|string|max:255',
-            'type' => 'sometimes|in:store,market,warehouse,aid,gas_station',
-            'coordinates' => 'sometimes|array',
-            'status' => 'sometimes|boolean',
+            'name' => 'required|string|max:255',
+            'type' => 'required|in:stores,market,aids,gas_station,restaurants,car_services,petrol_station,internet,delivery',
+            'coordinates' => 'required|array',
+            'status' => 'boolean',
         ]);
 
         $data = $request->only(['name', 'type', 'status']);
@@ -103,6 +112,19 @@ class AdminMapController extends Controller
         return response()->json([
             'message' => 'Service updated successfully.',
             'data' => $service,
+        ]);
+    }
+    public function destroy($id)
+    {
+        if (!Auth::check() || !Auth::user()->hasRole('admin')) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        $service = Service::findOrFail($id);
+        $service->delete();
+
+        return response()->json([
+            'message' => 'Service deleted successfully.'
         ]);
     }
 }
