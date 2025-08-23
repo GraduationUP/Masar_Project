@@ -23,12 +23,7 @@ import { Search } from "lucide-react";
 import { Label } from "./ui/label";
 import classes from "./map.module.css";
 import Link from "next/link";
-
-interface Props {
-  length: number;
-  zoomLocation: string;
-  coordinates: [number, number];
-}
+import { useRouter, useSearchParams } from "next/navigation";
 
 interface Coordinates {
   [index: number]: number;
@@ -52,7 +47,7 @@ interface GasStation {
 interface Store {
   id: number;
   name: string;
-  staus: boolean;
+  status: boolean; // Corrected typo here
   coordinates: Coordinates;
 }
 
@@ -96,23 +91,65 @@ const ActiveStoreIcon = new L.Icon({
 });
 
 const GazaMap: React.FC<GazaMapProps> = ({ data }) => {
-  const [viewOption, setViewOption] = useState("all");
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  // Read the category from the URL on initial load
+  const initialCategory = searchParams.get("category") || "all";
+
+  const [viewOption, setViewOption] = useState(initialCategory);
   const [searchTerm, setSearchTerm] = useState("");
   const [zoomLocation, setZoomLocation] = useState("31.5069,34.4560");
 
-  const filteredAids = data.aids.filter((store: { name: string }) =>
-    store.name.toLowerCase().includes(searchTerm.toLowerCase())
+  useEffect(() => {
+    // This effect now correctly gets the category from the URL whenever it changes
+    const currentCategory = searchParams.get("category") || "all";
+    if (currentCategory !== viewOption) {
+      setViewOption(currentCategory);
+    }
+  }, [searchParams, viewOption]);
+
+  const handleFilterChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const selectedCategory = e.target.value;
+    setViewOption(selectedCategory);
+
+    const newSearchParams = new URLSearchParams(searchParams.toString());
+    if (selectedCategory === "all") {
+      newSearchParams.delete("category");
+    } else {
+      newSearchParams.set("category", selectedCategory);
+    }
+    // Update the URL without reloading the page
+    router.push(`?${newSearchParams.toString()}`);
+  };
+
+  const filteredAids = data.aids.filter(
+    (aid: { name: string }) =>
+      viewOption === "all" ||
+      (viewOption === "aids" &&
+        aid.name.toLowerCase().includes(searchTerm.toLowerCase()))
   );
-  const filteredMarkets = data.markets.filter((market: { name: string }) =>
-    market.name.toLowerCase().includes(searchTerm.toLowerCase())
+  
+  const filteredMarkets = data.markets.filter(
+    (market: { name: string }) =>
+      viewOption === "all" ||
+      (viewOption === "markets" &&
+        market.name.toLowerCase().includes(searchTerm.toLowerCase()))
   );
+
   const filteredGasStations = data.GasStations.filter(
     (station: { name: string }) =>
-      station.name.toLowerCase().includes(searchTerm.toLowerCase())
+      viewOption === "all" ||
+      (viewOption === "GasStations" &&
+        station.name.toLowerCase().includes(searchTerm.toLowerCase()))
   );
-  const filteredStores = data.stores.filter((store: { name: string }) =>
-    store.name.toLowerCase().includes(searchTerm.toLowerCase())
+
+  const filteredStores = data.stores.filter(
+    (store: { name: string }) =>
+      viewOption === "all" ||
+      (viewOption === "stores" &&
+        store.name.toLowerCase().includes(searchTerm.toLowerCase()))
   );
+
 
   return (
     <div>
@@ -141,7 +178,7 @@ const GazaMap: React.FC<GazaMapProps> = ({ data }) => {
               <select
                 id="category"
                 value={viewOption}
-                onChange={(e) => setViewOption(e.target.value)}
+                onChange={handleFilterChange}
                 className="w-full border border-border/50 rounded-md p-2"
               >
                 <option value="all">الكل</option>
@@ -315,7 +352,7 @@ const GazaMap: React.FC<GazaMapProps> = ({ data }) => {
             (store: {
               id: number;
               name: string;
-              staus: boolean;
+              status: boolean;
               coordinates: Coordinates;
             }) => (
               <Marker
