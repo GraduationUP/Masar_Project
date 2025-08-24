@@ -20,43 +20,32 @@ interface Coordinates {
   [index: number]: number;
 }
 
-interface Aid {
+interface MapData {
   name: string;
   coordinates: [Coordinates];
 }
 
-interface Market {
+interface MapData_Market {
   name: string;
   coordinates: [Coordinates, Coordinates?, Coordinates?];
 }
 
-interface GasStation {
-  name: string;
-  coordinates: [Coordinates];
-}
-
-interface Store {
-  name: string;
-  coordinates: Coordinates;
-}
-
 export interface GazaData {
   city: string;
-  aids: Aid[];
-  markets: Market[];
-  GasStations: GasStation[];
-  stores: Store[];
+  aids: MapData[];
+  market: MapData_Market[];
+  gas_station: MapData[];
+  stores: MapData[];
+  restaurants: MapData[];
+  car_services: MapData[];
+  petrol_station: MapData[];
+  internet: MapData[];
+  delivery: MapData[];
 }
 
 export default function AdminMapPage() {
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
-  const [mapData, setMapData] = useState<GazaData>({
-    city: "",
-    aids: [],
-    markets: [],
-    GasStations: [],
-    stores: [],
-  });
+  const [mapData, setMapData] = useState<GazaData>();
 
   useEffect(() => {
     async function fetchStoresData() {
@@ -70,7 +59,7 @@ export default function AdminMapPage() {
         if (!response.ok)
           throw new Error(`HTTP error! status: ${response.status}`);
         const responseData = await response.json();
-        setMapData(responseData);
+        setMapData(responseData.services);
       } catch (error) {
         console.error("Error fetching stores data:", error);
       }
@@ -79,6 +68,8 @@ export default function AdminMapPage() {
   }, []);
 
   if (!mapData) return <Loading />;
+  console.log("Map data received:", JSON.stringify(mapData, null, 2));
+
   return (
     <>
       <Header />

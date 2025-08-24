@@ -2,12 +2,7 @@
 
 import dynamic from "next/dynamic";
 import { Loader2, PencilIcon, Plus, Trash2Icon } from "lucide-react";
-import {
-  Suspense,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import Loading from "./loading";
 import {
   Dialog,
@@ -58,64 +53,36 @@ const GazaMap = dynamic(() => import("@/components/AdminMap"), {
   ),
 });
 
-interface Mapdata_Aid {
+interface Mapdata {
   typeName: string;
-  id: number;
-  name: string;
-  status: boolean;
-  coordinates: number[][];
-}
-
-interface Mapdata_Store {
   id: number;
   name: string;
   status: boolean;
   coordinates: number[];
 }
 
-interface Mapdata_GasStation {
+interface MapData_Market{
   id: number;
   name: string;
   status: boolean;
   coordinates: number[][];
 }
 
-interface Mapdata_Market {
-  id: number;
-  name: string;
-  status: boolean;
-  coordinates: number[][];
-}
 interface Coordinates {
   [index: number]: number;
 }
 
-interface Aid {
-  name: string;
-  coordinates: [Coordinates];
-}
-
-interface Market {
-  name: string;
-  coordinates: [Coordinates, Coordinates?, Coordinates?];
-}
-
-interface GasStation {
-  name: string;
-  coordinates: [Coordinates];
-}
-
-interface Store {
-  name: string;
-  coordinates: Coordinates;
-}
-
 export interface GazaData {
   city: string;
-  aids: Mapdata_Aid[];
-  markets: Mapdata_Market[];
-  GasStations: Mapdata_GasStation[];
-  stores: Mapdata_Store[];
+  aids: Mapdata[];
+  gas_station: Mapdata[];
+  stores: MapData_Market[];
+  market: Mapdata[];
+  restaurants: Mapdata[];
+  car_services: Mapdata[];
+  petrol_station: Mapdata[];
+  internet: Mapdata[];
+  delivery: Mapdata[];
 }
 
 export default function AdminMapPage() {
@@ -138,35 +105,38 @@ export default function AdminMapPage() {
   const [mapData, setMapData] = useState<GazaData>({
     city: "",
     aids: [],
-    markets: [],
-    GasStations: [],
+    market: [],
+    gas_station: [],
     stores: [],
+    restaurants: [],
+    car_services: [],
+    petrol_station: [],
+    internet: [],
+    delivery: [],
   });
 
-  
-    async function fetchStoresData() {
-      try {
-        const token = localStorage.getItem("authToken");
-        const response = await fetch(`${API_BASE_URL}/api/admin/map`, {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        });
-        if (!response.ok)
-          throw new Error(`HTTP error! status: ${response.status}`);
-        const responseData = await response.json();
-        setMapData(responseData);
-      } catch (error) {
-        console.error("Error fetching stores data:", error);
-      }
+  async function fetchStoresData() {
+    try {
+      const token = localStorage.getItem("authToken");
+      const response = await fetch(`${API_BASE_URL}/api/admin/map`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+      if (!response.ok)
+        throw new Error(`HTTP error! status: ${response.status}`);
+      const responseData = await response.json();
+      setMapData(responseData.services);
+    } catch (error) {
+      console.error("Error fetching stores data:", error);
     }
-    
+  }
 
-    useEffect(() => {
-      fetchStoresData();
-    });
+  useEffect(() => {
+    fetchStoresData();
+  });
 
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setName(e.target.value);
@@ -226,28 +196,28 @@ export default function AdminMapPage() {
     }
   };
 
-const handleDeleteService = async (id: number) => {
-  try {
-    const token = localStorage.getItem("authToken");
-    const response = await fetch(`${API_BASE_URL}/api/admin/map/${id}`, {
-      method: "DELETE",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-    });
-    if (!response.ok) {
-      console.error("Error deleting product");
+  const handleDeleteService = async (id: number) => {
+    try {
+      const token = localStorage.getItem("authToken");
+      const response = await fetch(`${API_BASE_URL}/api/admin/map/${id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+      if (!response.ok) {
+        console.error("Error deleting product");
+        setFail(true);
+        return;
+      }
+      setSuccess(true);
+      fetchStoresData();
+    } catch (error) {
+      console.error("Error deleting product:", error);
       setFail(true);
-      return;
     }
-    setSuccess(true);
-    fetchStoresData();
-  } catch (error) {
-    console.error("Error deleting product:", error);
-    setFail(true);
-  }
-};
+  };
 
   const [searchTerm, setSearchTerm] = useState("");
   const [filterType, setFilterType] = useState("all"); // 'all', 'markets', 'aids', 'stores', 'gasstations'
@@ -256,7 +226,7 @@ const handleDeleteService = async (id: number) => {
   // Combine all services into a single array with their type
   const allServices = useMemo(() => {
     const services: any[] = [];
-    mapData.markets.forEach((s) =>
+    mapData.market.forEach((s) =>
       services.push({ ...s, type: "markets", typeName: "سوق" })
     );
     mapData.aids.forEach((s) =>
@@ -265,8 +235,23 @@ const handleDeleteService = async (id: number) => {
     mapData.stores.forEach((s) =>
       services.push({ ...s, type: "stores", typeName: "متجر" })
     );
-    mapData.GasStations.forEach((s) =>
-      services.push({ ...s, type: "gasstations", typeName: "محطة وقود" })
+    mapData.gas_station.forEach((s) =>
+      services.push({ ...s, type: "gas_stations", typeName: "محطة غاز" })
+    );
+    mapData.restaurants.forEach((s) =>
+      services.push({ ...s, type: "restaurants", typeName: "مطعم" })
+    );
+    mapData.car_services.forEach((s) =>
+      services.push({ ...s, type: "car_services", typeName: "خدمات سيارات" })
+    );
+    mapData.petrol_station.forEach((s) =>
+      services.push({ ...s, type: "petrol_station", typeName: "محطة وقود" })
+    );
+    mapData.internet.forEach((s) =>
+      services.push({ ...s, type: "internet", typeName: "انترنت" })
+    );
+    mapData.delivery.forEach((s) =>
+      services.push({ ...s, type: "delivery", typeName: "توصيل" })
     );
     return services;
   }, [mapData]);
@@ -296,9 +281,7 @@ const handleDeleteService = async (id: number) => {
     });
   }, [allServices, filterType, filterStatus, searchTerm]);
 
-  const renderServiceItem = (
-    service: Mapdata_Aid | Mapdata_Store,
-  ) => (
+  const renderServiceItem = (service: Mapdata | Mapdata_Store) => (
     <div
       key={`${service.coordinates}`}
       className="flex items-center justify-between p-4 border-b border-gray-200 last:border-b-0 gap-3"
@@ -473,7 +456,7 @@ const handleDeleteService = async (id: number) => {
                     ) : (
                       <Button type="submit">اضافة الخدمة</Button>
                     )}
-                    </DialogFooter>
+                  </DialogFooter>
                   {success && (
                     <p className="text-green-500">تم اضافة الخدمة بنجاح</p>
                   )}

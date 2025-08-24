@@ -33,34 +33,17 @@ interface Coordinates {
   [index: number]: number;
 }
 
-interface Aid {
-  name: string;
-  coordinates: [Coordinates];
-}
-
-interface Market {
-  name: string;
-  coordinates: [Coordinates, Coordinates?, Coordinates?];
-}
-
-interface GasStation {
-  name: string;
-  coordinates: [Coordinates];
-}
-
-interface Store {
-  id: number;
-  name: string;
-  staus: boolean;
-  coordinates: Coordinates;
-}
-
 export interface GazaData {
   city: string;
-  aids: Aid[];
-  markets: Market[];
-  GasStations: GasStation[];
-  stores: Store[];
+  stores: [];
+  aids: [];
+  market: [];
+  gas_station: [];
+  restaurants: [];
+  car_services: [];
+  petrol_station: [];
+  internet: [];
+  delivery: [];
 }
 
 interface GazaMapProps {
@@ -101,6 +84,41 @@ const InactiveStoreIcon = new L.Icon({
   popupAnchor: [0, -32],
 });
 
+const car_repair = new L.Icon({
+  iconUrl: "/images/car-repair.svg",
+  iconSize: [32, 32],
+  iconAnchor: [16, 32],
+  popupAnchor: [0, -32],
+});
+
+const petrol_station_icon = new L.Icon({
+  iconUrl: "/images/petrol-station.svg",
+  iconSize: [32, 32],
+  iconAnchor: [16, 32],
+  popupAnchor: [0, -32],
+});
+
+const delivery_icon = new L.Icon({
+  iconUrl: "/images/delivery.svg",
+  iconSize: [32, 32],
+  iconAnchor: [16, 32],
+  popupAnchor: [0, -32],
+});
+
+const wifi = new L.Icon({
+  iconUrl: "/images/wifi.svg",
+  iconSize: [32, 32],
+  iconAnchor: [16, 32],
+  popupAnchor: [0, -32],
+});
+
+const restaurantIcon = new L.Icon({
+  iconUrl: "/images/spoon-and-fork.svg",
+  iconSize: [32, 32],
+  iconAnchor: [16, 32],
+  popupAnchor: [0, -32],
+});
+
 const GazaMap: React.FC<GazaMapProps> = ({ data }) => {
   const [viewOption, setViewOption] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
@@ -109,14 +127,32 @@ const GazaMap: React.FC<GazaMapProps> = ({ data }) => {
   const filteredAids = data.aids.filter((store: { name: string }) =>
     store.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
-  const filteredMarkets = data.markets.filter((market: { name: string }) =>
+  const filteredMarkets = data.market.filter((market: { name: string }) =>
     market.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
-  const filteredGasStations = data.GasStations.filter(
+  const filteredGasStations = data.gas_station.filter(
     (station: { name: string }) =>
       station.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
   const filteredStores = data.stores.filter((store: { name: string }) =>
+    store.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+  const filteredRestaurants = data.restaurants.filter(
+    (store: { name: string }) =>
+      store.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+  const filteredCarServices = data.car_services.filter(
+    (store: { name: string }) =>
+      store.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+  const filteredPetrolStations = data.petrol_station.filter(
+    (store: { name: string }) =>
+      store.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+  const filteredInternet = data.internet.filter((store: { name: string }) =>
+    store.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+  const filteredDelivery = data.delivery.filter((store: { name: string }) =>
     store.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -152,9 +188,14 @@ const GazaMap: React.FC<GazaMapProps> = ({ data }) => {
               >
                 <option value="all">الكل</option>
                 <option value="aids">مخازن</option>
-                <option value="markets">اسواق</option>
-                <option value="GasStations">نقط غاز</option>
+                <option value="market">اسواق</option>
+                <option value="gas-station">نقط غاز</option>
                 <option value="stores">متاجر</option>
+                <option value="restaurants">مطاعم</option>
+                <option value="car-services">خدمات السيارات</option>
+                <option value="petrol-stations">محطات البنزين</option>
+                <option value="internet">خدمات الانترنت</option>
+                <option value="delivery">خدمات التوصيل</option>
               </select>
             </div>
 
@@ -199,34 +240,8 @@ const GazaMap: React.FC<GazaMapProps> = ({ data }) => {
           filteredAids.map(
             (
               aid: {
-                coordinates: unknown;
-                name:
-                  | string
-                  | number
-                  | bigint
-                  | boolean
-                  | React.ReactElement<
-                      unknown,
-                      string | React.JSXElementConstructor<any>
-                    >
-                  | Iterable<React.ReactNode>
-                  | React.ReactPortal
-                  | Promise<
-                      | string
-                      | number
-                      | bigint
-                      | boolean
-                      | React.ReactPortal
-                      | React.ReactElement<
-                          unknown,
-                          string | React.JSXElementConstructor<any>
-                        >
-                      | Iterable<React.ReactNode>
-                      | null
-                      | undefined
-                    >
-                  | null
-                  | undefined;
+                coordinates: any;
+                name: string;
               },
               index: any
             ) => (
@@ -241,7 +256,7 @@ const GazaMap: React.FC<GazaMapProps> = ({ data }) => {
             )
           )}
 
-        {(viewOption === "all" || viewOption === "markets") &&
+        {(viewOption === "all" || viewOption === "market") &&
           filteredMarkets.map(
             (
               market: { coordinates: Props | L.LatLngExpression[]; name: any },
@@ -267,38 +282,12 @@ const GazaMap: React.FC<GazaMapProps> = ({ data }) => {
             )
           )}
 
-        {(viewOption === "all" || viewOption === "GasStations") &&
+        {(viewOption === "all" || viewOption === "gas_station") &&
           filteredGasStations.map(
             (
               station: {
-                coordinates: unknown;
-                name:
-                  | string
-                  | number
-                  | bigint
-                  | boolean
-                  | React.ReactElement<
-                      unknown,
-                      string | React.JSXElementConstructor<any>
-                    >
-                  | Iterable<React.ReactNode>
-                  | React.ReactPortal
-                  | Promise<
-                      | string
-                      | number
-                      | bigint
-                      | boolean
-                      | React.ReactPortal
-                      | React.ReactElement<
-                          unknown,
-                          string | React.JSXElementConstructor<any>
-                        >
-                      | Iterable<React.ReactNode>
-                      | null
-                      | undefined
-                    >
-                  | null
-                  | undefined;
+                coordinates: any;
+                name: string;
               },
               index: any
             ) => (
@@ -316,9 +305,152 @@ const GazaMap: React.FC<GazaMapProps> = ({ data }) => {
             )
           )}
 
+        {(viewOption === "all" || viewOption === "restaurants") &&
+          filteredRestaurants.map(
+            (
+              restaurant: {
+                coordinates: any;
+                name: string;
+              },
+              index: any
+            ) => (
+              <Marker
+                key={`gas-${index}`}
+                position={restaurant.coordinates[0] as [number, number]}
+                icon={restaurantIcon}
+              >
+                <Popup>
+                  <div style={{ textAlign: "right" }}>
+                    <h3 style={{ margin: 0 }}>{restaurant.name}</h3>{" "}
+                  </div>
+                </Popup>
+              </Marker>
+            )
+          )}
+
+        {(viewOption === "all" || viewOption === "stores") &&
+          filteredCarServices.map(
+            (
+              car_service: {
+                coordinates: any;
+                name: string;
+              },
+              index: any
+            ) => (
+              <Marker
+                key={`gas-${index}`}
+                position={car_service.coordinates[0] as [number, number]}
+                icon={ActiveStoreIcon}
+              >
+                <Popup>
+                  <div style={{ textAlign: "right" }}>
+                    <h3 style={{ margin: 0 }}>{car_service.name}</h3>{" "}
+                  </div>
+                </Popup>
+              </Marker>
+            )
+          )}
+
+        {(viewOption === "all" || viewOption === "car_services") &&
+          filteredCarServices.map(
+            (
+              car_service: {
+                coordinates: any;
+                name: string;
+              },
+              index: any
+            ) => (
+              <Marker
+                key={`gas-${index}`}
+                position={car_service.coordinates[0] as [number, number]}
+                icon={car_repair}
+              >
+                <Popup>
+                  <div style={{ textAlign: "right" }}>
+                    <h3 style={{ margin: 0 }}>{car_service.name}</h3>{" "}
+                  </div>
+                </Popup>
+              </Marker>
+            )
+          )}
+
+        {(viewOption === "all" || viewOption === "petrol_station") &&
+          filteredPetrolStations.map(
+            (
+              petrol_station: {
+                coordinates: any;
+                name: string;
+              },
+              index: any
+            ) => (
+              <Marker
+                key={`gas-${index}`}
+                position={petrol_station.coordinates[0] as [number, number]}
+                icon={petrol_station_icon}
+              >
+                <Popup>
+                  <div style={{ textAlign: "right" }}>
+                    <h3 style={{ margin: 0 }}>{petrol_station.name}</h3>{" "}
+                  </div>
+                </Popup>
+              </Marker>
+            )
+          )}
+
+        {(viewOption === "all" || viewOption === "internet") &&
+          filteredInternet.map(
+            (
+              internet: {
+                coordinates: any;
+                name: string;
+              },
+              index: any
+            ) => (
+              <Marker
+                key={`gas-${index}`}
+                position={internet.coordinates[0] as [number, number]}
+                icon={wifi}
+              >
+                <Popup>
+                  <div style={{ textAlign: "right" }}>
+                    <h3 style={{ margin: 0 }}>{internet.name}</h3>{" "}
+                  </div>
+                </Popup>
+              </Marker>
+            )
+          )}
+
+          {(viewOption === "all" || viewOption === "delivery") &&
+          filteredDelivery.map(
+            (
+              delivery: {
+                coordinates: any;
+                name: string;
+              },
+              index: any
+            ) => (
+              <Marker
+                key={`gas-${index}`}
+                position={delivery.coordinates[0] as [number, number]}
+                icon={delivery_icon}
+              >
+                <Popup>
+                  <div style={{ textAlign: "right" }}>
+                    <h3 style={{ margin: 0 }}>{delivery.name}</h3>{" "}
+                  </div>
+                </Popup>
+              </Marker>
+            )
+          )}
+
         {(viewOption === "all" || viewOption === "stores") &&
           filteredStores.map(
-            (store: { id: number; name: string; staus: boolean; coordinates: Coordinates }) => (
+            (store: {
+              id: number;
+              name: string;
+              staus: boolean;
+              coordinates: Coordinates;
+            }) => (
               <Marker
                 key={`store-${store.id}`}
                 position={[
