@@ -76,9 +76,15 @@ interface UserInfo {
 }
 interface ServiceData {
   city: string;
+  stores: [];
   aids: [];
-  markets: [];
-  GasStations: [];
+  market: [];
+  gas_station: [];
+  restaurants: [];
+  car_services: [];
+  petrol_station: [];
+  internet: [];
+  delivery: [];
 }
 interface ProductStore {
   id: number;
@@ -117,9 +123,15 @@ export default function AdminDashboard() {
   const [productData, setProductData] = useState<ProductData[]>([]);
   const [servicesData, setServicesData] = useState<ServiceData>({
     city: "",
+    stores: [],
     aids: [],
-    markets: [],
-    GasStations: [],
+    market: [],
+    gas_station: [],
+    restaurants: [],
+    car_services: [],
+    petrol_station: [],
+    internet: [],
+    delivery: [],
   });
 
   const userRoleOptions = [
@@ -231,7 +243,7 @@ export default function AdminDashboard() {
         if (!response.ok)
           throw new Error(`HTTP error! status: ${response.status}`);
         const responseData = await response.json();
-        setServicesData(responseData);
+        setServicesData(responseData.services);
       } catch (error) {
         console.error("Error fetching stores data:", error);
       } finally {
@@ -392,9 +404,15 @@ export default function AdminDashboard() {
   };
 
   const servicesCount =
-    servicesData.aids.length +
-    servicesData.GasStations.length +
-    servicesData.markets.length;
+    (servicesData?.aids?.length || 0) +
+    (servicesData?.gas_station?.length || 0) +
+    (servicesData?.market?.length || 0) +
+    (servicesData?.car_services?.length || 0) + 
+    (servicesData?.stores?.length || 0) +
+    (servicesData?.restaurants?.length || 0) +
+    (servicesData?.petrol_station?.length || 0) +
+    (servicesData?.internet?.length || 0) +
+    (servicesData?.delivery?.length || 0);
 
   const handelStatusUpdateStore = async (
     id: number,

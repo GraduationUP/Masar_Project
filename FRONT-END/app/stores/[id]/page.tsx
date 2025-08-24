@@ -73,7 +73,6 @@ export default function StorePage() {
   const BASE_API_URL = process.env.NEXT_PUBLIC_API_URL;
   const router = useRouter();
   const [data, setData] = useState<StoreData | null>(null);
-  const [fav, setFav] = useState(false);
   const [content, setContent] = useState("");
   const [score, setScore] = useState(1);
   const [isUser, setIsUser] = useState(false);
@@ -98,7 +97,7 @@ export default function StorePage() {
   const fetchFeedbackStatus = async () => {
     try {
       const Auth_Token = localStorage.getItem("authToken");
-
+      if (Auth_Token === null) return;
       const response = await fetch(
         `${BASE_API_URL}/api/store/${id}/feedback-status`,
         {
@@ -110,7 +109,6 @@ export default function StorePage() {
       );
 
       if (!response.ok) {
-        console.warn("Failed to fetch feedback status or not authorized.");
         return;
       }
 
@@ -125,6 +123,7 @@ export default function StorePage() {
   const fetchStoreData = async () => {
     try {
       const Auth_Token = localStorage.getItem("authToken");
+      if (!Auth_Token) return;
       const response = await fetch(`${BASE_API_URL}/api/guest/stores/${id}`, {
         method: "GET",
         headers: {
@@ -161,7 +160,6 @@ export default function StorePage() {
       }
       const responseMsg = await response.json();
       setSuccess(true);
-      setFav(true);
       fetchFeedbackStatus();
       setMessage(responseMsg.message);
     } catch (error) {

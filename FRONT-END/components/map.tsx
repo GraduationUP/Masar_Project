@@ -23,45 +23,39 @@ import { Search } from "lucide-react";
 import { Label } from "./ui/label";
 import classes from "./map.module.css";
 import Link from "next/link";
-
-interface Props {
-  length: number;
-  zoomLocation: string;
-  coordinates: [number, number];
-}
+import { useRouter, useSearchParams } from "next/navigation";
 
 interface Coordinates {
   [index: number]: number;
 }
 
-interface Aid {
+interface Mapdata {
   name: string;
   coordinates: [Coordinates];
 }
 
-interface Market {
+interface Mapdata_Store {
+  store_id: number;
+  name: string;
+  coordinates: [Coordinates];
+}
+
+interface MapData_Market {
   name: string;
   coordinates: [Coordinates, Coordinates?, Coordinates?];
 }
 
-interface GasStation {
-  name: string;
-  coordinates: [Coordinates];
-}
-
-interface Store {
-  id: number;
-  name: string;
-  staus: boolean;
-  coordinates: Coordinates;
-}
-
 export interface GazaData {
   city: string;
-  aids: Aid[];
-  markets: Market[];
-  GasStations: GasStation[];
-  stores: Store[];
+  aids: Mapdata[];
+  gas_station: Mapdata[];
+  stores: Mapdata_Store[];
+  market: MapData_Market[];
+  restaurants: Mapdata[];
+  car_services: Mapdata[];
+  petrol_station: Mapdata[];
+  internet: Mapdata[];
+  delivery: Mapdata[];
 }
 
 interface GazaMapProps {
@@ -95,24 +89,162 @@ const ActiveStoreIcon = new L.Icon({
   popupAnchor: [0, -32],
 });
 
+const car_repair = new L.Icon({
+  iconUrl: "/images/car-repair.svg",
+  iconSize: [32, 32],
+  iconAnchor: [16, 32],
+  popupAnchor: [0, -32],
+});
+
+const petrol_station_icon = new L.Icon({
+  iconUrl: "/images/petrol-station.svg",
+  iconSize: [32, 32],
+  iconAnchor: [16, 32],
+  popupAnchor: [0, -32],
+});
+
+const delivery_icon = new L.Icon({
+  iconUrl: "/images/delivery.svg",
+  iconSize: [32, 32],
+  iconAnchor: [16, 32],
+  popupAnchor: [0, -32],
+});
+
+const wifi = new L.Icon({
+  iconUrl: "/images/wifi.svg",
+  iconSize: [32, 32],
+  iconAnchor: [16, 32],
+  popupAnchor: [0, -32],
+});
+
+const restaurantIcon = new L.Icon({
+  iconUrl: "/images/spoon-and-fork.svg",
+  iconSize: [32, 32],
+  iconAnchor: [16, 32],
+  popupAnchor: [0, -32],
+});
+
 const GazaMap: React.FC<GazaMapProps> = ({ data }) => {
-  const [viewOption, setViewOption] = useState("all");
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  // Read the category from the URL on initial load
+  const initialCategory = searchParams.get("category") || "all";
+
+  const [viewOption, setViewOption] = useState(initialCategory);
   const [searchTerm, setSearchTerm] = useState("");
   const [zoomLocation, setZoomLocation] = useState("31.5069,34.4560");
 
-  const filteredAids = data.aids.filter((store: { name: string }) =>
-    store.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-  const filteredMarkets = data.markets.filter((market: { name: string }) =>
-    market.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-  const filteredGasStations = data.GasStations.filter(
-    (station: { name: string }) =>
-      station.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-  const filteredStores = data.stores.filter((store: { name: string }) =>
-    store.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  useEffect(() => {
+    // This effect now correctly gets the category from the URL whenever it changes
+    const currentCategory = searchParams.get("category") || "all";
+    if (currentCategory !== viewOption) {
+      setViewOption(currentCategory);
+    }
+  }, [searchParams, viewOption]);
+
+  const handleFilterChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const selectedCategory = e.target.value;
+    setViewOption(selectedCategory);
+
+    const newSearchParams = new URLSearchParams(searchParams.toString());
+    if (selectedCategory === "all") {
+      newSearchParams.delete("category");
+    } else {
+      newSearchParams.set("category", selectedCategory);
+    }
+    // Update the URL without reloading the page
+    router.push(`?${newSearchParams.toString()}`);
+  };
+
+  const filteredAids =
+    data.aids === undefined
+      ? []
+      : data.aids.filter(
+          (aid: { name: string }) =>
+            viewOption === "all" ||
+            (viewOption === "aids" &&
+              aid.name.toLowerCase().includes(searchTerm.toLowerCase()))
+        );
+
+  const filteredMarkets =
+    data.market === undefined
+      ? []
+      : data.market.filter(
+          (market: { name: string }) =>
+            viewOption === "all" ||
+            (viewOption === "market" &&
+              market.name.toLowerCase().includes(searchTerm.toLowerCase()))
+        );
+
+  const filteredGasStations =
+    data.gas_station === undefined
+      ? []
+      : data.gas_station.filter(
+          (station: { name: string }) =>
+            viewOption === "all" ||
+            (viewOption === "gas_station" &&
+              station.name.toLowerCase().includes(searchTerm.toLowerCase()))
+        );
+
+  const filteredStores =
+    data.stores === undefined
+      ? []
+      : data.stores.filter(
+          (store: { name: string }) =>
+            viewOption === "all" ||
+            (viewOption === "stores" &&
+              store.name.toLowerCase().includes(searchTerm.toLowerCase()))
+        );
+
+  const filteredRestaurants =
+    data.restaurants === undefined
+      ? []
+      : data.restaurants.filter(
+          (store: { name: string }) =>
+            viewOption === "all" ||
+            (viewOption === "restaurants" &&
+              store.name.toLowerCase().includes(searchTerm.toLowerCase()))
+        );
+
+  const filteredCarServices =
+    data.car_services === undefined
+      ? []
+      : data.car_services.filter(
+          (store: { name: string }) =>
+            viewOption === "all" ||
+            (viewOption === "car_services" &&
+              store.name.toLowerCase().includes(searchTerm.toLowerCase()))
+        );
+
+  const filteredPetrolStations =
+    data.petrol_station === undefined
+      ? []
+      : data.petrol_station.filter(
+          (store: { name: string }) =>
+            viewOption === "all" ||
+            (viewOption === "petrol_station" &&
+              store.name.toLowerCase().includes(searchTerm.toLowerCase()))
+        );
+
+  const filteredInternet =
+    data.internet === undefined
+      ? []
+      : data.internet.filter(
+          (store: { name: string }) =>
+            viewOption === "all" ||
+            (viewOption === "internet" &&
+              store.name.toLowerCase().includes(searchTerm.toLowerCase()))
+        );
+
+  const filteredDelivery =
+    data.delivery === undefined
+      ? []
+      : data.delivery.filter(
+          (store: { name: string }) =>
+            viewOption === "all" ||
+            (viewOption === "delivery" &&
+              store.name.toLowerCase().includes(searchTerm.toLowerCase()))
+        );
 
   return (
     <div>
@@ -141,14 +273,19 @@ const GazaMap: React.FC<GazaMapProps> = ({ data }) => {
               <select
                 id="category"
                 value={viewOption}
-                onChange={(e) => setViewOption(e.target.value)}
+                onChange={handleFilterChange}
                 className="w-full border border-border/50 rounded-md p-2"
               >
                 <option value="all">الكل</option>
                 <option value="aids">مخازن</option>
-                <option value="markets">اسواق</option>
-                <option value="GasStations">نقط غاز</option>
+                <option value="market">اسواق</option>
+                <option value="gas_station">نقط غاز</option>
                 <option value="stores">متاجر</option>
+                <option value="restaurants">مطاعم</option>
+                <option value="car_services">خدمات سيارات</option>
+                <option value="petrol_station">محطات بنزين</option>
+                <option value="internet">خدمات انترنت</option>
+                <option value="delivery">خدمات توصيل</option>
               </select>
             </div>
 
@@ -193,34 +330,8 @@ const GazaMap: React.FC<GazaMapProps> = ({ data }) => {
           filteredAids.map(
             (
               aid: {
-                coordinates: unknown;
-                name:
-                  | string
-                  | number
-                  | bigint
-                  | boolean
-                  | React.ReactElement<
-                      unknown,
-                      string | React.JSXElementConstructor<any>
-                    >
-                  | Iterable<React.ReactNode>
-                  | React.ReactPortal
-                  | Promise<
-                      | string
-                      | number
-                      | bigint
-                      | boolean
-                      | React.ReactPortal
-                      | React.ReactElement<
-                          unknown,
-                          string | React.JSXElementConstructor<any>
-                        >
-                      | Iterable<React.ReactNode>
-                      | null
-                      | undefined
-                    >
-                  | null
-                  | undefined;
+                coordinates: any;
+                name: string;
               },
               index: any
             ) => (
@@ -235,7 +346,7 @@ const GazaMap: React.FC<GazaMapProps> = ({ data }) => {
             )
           )}
 
-        {(viewOption === "all" || viewOption === "markets") &&
+        {(viewOption === "all" || viewOption === "market") &&
           filteredMarkets.map(
             (
               market: { coordinates: Props | L.LatLngExpression[]; name: any },
@@ -261,38 +372,12 @@ const GazaMap: React.FC<GazaMapProps> = ({ data }) => {
             )
           )}
 
-        {(viewOption === "all" || viewOption === "GasStations") &&
+        {(viewOption === "all" || viewOption === "gas_station") &&
           filteredGasStations.map(
             (
               station: {
-                coordinates: unknown;
-                name:
-                  | string
-                  | number
-                  | bigint
-                  | boolean
-                  | React.ReactElement<
-                      unknown,
-                      string | React.JSXElementConstructor<any>
-                    >
-                  | Iterable<React.ReactNode>
-                  | React.ReactPortal
-                  | Promise<
-                      | string
-                      | number
-                      | bigint
-                      | boolean
-                      | React.ReactPortal
-                      | React.ReactElement<
-                          unknown,
-                          string | React.JSXElementConstructor<any>
-                        >
-                      | Iterable<React.ReactNode>
-                      | null
-                      | undefined
-                    >
-                  | null
-                  | undefined;
+                coordinates: any;
+                name: string;
               },
               index: any
             ) => (
@@ -310,16 +395,126 @@ const GazaMap: React.FC<GazaMapProps> = ({ data }) => {
             )
           )}
 
+        {(viewOption === "all" || viewOption === "restaurants") &&
+          filteredRestaurants.map(
+            (
+              restaurant: {
+                coordinates: any;
+                name: string;
+              },
+              index: any
+            ) => (
+              <Marker
+                key={`restaurant-${index}`}
+                position={restaurant.coordinates[0] as [number, number]}
+                icon={restaurantIcon}
+              >
+                <Popup>
+                  <div style={{ textAlign: "right" }}>
+                    <h3 style={{ margin: 0 }}>{restaurant.name}</h3>{" "}
+                  </div>
+                </Popup>
+              </Marker>
+            )
+          )}
+
+        {(viewOption === "all" || viewOption === "car_services") &&
+          filteredCarServices.map(
+            (
+              car_service: {
+                coordinates: any;
+                name: string;
+              },
+              index: any
+            ) => (
+              <Marker
+                key={`car-${index}`}
+                position={car_service.coordinates[0] as [number, number]}
+                icon={car_repair}
+              >
+                <Popup>
+                  <div style={{ textAlign: "right" }}>
+                    <h3 style={{ margin: 0 }}>{car_service.name}</h3>{" "}
+                  </div>
+                </Popup>
+              </Marker>
+            )
+          )}
+
+        {(viewOption === "all" || viewOption === "petrol_station") &&
+          filteredPetrolStations.map(
+            (
+              petrol_station: {
+                coordinates: any;
+                name: string;
+              },
+              index: any
+            ) => (
+              <Marker
+                key={`petrol-${index}`}
+                position={petrol_station.coordinates[0] as [number, number]}
+                icon={petrol_station_icon}
+              >
+                <Popup>
+                  <div style={{ textAlign: "right" }}>
+                    <h3 style={{ margin: 0 }}>{petrol_station.name}</h3>{" "}
+                  </div>
+                </Popup>
+              </Marker>
+            )
+          )}
+
+        {(viewOption === "all" || viewOption === "internet") &&
+          filteredInternet.map(
+            (
+              internet: {
+                coordinates: any;
+                name: string;
+              },
+              index: any
+            ) => (
+              <Marker
+                key={`internet-${index}`}
+                position={internet.coordinates[0] as [number, number]}
+                icon={wifi}
+              >
+                <Popup>
+                  <div style={{ textAlign: "right" }}>
+                    <h3 style={{ margin: 0 }}>{internet.name}</h3>{" "}
+                  </div>
+                </Popup>
+              </Marker>
+            )
+          )}
+
+        {(viewOption === "all" || viewOption === "delivery") &&
+          filteredDelivery.map(
+            (
+              delivery: {
+                coordinates: any;
+                name: string;
+              },
+              index: any
+            ) => (
+              <Marker
+                key={`delivery-${index}`}
+                position={delivery.coordinates[0] as [number, number]}
+                icon={delivery_icon}
+              >
+                <Popup>
+                  <div style={{ textAlign: "right" }}>
+                    <h3 style={{ margin: 0 }}>{delivery.name}</h3>{" "}
+                  </div>
+                </Popup>
+              </Marker>
+            )
+          )}
+
         {(viewOption === "all" || viewOption === "stores") &&
           filteredStores.map(
-            (store: {
-              id: number;
-              name: string;
-              staus: boolean;
-              coordinates: Coordinates;
-            }) => (
+            (store: { store_id: number; name: string; coordinates: any }) => (
               <Marker
-                key={`store-${store.id}`}
+                key={`store-${store.store_id}`}
                 position={[
                   store.coordinates[0] as number,
                   store.coordinates[1] as number,
@@ -327,7 +522,7 @@ const GazaMap: React.FC<GazaMapProps> = ({ data }) => {
                 icon={ActiveStoreIcon}
               >
                 <Popup>
-                  <Link href={`/store/${store.id}`}>
+                  <Link href={`/stores/${store.store_id}`}>
                     <div>{store.name}</div>
                   </Link>
                 </Popup>
