@@ -522,7 +522,7 @@ const GazaMap: React.FC<GazaMapProps> = ({ data }) => {
                 icon={ActiveStoreIcon}
               >
                 <Popup>
-                  <Link href={`/store/${store.store_id}`}>
+                  <Link href={`/stores/${store.store_id}`}>
                     <div>{store.name}</div>
                   </Link>
                 </Popup>
