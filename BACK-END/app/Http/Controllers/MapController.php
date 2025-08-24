@@ -35,7 +35,7 @@ class MapController extends Controller
         }
 
         // إضافة المتاجر مع الإحداثيات
-        $services['stores'] = Store::where('status', 1)
+        $services['stores'] = Store::where('status', 'active')
             ->whereNotNull('latitude')
             ->whereNotNull('longitude')
             ->get()
