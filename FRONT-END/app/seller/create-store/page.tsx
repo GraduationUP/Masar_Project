@@ -70,8 +70,6 @@ export default function CreateStorePage() {
         setFailure(true);
         throw new Error(errorData?.message || "Failed to create store");
       }
-
-      const data = await response.json();
       setSuccess(true);
       redirect("/seller/dashboard");
     } catch (error: any) {

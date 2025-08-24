@@ -61,7 +61,7 @@ interface Mapdata {
   coordinates: number[];
 }
 
-interface MapData_Market{
+interface MapData_Market {
   id: number;
   name: string;
   status: boolean;
@@ -281,14 +281,13 @@ export default function AdminMapPage() {
     });
   }, [allServices, filterType, filterStatus, searchTerm]);
 
-  const renderServiceItem = (service: Mapdata | Mapdata_Store) => (
+  const renderServiceItem = (service: Mapdata | MapData_Market) => (
     <div
       key={`${service.coordinates}`}
       className="flex items-center justify-between p-4 border-b border-gray-200 last:border-b-0 gap-3"
     >
       <div className="flex flex-col flex-grow">
         <span className="font-bold text-lg text-gray-800">{service.name}</span>
-        <span className="text-sm text-gray-500">{service.typeName}</span>
       </div>
       <div className="flex flex-col items-center mx-4">
         <span className="font-bold text-gray-800">الإحداثيات</span>
@@ -381,7 +380,17 @@ export default function AdminMapPage() {
                             <SelectItem value="gas_station">
                               محطة غاز
                             </SelectItem>
-                            <SelectItem value="stores">محل تجاري</SelectItem>
+                            <SelectItem value="restaurants">مطعم</SelectItem>
+                            <SelectItem value="car_services">
+                              خدمات سيارات
+                            </SelectItem>
+                            <SelectItem value="petrol_station">
+                              محطة بنزين
+                            </SelectItem>
+                            <SelectItem value="internet">
+                              شبكة انترنت
+                            </SelectItem>
+                            <SelectItem value="delivery">خدمة توصيل</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
@@ -498,7 +507,12 @@ export default function AdminMapPage() {
                       <SelectItem value="markets">الأسواق</SelectItem>
                       <SelectItem value="aids">مخازن المساعدات</SelectItem>
                       <SelectItem value="stores">المتاجر</SelectItem>
-                      <SelectItem value="gasstations">محطات الوقود</SelectItem>
+                      <SelectItem value="gas_stations">محطات الوقود</SelectItem>
+                      <SelectItem value="restaurants">مطاعم</SelectItem>
+                      <SelectItem value="car_services">خدمات السيارات</SelectItem>
+                      <SelectItem value="petrol_station">محطة وقود</SelectItem>
+                      <SelectItem value="internet">خدمات الانترنت</SelectItem>
+                      <SelectItem value="delivery">خدمات التوصيل</SelectItem>
                     </SelectContent>
                   </Select>
                   <Select value={filterStatus} onValueChange={setFilterStatus}>

@@ -19,9 +19,10 @@ import {
   CardContent,
 } from "./ui/card";
 import { Input } from "./ui/input";
-import { Search } from "lucide-react";
+import { Package, Search } from "lucide-react";
 import { Label } from "./ui/label";
 import classes from "./map.module.css";
+import Link from "next/link";
 
 interface Props {
   length: number;
@@ -138,27 +139,26 @@ const GazaMap: React.FC<GazaMapProps> = ({ data }) => {
     store.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
   const filteredRestaurants = data.restaurants.filter(
-    (store: { name: string }) =>
-      store.name.toLowerCase().includes(searchTerm.toLowerCase())
+    (restaurant: { name: string }) =>
+      restaurant.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
   const filteredCarServices = data.car_services.filter(
-    (store: { name: string }) =>
-      store.name.toLowerCase().includes(searchTerm.toLowerCase())
+    (car: { name: string }) =>
+      car.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
   const filteredPetrolStations = data.petrol_station.filter(
-    (store: { name: string }) =>
-      store.name.toLowerCase().includes(searchTerm.toLowerCase())
+    (pertol: { name: string }) =>
+      pertol.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
-  const filteredInternet = data.internet.filter((store: { name: string }) =>
-    store.name.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredInternet = data.internet.filter((internet: { name: string }) =>
+    internet.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
-  const filteredDelivery = data.delivery.filter((store: { name: string }) =>
-    store.name.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredDelivery = data.delivery.filter((delivery: { name: string }) =>
+    delivery.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
     <div>
-      {/* TODO: Add the stores */}
       <Card className="border-border/50 shadow-sm">
         <CardHeader className="pb-3">
           <CardTitle>اعثر على الخدمة التي تحتاجها</CardTitle>{" "}
@@ -282,7 +282,7 @@ const GazaMap: React.FC<GazaMapProps> = ({ data }) => {
             )
           )}
 
-        {(viewOption === "all" || viewOption === "gas_station") &&
+        {(viewOption === "all" || viewOption === "gas-station") &&
           filteredGasStations.map(
             (
               station: {
@@ -315,7 +315,7 @@ const GazaMap: React.FC<GazaMapProps> = ({ data }) => {
               index: any
             ) => (
               <Marker
-                key={`gas-${index}`}
+                key={`restaurant-${index}`}
                 position={restaurant.coordinates[0] as [number, number]}
                 icon={restaurantIcon}
               >
@@ -328,30 +328,30 @@ const GazaMap: React.FC<GazaMapProps> = ({ data }) => {
             )
           )}
 
-        {(viewOption === "all" || viewOption === "stores") &&
-          filteredCarServices.map(
+        {(viewOption === "all" || viewOption === "aids") &&
+          filteredAids.map(
             (
-              car_service: {
+              aid: {
                 coordinates: any;
                 name: string;
               },
               index: any
             ) => (
               <Marker
-                key={`gas-${index}`}
-                position={car_service.coordinates[0] as [number, number]}
-                icon={ActiveStoreIcon}
+                key={`aid-${index}`}
+                position={aid.coordinates[0] as [number, number]}
+                icon={Package}
               >
                 <Popup>
                   <div style={{ textAlign: "right" }}>
-                    <h3 style={{ margin: 0 }}>{car_service.name}</h3>{" "}
+                    <h3 style={{ margin: 0 }}>{aid.name}</h3>{" "}
                   </div>
                 </Popup>
               </Marker>
             )
           )}
 
-        {(viewOption === "all" || viewOption === "car_services") &&
+        {(viewOption === "all" || viewOption === "car-services") &&
           filteredCarServices.map(
             (
               car_service: {
@@ -374,7 +374,7 @@ const GazaMap: React.FC<GazaMapProps> = ({ data }) => {
             )
           )}
 
-        {(viewOption === "all" || viewOption === "petrol_station") &&
+        {(viewOption === "all" || viewOption === "petrol-stations") &&
           filteredPetrolStations.map(
             (
               petrol_station: {
@@ -420,7 +420,7 @@ const GazaMap: React.FC<GazaMapProps> = ({ data }) => {
             )
           )}
 
-          {(viewOption === "all" || viewOption === "delivery") &&
+        {(viewOption === "all" || viewOption === "delivery") &&
           filteredDelivery.map(
             (
               delivery: {
@@ -448,19 +448,22 @@ const GazaMap: React.FC<GazaMapProps> = ({ data }) => {
             (store: {
               id: number;
               name: string;
-              staus: boolean;
-              coordinates: Coordinates;
+              status: string;
+              coordinates: any;
             }) => (
               <Marker
                 key={`store-${store.id}`}
-                position={[
-                  store.coordinates[0] as number,
-                  store.coordinates[1] as number,
-                ]}
-                icon={store.staus ? ActiveStoreIcon : InactiveStoreIcon}
+                position={store.coordinates as [number, number]}
+                icon={
+                  store.status === "active"
+                    ? ActiveStoreIcon
+                    : InactiveStoreIcon
+                }
               >
                 <Popup>
-                  <div>{store.name}</div>
+                  <Link href={`stores/${store.id}`}>
+                    <div>{store.name}</div>
+                  </Link>
                 </Popup>
               </Marker>
             )
