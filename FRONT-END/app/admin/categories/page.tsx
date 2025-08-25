@@ -228,7 +228,7 @@ export default function CategoriesPage() {
         {filteredCategories.map((category) => (
           <div
             key={category.id}
-            className="flex items-center justify-between bg-white rounded-md p-4 shadow-md"
+            className="flex items-center justify-between bg-background text-foreground rounded-md p-4 shadow-md"
           >
             <span>{category.name}</span>
             <div className="flex gap-1">

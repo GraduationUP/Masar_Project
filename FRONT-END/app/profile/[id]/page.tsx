@@ -48,6 +48,8 @@ import {
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import Header from "@/components/main_layout/header";
+import PageBanner from "@/components/main_layout/PageBanner";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function ProfilePage() {
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
@@ -348,6 +350,10 @@ export default function ProfilePage() {
   return (
     <>
       <Header />
+      <PageBanner>
+        {ownerData.username === data.username && "مرحباً"} {data.first_name}{" "}
+        {data.last_name}
+      </PageBanner>
       <div className="container px-4 md:px-6 py-8">
         <div className="flex flex-col w-full gap-8">
           <div className="flex flex-col md:flex-row gap-4 md:items-center md:justify-between">
@@ -382,7 +388,7 @@ export default function ProfilePage() {
               success
             />
             <CustomAlert
-              message=""
+              message="حدث خطأ ما! يرجى المحاولة مرة أخرى"
               show={failure}
               onClose={() => setFailure(false)}
               success={false}
@@ -393,7 +399,7 @@ export default function ProfilePage() {
                 <div className="flex" title="ابلاغ">
                   {ownerData.role === "seller" && <Badge>صاحب متجر</Badge>}
                 </div>
-                {isUser && ownerData.username === "" && (
+                {isUser && ownerData.username !== "" && (
                   <Dialog open={open} onOpenChange={setOpen}>
                     <DialogTrigger asChild>
                       <Button variant={"outline"} title="ابلاغ">
@@ -879,7 +885,7 @@ export default function ProfilePage() {
                                   <div>{comment.comment}</div>
                                   <div className="text-primary text-sm">
                                     <Link
-                                      href={`/store/${comment.store_id}`}
+                                      href={`/stores/${comment.store_id}`}
                                       className="flex gap-2"
                                     >
                                       <Store />
