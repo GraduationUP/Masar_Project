@@ -11,14 +11,15 @@ use Illuminate\Support\Facades\Hash;
 class UserController extends Controller
 {
 
-public function show()
+    public function show()
     {
         $user = Auth::user(); // المستخدم الحالي
 
         $user->load([
-            'store',       // لتحميل المتجر إذا موجود
-            'comments.store', // لتحميل اسم المتجر مع التعليقات
-            'ratings.store'   // لتحميل اسم المتجر مع التقييمات
+            'store',            // لتحميل المتجر إذا موجود
+            'comments.store',   // لتحميل اسم المتجر مع التعليقات
+            'ratings.store',    // لتحميل اسم المتجر مع التقييمات
+            'favouriteStores'   // إضافة المفضلات
         ]);
 
         // تجهيز response
@@ -33,6 +34,9 @@ public function show()
                 'id' => $user->store->id,
                 'name' => $user->store->store_name,
                 'description' => $user->store->description,
+
+                'store_image' => $user->store->id_card_photo ? asset('storage/' . $user->store->id_card_photo) : null,
+
                 'created_at' => $user->store->created_at,
             ] : null,
             'comments' => $user->comments->map(function ($comment) {
@@ -53,6 +57,19 @@ public function show()
                     'created_at' => $rating->created_at,
                 ];
             }),
+            'favourites' => $user->favouriteStores->map(function ($store) {
+                return [
+                    'id' => $store->id,
+                    'store_name' => $store->store_name,
+                    'phone' => $store->phone,
+                    'location_address' => $store->location_address,
+                    'status' => $store->status,
+                    'latitude' => $store->latitude,
+                    'longitude' => $store->longitude,
+                    'store_image' => $store->id_card_photo ? asset('storage/' . $store->id_card_photo) : null,
+                    'created_at' => $store->created_at,
+                ];
+            }),
         ];
 
         return response()->json($response);
@@ -60,71 +77,28 @@ public function show()
 
 
 
- public function update(Request $request, $id)
-{
-    $user = User::findOrFail($id);
 
-    if (Auth::id() !== $user->id) {
-        return response()->json(['message' => 'غير مصرح'], 403);
+    public function changePassword(Request $request)
+    {
+        $request->validate([
+            'current_password' => 'required|string',
+            'password' => 'required|string|min:8|confirmed',
+        ], [
+            'current_password.required' => 'كلمة المرور الحالية مطلوبة',
+            'password.required' => 'كلمة المرور الجديدة مطلوبة',
+            'password.min' => 'كلمة المرور الجديدة يجب أن تحتوي على 8 أحرف على الأقل',
+            'password.confirmed' => 'تأكيد كلمة المرور غير متطابق',
+        ]);
+
+        $user = Auth::user();
+
+        if (!Hash::check($request->current_password, $user->password)) {
+            return response()->json(['message' => 'كلمة المرور الحالية غير صحيحة'], 422);
+        }
+
+        $user->password = bcrypt($request->password);
+        $user->save();
+
+        return response()->json(['message' => 'تم تحديث كلمة المرور بنجاح']);
     }
-
-    $validated = $request->validate([
-        'first_name' => 'required|string|max:255',
-        'last_name' => 'required|string|max:255',
-        'username' => 'required|string|max:255|unique:users,username,' . $user->id,
-        'email' => 'required|email|max:255|unique:users,email,' . $user->id,
-    ], [
-        'first_name.required' => 'الاسم الأول مطلوب',
-        'last_name.required' => 'اسم العائلة مطلوب',
-        'username.required' => 'اسم المستخدم مطلوب',
-        'username.unique' => 'اسم المستخدم موجود بالفعل',
-        'email.required' => 'البريد الإلكتروني مطلوب',
-        'email.email' => 'صيغة البريد الإلكتروني غير صحيحة',
-        'email.unique' => 'البريد الإلكتروني مستخدم بالفعل',
-    ]);
-
-    $user->first_name = $validated['first_name'];
-    $user->last_name = $validated['last_name'];
-    $user->username = $validated['username'];
-    $user->email = $validated['email'];
-    $user->save();
-
-    return response()->json([
-        'message' => 'تم تحديث الملف الشخصي بنجاح',
-        'user' => [
-            'id' => $user->id,
-            'first_name' => $user->first_name,
-            'last_name' => $user->last_name,
-            'username' => $user->username,
-            'email' => $user->email,
-        ]
-    ]);
-}
-
-
-
-  public function changePassword(Request $request)
-{
-    $request->validate([
-        'current_password' => 'required|string',
-        'password' => 'required|string|min:8|confirmed',
-    ], [
-        'current_password.required' => 'كلمة المرور الحالية مطلوبة',
-        'password.required' => 'كلمة المرور الجديدة مطلوبة',
-        'password.min' => 'كلمة المرور الجديدة يجب أن تحتوي على 8 أحرف على الأقل',
-        'password.confirmed' => 'تأكيد كلمة المرور غير متطابق',
-    ]);
-
-    $user = Auth::user();
-
-    if (!Hash::check($request->current_password, $user->password)) {
-        return response()->json(['message' => 'كلمة المرور الحالية غير صحيحة'], 422);
-    }
-
-    $user->password = bcrypt($request->password);
-    $user->save();
-
-    return response()->json(['message' => 'تم تحديث كلمة المرور بنجاح']);
-}
-
 }
