@@ -1,9 +1,14 @@
+import Header from "@/components/main_layout/header";
+import PageBanner from "@/components/main_layout/PageBanner";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default function Loading() {
   return (
+    <>
+    <Header />
+    <PageBanner>{" "}</PageBanner>
     <div className="container px-4 md:px-6 py-8">
       <div className="flex flex-col w-full gap-8">
         <div className="flex flex-col md:flex-row gap-4 md:items-center md:justify-between">
@@ -16,8 +21,10 @@ export default function Loading() {
           </div>
         </div>
         <div className="flex flex-col md:flex-row gap-8">
-          {/* Sidebar */}
-          <Card className="w-full md:w-1/3 h-fit">
+          
+          {/* Main Content */}
+          <div className="flex-grow space-y-6 w-full">
+          <Card className="w-full h-fit">
             <CardContent className="p-6">
               <div className="flex justify-center">
                 <Skeleton className="h-24 w-24 rounded-full" />
@@ -45,9 +52,6 @@ export default function Loading() {
               </div>
             </CardContent>
           </Card>
-
-          {/* Main Content */}
-          <div className="flex-grow space-y-6 w-full md:w-2/3">
             <Card>
               <CardHeader>
                 <CardTitle><Skeleton className="h-6 w-[100px]" /></CardTitle>
@@ -130,5 +134,5 @@ export default function Loading() {
         </div>
       </div>
     </div>
-  );
+ </> );
 }

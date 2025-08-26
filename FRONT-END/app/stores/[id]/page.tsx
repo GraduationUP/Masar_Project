@@ -479,7 +479,7 @@ export default function StorePage() {
               </Link>
             </Button>
             {isUser && notOwner && (
-              <Button variant="ghost" className="rounded-full" onClick={addFav}>
+              <Button variant="outline" className="rounded-full" onClick={addFav}>
                 {userfeedback.is_favorite ? (
                   <Image
                     src={"/ui/Heart-full.svg"}

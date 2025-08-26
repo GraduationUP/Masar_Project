@@ -48,6 +48,8 @@ import {
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import Header from "@/components/main_layout/header";
+import PageBanner from "@/components/main_layout/PageBanner";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function ProfilePage() {
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
@@ -348,6 +350,10 @@ export default function ProfilePage() {
   return (
     <>
       <Header />
+      <PageBanner>
+        {ownerData.username === data.username && "مرحباً"} {data.first_name}{" "}
+        {data.last_name}
+      </PageBanner>
       <div className="container px-4 md:px-6 py-8">
         <div className="flex flex-col w-full gap-8">
           <div className="flex flex-col md:flex-row gap-4 md:items-center md:justify-between">
@@ -382,112 +388,114 @@ export default function ProfilePage() {
               success
             />
             <CustomAlert
-              message=""
+              message="حدث خطأ ما! يرجى المحاولة مرة أخرى"
               show={failure}
               onClose={() => setFailure(false)}
               success={false}
             />
             {/* Sidebar */}
-            <Card className="w-full md:w-1/3 h-fit">
-              <CardContent className="p-6">
-                <div className="flex" title="ابلاغ">
-                  {ownerData.role === "seller" && <Badge>صاحب متجر</Badge>}
-                </div>
-                {isUser && ownerData.username === "" && (
-                  <Dialog open={open} onOpenChange={setOpen}>
-                    <DialogTrigger asChild>
-                      <Button variant={"outline"} title="ابلاغ">
-                        <Image
-                          src={"/reportFlag.svg"}
-                          alt={"report flag"}
-                          width={30}
-                          height={30}
-                        />
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent>
-                      <DialogHeader>
-                        <DialogTitle>الابلاغ عن مستخدم</DialogTitle>
-                        <DialogDescription>
-                          رجاء اكتب سبب كتابة الابلاغ بدقة
-                        </DialogDescription>
-                      </DialogHeader>
-                      <div className="grid gap-4 py-4">
-                        <div className="grid grid-cols-4 items-center gap-4">
-                          <label
-                            htmlFor="message"
-                            className="text-right text-sm font-medium leading-none text-muted-foreground"
-                          >
-                            الرسالة
-                          </label>
-                          <div className="col-span-3">
-                            <Textarea
-                              id="message"
-                              placeholder="اكتب رسالة الابلاغ هنا!"
-                              value={message}
-                              onChange={(e) => setMessage(e.target.value)}
-                            />
-                          </div>
-                        </div>
-                      </div>
-                      <DialogFooter>
-                        <DialogClose asChild>
-                          <Button variant="secondary">الغاء</Button>
-                        </DialogClose>
-                        <Button onClick={() => handleSendReport(message)}>
-                          ارسال الابلاغ
-                        </Button>
-                      </DialogFooter>
-                    </DialogContent>
-                  </Dialog>
-                )}
-                <div className="flex flex-col items-center text-center">
-                  <div className="relative mb-4">
-                    <Avatar className="h-24 w-24 border-4 border-background">
-                      <AvatarFallback className="text-2xl">
-                        {data.first_name.slice(0, 2)}
-                      </AvatarFallback>
-                    </Avatar>
-                    {ownerData.username === data.username && (
-                      <Button
-                        size="icon"
-                        variant="secondary"
-                        className="absolute bottom-0 right-0 h-8 w-8 rounded-full shadow-md"
-                      >
-                        <Camera className="h-4 w-4" />
-                      </Button>
-                    )}
-                  </div>
-                  <h2 className="text-xl font-bold mt-2">
-                    {data.first_name} {data.last_name}
-                  </h2>
-                </div>
-                <Separator className="my-6" />
-                <div className="space-y-4">
-                  <div className="flex items-center gap-3">
-                    <Star className="h-5 w-5 text-muted-foreground" />
-                    <div>
-                      <p className="font-medium">التقييمات</p>
-                      <p className="text-sm text-muted-foreground">
-                        تقييماتك للمتاجر
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <HelpCircle className="h-5 w-5 text-muted-foreground" />
-                    <div>
-                      <p className="font-medium">مركز المساعدة</p>
-                      <p className="text-sm text-muted-foreground">
-                        احصل على المساعدة والدعم
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
 
             {/* Main Content */}
             <div className={`flex-grow space-y-6 w-full md:w-2/3`}>
+              <Card className="w-full h-fit">
+                <CardContent className="p-6">
+                  <div className="flex" title="ابلاغ">
+                    {ownerData.role === "seller" && (
+                      <Badge className="mb-2">صاحب متجر</Badge>
+                    )}
+                  </div>
+                  {isUser && ownerData.username !== data.username && (
+                    <Dialog open={open} onOpenChange={setOpen}>
+                      <DialogTrigger asChild>
+                        <Button variant={"outline"} title="ابلاغ">
+                          <Image
+                            src={"/reportFlag.svg"}
+                            alt={"report flag"}
+                            width={30}
+                            height={30}
+                          />
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent>
+                        <DialogHeader>
+                          <DialogTitle>الابلاغ عن مستخدم</DialogTitle>
+                          <DialogDescription>
+                            رجاء اكتب سبب كتابة الابلاغ بدقة
+                          </DialogDescription>
+                        </DialogHeader>
+                        <div className="grid gap-4 py-4">
+                          <div className="grid grid-cols-4 items-center gap-4">
+                            <label
+                              htmlFor="message"
+                              className="text-right text-sm font-medium leading-none text-muted-foreground"
+                            >
+                              الرسالة
+                            </label>
+                            <div className="col-span-3">
+                              <Textarea
+                                id="message"
+                                placeholder="اكتب رسالة الابلاغ هنا!"
+                                value={message}
+                                onChange={(e) => setMessage(e.target.value)}
+                              />
+                            </div>
+                          </div>
+                        </div>
+                        <DialogFooter>
+                          <DialogClose asChild>
+                            <Button variant="secondary">الغاء</Button>
+                          </DialogClose>
+                          <Button onClick={() => handleSendReport(message)}>
+                            ارسال الابلاغ
+                          </Button>
+                        </DialogFooter>
+                      </DialogContent>
+                    </Dialog>
+                  )}
+                  <div className="flex flex-col items-center text-center">
+                    <div className="relative mb-4">
+                      <Avatar className="h-24 w-24 border-4 border-background">
+                        <AvatarFallback className="text-2xl">
+                          {data.first_name.slice(0, 2)}
+                        </AvatarFallback>
+                      </Avatar>
+                      {ownerData.username === data.username && (
+                        <Button
+                          size="icon"
+                          variant="secondary"
+                          className="absolute bottom-0 right-0 h-8 w-8 rounded-full shadow-md"
+                        >
+                          <Camera className="h-4 w-4" />
+                        </Button>
+                      )}
+                    </div>
+                    <h2 className="text-xl font-bold mt-2">
+                      {data.first_name} {data.last_name}
+                    </h2>
+                  </div>
+                  <Separator className="my-6" />
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-3">
+                      <Star className="h-5 w-5 text-muted-foreground" />
+                      <div>
+                        <p className="font-medium">التقييمات</p>
+                        <p className="text-sm text-muted-foreground">
+                          تقييماتك للمتاجر
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <HelpCircle className="h-5 w-5 text-muted-foreground" />
+                      <div>
+                        <p className="font-medium">مركز المساعدة</p>
+                        <p className="text-sm text-muted-foreground">
+                          احصل على المساعدة والدعم
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
               {ownerData.username === data.username && (
                 <Tabs defaultValue="account" className="w-full">
                   <TabsList className="grid w-full grid-cols-4 rounded-lg mb-6">
@@ -844,6 +852,9 @@ export default function ProfilePage() {
                           <TabsTrigger value="user_ratings">
                             التقييمات
                           </TabsTrigger>
+                          <TabsTrigger value="user_favorites">
+                            المفضلة
+                          </TabsTrigger>
                         </TabsList>
                         {/* Tabs content: Yeah this is Osama not AI you dumbass */}
                         {/* Comments Tab */}
@@ -879,7 +890,7 @@ export default function ProfilePage() {
                                   <div>{comment.comment}</div>
                                   <div className="text-primary text-sm">
                                     <Link
-                                      href={`/store/${comment.store_id}`}
+                                      href={`/stores/${comment.store_id}`}
                                       className="flex gap-2"
                                     >
                                       <Store />
@@ -946,6 +957,10 @@ export default function ProfilePage() {
                             </div>
                           ))}
                         </TabsContent>
+                        {/* Favorites Tab */}
+                        <TabsContent value="user_favorites">
+                          
+                        </TabsContent>
                       </Tabs>
                     </Card>
                   </TabsContent>
@@ -957,7 +972,7 @@ export default function ProfilePage() {
                     <div className="relative h-32 w-full">
                       <img
                         src={"/Banner.svg"}
-                        alt={data.store?.store_name}
+                        alt={data.store?.id_card_photo}
                         className="h-full w-full object-cover"
                       />
                       <div className="absolute bottom-4 left-4 bg-background/80 backdrop-blur-sm rounded-full p-1">
