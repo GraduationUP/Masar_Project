@@ -1,5 +1,6 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { Suspense, useState, lazy } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -8,7 +9,7 @@ import { Loader } from "lucide-react";
 import Header from "@/components/main_layout/header";
 import { Label } from "@/components/ui/label";
 import { CustomAlert } from "@/components/customAlert";
-import { redirect } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 const LeafletMap = lazy(() =>
   import("@/components/LeafLetMap").then((module) => ({
@@ -25,7 +26,7 @@ interface StoreData {
   longitude: string;
 }
 
-export default function CreateStorePage() {
+function CreateStorePage() {
   const [success, setSuccess] = useState(false);
   const [failure, setFailure] = useState(false);
   const [storeData, setStoreData] = useState<StoreData>({
@@ -33,17 +34,29 @@ export default function CreateStorePage() {
     phone: "",
     location_address: "",
     id_card_photo: null,
-    latitude: "31.518", // Adjusted initial latitude for Gaza
-    longitude: "34.466", // Adjusted initial longitude for Gaza
+    latitude: "31.518",
+    longitude: "34.466",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const BASE_API_URL = process.env.NEXT_PUBLIC_API_URL;
+  const router = useRouter();
 
   async function handleCreateStore(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setIsSubmitting(true);
-    const authToken = localStorage.getItem("authToken");
+
+    let authToken: string | null = null;
+    if (typeof window !== "undefined") {
+      authToken = localStorage.getItem("authToken");
+    }
+
+    if (!authToken) {
+      setFailure(true);
+      setIsSubmitting(false);
+      return;
+    }
+
     const formData = new FormData();
     formData.append("store_name", storeData.store_name);
     formData.append("phone", storeData.phone);
@@ -66,7 +79,7 @@ export default function CreateStorePage() {
       if (response.ok) {
         setSuccess(true);
         setTimeout(() => {
-          redirect("/seller/dashboard");
+          router.push("/seller/dashboard");
         }, 1000);
       } else {
         setFailure(true);
@@ -214,3 +227,5 @@ export default function CreateStorePage() {
     </>
   );
 }
+
+export default dynamic(() => Promise.resolve(CreateStorePage), { ssr: false });
