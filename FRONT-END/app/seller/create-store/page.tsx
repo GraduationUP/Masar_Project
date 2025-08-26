@@ -36,7 +36,6 @@ export default function CreateStorePage() {
     latitude: "31.518", // Adjusted initial latitude for Gaza
     longitude: "34.466", // Adjusted initial longitude for Gaza
   });
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const BASE_API_URL = process.env.NEXT_PUBLIC_API_URL;
@@ -44,7 +43,6 @@ export default function CreateStorePage() {
   async function handleCreateStore(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setIsSubmitting(true);
-    setErrorMessage(null);
     const authToken = localStorage.getItem("authToken");
     const formData = new FormData();
     formData.append("store_name", storeData.store_name);
@@ -65,15 +63,15 @@ export default function CreateStorePage() {
         body: formData,
       });
 
-      if (!response.ok) {
-        const errorData = await response.json();
+      if (response.ok) {
+        setSuccess(true);
+        setTimeout(() => {
+          redirect("/seller/dashboard");
+        }, 1000);
+      } else {
         setFailure(true);
-        throw new Error(errorData?.message || "Failed to create store");
       }
-      setSuccess(true);
-      redirect("/seller/dashboard");
-    } catch (error: any) {
-      setErrorMessage(error.message);
+    } catch (error) {
       setFailure(true);
     } finally {
       setIsSubmitting(false);
@@ -127,14 +125,6 @@ export default function CreateStorePage() {
         <Card className="container mx-6">
           <CardContent>
             <h3 className="mb-4 text-xl">انشاء متجرك الخاص</h3>
-            {errorMessage && (
-              <div
-                className="p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400"
-                role="alert"
-              >
-                <span className="font-medium">حدث خطأ:</span> {errorMessage}
-              </div>
-            )}
             <form onSubmit={handleCreateStore} className="space-y-4">
               <div>
                 <Label htmlFor="store_name">اسم المتجر:</Label>

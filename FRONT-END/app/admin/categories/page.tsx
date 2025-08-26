@@ -78,15 +78,10 @@ export default function CategoriesPage() {
         setFailure(true);
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      const json = await response.json();
-      if (json.status) {
-        fetchCategories();
-        setNewCategoryName("");
-        setMessage("تم إضافة الفئة بنجاح");
-        setSuccess(true);
-      } else {
-        console.error("API returned status false for categories:", json);
-      }
+      fetchCategories();
+      setNewCategoryName("");
+      setMessage("تم إضافة الفئة بنجاح");
+      setSuccess(true);
     } catch (error) {
       console.error("Error adding category:", error);
       setFailure(true);
@@ -204,7 +199,9 @@ export default function CategoriesPage() {
             <DialogFooter>
               <Button type="submit">اضافة</Button>
               <DialogClose asChild>
-                <Button type="button" variant={"outline"}>الغاء</Button>
+                <Button type="button" variant={"outline"}>
+                  الغاء
+                </Button>
               </DialogClose>
             </DialogFooter>
           </form>
@@ -244,7 +241,9 @@ export default function CategoriesPage() {
                 }}
               >
                 <DialogTrigger asChild>
-                  <Button onClick={() => setEditingCategoryId(category.id)}>تعديل</Button>
+                  <Button onClick={() => setEditingCategoryId(category.id)}>
+                    تعديل
+                  </Button>
                 </DialogTrigger>
                 <DialogContent>
                   <DialogTitle>تعديل الفئة "{category.name}"</DialogTitle>
@@ -262,7 +261,9 @@ export default function CategoriesPage() {
                     <DialogFooter>
                       <Button type="submit">تعديل</Button>
                       <DialogClose asChild>
-                        <Button type="button" variant={"outline"}>الغاء</Button>
+                        <Button type="button" variant={"outline"}>
+                          الغاء
+                        </Button>
                       </DialogClose>
                     </DialogFooter>
                   </form>
