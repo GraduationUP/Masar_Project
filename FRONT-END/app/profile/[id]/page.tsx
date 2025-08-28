@@ -972,11 +972,13 @@ export default function ProfilePage() {
                         className="h-full w-full object-cover"
                       />
                       <div className="absolute bottom-4 left-4 bg-background/80 backdrop-blur-sm rounded-full p-1">
-                        <img
-                          src={data.store?.store_image}
-                          alt={`${data.store?.store_name} logo`}
-                          className="h-12 w-12 rounded-full border-2 border-background"
-                        />
+                        {data.store?.store_image !== "" && (
+                          <img
+                            src={data.store?.store_image}
+                            alt={`${data.store?.store_name} logo`}
+                            className="h-12 w-12 rounded-full border-2 border-background"
+                          />
+                        )}
                       </div>
                     </div>
                     <CardContent className="p-4">
