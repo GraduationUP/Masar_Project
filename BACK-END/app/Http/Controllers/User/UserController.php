@@ -33,10 +33,7 @@ class UserController extends Controller
             'store' => $user->store ? [
                 'id' => $user->store->id,
                 'name' => $user->store->store_name,
-                'description' => $user->store->description,
-
                 'store_image' => $user->store->id_card_photo ? asset('storage/' . $user->store->id_card_photo) : null,
-
                 'created_at' => $user->store->created_at,
             ] : null,
             'comments' => $user->comments->map(function ($comment) {

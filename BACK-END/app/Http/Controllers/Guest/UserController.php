@@ -10,20 +10,31 @@ use Illuminate\Http\Request;
 
 class UserController extends Controller
 {
- public function show($id)
- {
-  $user = User::with('store')->findOrFail($id);
+    public function show($id)
+    {
+        $user = User::with([
+            'store'  // لجلب بيانات المتجر
+        ])->findOrFail($id);
 
-  return response()->json([
-   'id' => $user->id,
-   'first_name' => $user->first_name,
-   'last_name' => $user->last_name,
-   'username' => $user->username,
-   'store' => $user->store,
-  ]);
- }
+        $response = [
+            'id' => $user->id,
+            'first_name' => $user->first_name,
+            'last_name' => $user->last_name,
+            'username' => $user->username,
+            'store' => $user->store ? [
+                'id' => $user->store->id,
+                'name' => $user->store->store_name,
+                'store_image' => $user->store->id_card_photo ? asset('storage/' . $user->store->id_card_photo) : null,
 
- public function search(Request $request)
+                'created_at' => $user->store->created_at,
+            ] : null,
+        ];
+
+        return response()->json($response);
+    }
+
+
+    public function search(Request $request)
     {
         $query = $request->input('query');
 
@@ -53,5 +64,3 @@ class UserController extends Controller
         ]);
     }
 }
-
-
