@@ -49,8 +49,6 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import Header from "@/components/main_layout/header";
 import PageBanner from "@/components/main_layout/PageBanner";
-import { Skeleton } from "@/components/ui/skeleton";
-
 export default function ProfilePage() {
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
   const params = useParams();
@@ -67,7 +65,7 @@ export default function ProfilePage() {
     id: any;
     user_id: any;
     store_name: string;
-    id_card_photo: string;
+    store_image: string;
     phone: string;
     location_address: string;
     status: any;
@@ -122,7 +120,7 @@ export default function ProfilePage() {
       id: null,
       user_id: null,
       store_name: "",
-      id_card_photo: "",
+      store_image: "",
       phone: "",
       location_address: "",
       status: null,
@@ -142,7 +140,7 @@ export default function ProfilePage() {
       id: null,
       user_id: null,
       store_name: "",
-      id_card_photo: "",
+      store_image: "",
       phone: "",
       location_address: "",
       status: null,
@@ -958,9 +956,7 @@ export default function ProfilePage() {
                           ))}
                         </TabsContent>
                         {/* Favorites Tab */}
-                        <TabsContent value="user_favorites">
-                          
-                        </TabsContent>
+                        <TabsContent value="user_favorites"></TabsContent>
                       </Tabs>
                     </Card>
                   </TabsContent>
@@ -972,16 +968,12 @@ export default function ProfilePage() {
                     <div className="relative h-32 w-full">
                       <img
                         src={"/Banner.svg"}
-                        alt={data.store?.id_card_photo}
+                        alt={data.store?.store_image}
                         className="h-full w-full object-cover"
                       />
                       <div className="absolute bottom-4 left-4 bg-background/80 backdrop-blur-sm rounded-full p-1">
                         <img
-                          src={
-                            data.store.id_card_photo
-                              ? data.store.id_card_photo
-                              : "/placeholder-store.png"
-                          }
+                          src={data.store?.store_image}
                           alt={`${data.store?.store_name} logo`}
                           className="h-12 w-12 rounded-full border-2 border-background"
                         />
