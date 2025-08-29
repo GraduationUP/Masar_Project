@@ -29,6 +29,7 @@ import {
   Star,
   Store,
   User,
+  UserRound,
 } from "lucide-react";
 import React from "react";
 import { useParams } from "next/navigation";
@@ -73,6 +74,18 @@ export default function ProfilePage() {
     longitude: number | null;
   }
 
+  interface favourites {
+    id: number;
+    store_name: string;
+    phone: string;
+    location_address: string;
+    status: string;
+    latitude: number;
+    longitude: number;
+    store_image: string;
+    created_at: string;
+  }
+
   interface comment {
     id: number;
     store_id: number;
@@ -107,6 +120,7 @@ export default function ProfilePage() {
     store: Store | null;
     comments: [comment] | [];
     ratings: [rating] | [];
+    favourites: [favourites] | [];
   }
 
   const [ownerData, setOwnerData] = useState<OwnerData>({
@@ -129,6 +143,7 @@ export default function ProfilePage() {
     },
     comments: [],
     ratings: [],
+    favourites: [],
   });
 
   const [data, setData] = useState<Data>({
@@ -354,30 +369,6 @@ export default function ProfilePage() {
       </PageBanner>
       <div className="container px-4 md:px-6 py-8">
         <div className="flex flex-col w-full gap-8">
-          <div className="flex flex-col md:flex-row gap-4 md:items-center md:justify-between">
-            <div>
-              <h1 className="text-3xl font-bold tracking-tight">
-                الملف الشخصي
-              </h1>
-              <p className="text-muted-foreground">
-                قم بادارة اعدادت ملفك الشخصي
-              </p>
-            </div>
-            {ownerData.username === data.username && (
-              <div className="flex gap-2">
-                <form onSubmit={HandelLogout}>
-                  <Button
-                    type="submit"
-                    variant="outline"
-                    className="rounded-full"
-                  >
-                    <LogOut className="mr-2 h-4 w-4" />
-                    تسجيل الخروج
-                  </Button>
-                </form>
-              </div>
-            )}
-          </div>
           <div className={"flex flex-col md:flex-row gap-8"}>
             <CustomAlert
               message="تم تحديث البيانات بنجاح"
@@ -397,7 +388,13 @@ export default function ProfilePage() {
             <div className={`flex-grow space-y-6 w-full md:w-2/3`}>
               <Card className="w-full h-fit">
                 <CardContent className="p-6">
-                  <div className="flex" title="ابلاغ">
+                  <div className="flex justify-between mb-2 items-center">
+                    <div className="flex gap-2 items-center">
+                      <UserRound color="#245698" />
+                      <h1 className="text-3xl font-bold tracking-tight">
+                        الملف الشخصي
+                      </h1>
+                    </div>
                     {ownerData.role === "seller" && (
                       <Badge className="mb-2">صاحب متجر</Badge>
                     )}
