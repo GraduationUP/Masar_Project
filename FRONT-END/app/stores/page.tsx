@@ -29,21 +29,7 @@ import PageTitle from "@/components/main_layout/PageTitle";
 import PageBanner from "@/components/main_layout/PageBanner";
 // Import the new component
 import StoreCard_Map from "@/components/stores/storeCardAndMap";
-
-interface Store {
-  id: number;
-  user_id: number;
-  store_name: string;
-  id_card_photo: string;
-  phone: string;
-  location_address: string;
-  status: number;
-  created_at: string;
-  updated_at: string;
-  latitude: string;
-  longitude: string;
-  store_image: string;
-}
+import { Store } from "@/types/store";
 
 interface ApiResponse {
   status: boolean;

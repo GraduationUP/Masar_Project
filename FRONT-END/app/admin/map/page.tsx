@@ -26,6 +26,7 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import Header from "@/components/main_layout/header";
+import { MapData_Market, Mapdata, Coordinates } from "@/types/admin";
 
 const LeafletMap = dynamic(() =>
   import("@/components/LeafLetMap").then((module) => ({
@@ -52,25 +53,6 @@ const GazaMap = dynamic(() => import("@/components/AdminMap"), {
     </div>
   ),
 });
-
-interface Mapdata {
-  typeName: string;
-  id: number;
-  name: string;
-  status: boolean;
-  coordinates: number[];
-}
-
-interface MapData_Market {
-  id: number;
-  name: string;
-  status: boolean;
-  coordinates: number[][];
-}
-
-interface Coordinates {
-  [index: number]: number;
-}
 
 export interface GazaData {
   city: string;

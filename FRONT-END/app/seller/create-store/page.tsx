@@ -10,21 +10,13 @@ import Header from "@/components/main_layout/header";
 import { Label } from "@/components/ui/label";
 import { CustomAlert } from "@/components/customAlert";
 import { useRouter } from "next/navigation";
+import { StoreData } from "@/types/seller";
 
 const LeafletMap = lazy(() =>
   import("@/components/LeafLetMap").then((module) => ({
     default: module.default,
   }))
 );
-
-interface StoreData {
-  store_name: string;
-  phone: string;
-  location_address: string;
-  id_card_photo: File | null;
-  latitude: string;
-  longitude: string;
-}
 
 function CreateStorePage() {
   const [success, setSuccess] = useState(false);

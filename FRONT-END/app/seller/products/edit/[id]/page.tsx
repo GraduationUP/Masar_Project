@@ -24,23 +24,13 @@ import { Switch } from "@/components/ui/switch";
 import { CustomAlert } from "@/components/customAlert";
 import Header from "@/components/main_layout/header";
 import { useParams } from "next/navigation";
+import { Product_form as Product } from "@/types/seller";
 
 const LeafletMap = lazy(() =>
   import("@/components/LeafLetMap").then((module) => ({
     default: module.default,
   }))
 );
-
-interface Product {
-  name: string;
-  description: string;
-  photo: File | null;
-  category_id: number;
-  price: number;
-  latitude: number;
-  longitude: number;
-  show_location: number;
-}
 
 export default function NewProductPage() {
   const BASE_API_URL = process.env.NEXT_PUBLIC_API_URL;

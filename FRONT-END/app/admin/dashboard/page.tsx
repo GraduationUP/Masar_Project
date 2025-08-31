@@ -1,5 +1,4 @@
 "use client";
-// TODO : Add isSubmitting instead of Loading
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
@@ -13,98 +12,13 @@ import UserManagementTab from "@/components/admin/UserMangmentTab";
 import StoreManagementTab from "@/components/admin/StoreManagmentTab";
 import ProductManagementTab from "@/components/admin/ProductManagmentTab";
 import Header from "@/components/main_layout/header";
-import { set } from "react-hook-form";
-
-// Import your interfaces here
-interface Roles {
-  id: number;
-  name: string;
-}
-interface Admin {
-  id: number;
-  username: string;
-}
-interface Ban {
-  id: number;
-  target_id: number;
-  reason: string;
-  banned_by: number;
-  created_at: string;
-  updated_at: string;
-  admin: Admin | null;
-}
-interface UserData {
-  id: number;
-  first_name: string;
-  last_name: string;
-  username: string;
-  email: string;
-  created_at: string;
-  updated_at: string;
-  roles: Roles[];
-  ban: Ban | null;
-}
-interface StoreUser {
-  id: number;
-  first_name: string;
-  last_name: string;
-  username: string;
-  email: string;
-  created_at: string;
-  updated_at: string;
-}
-// Updated StoreData interface
-interface StoreData {
-  id: number;
-  user_id: number;
-  store_name: string;
-  id_card_photo: string;
-  phone: string;
-  location_address: string;
-  status: "pending" | "active" | "inactive" | "banned";
-  created_at: string;
-  updated_at: string;
-  latitude: string | null;
-  longitude: string | null;
-  user: StoreUser;
-}
-interface UserInfo {
-  id: number;
-  username: string;
-  email: string;
-  role: string;
-}
-interface ServiceData {
-  city: string;
-  stores: [];
-  aids: [];
-  market: [];
-  gas_station: [];
-  restaurants: [];
-  car_services: [];
-  petrol_station: [];
-  internet: [];
-  delivery: [];
-}
-interface ProductStore {
-  id: number;
-  store_name: string;
-}
-interface ProductData {
-  id: number;
-  store_id: number;
-  name: string;
-  description: string;
-  photo: null;
-  category_id: number;
-  price: string;
-  latitude: null;
-  longitude: null;
-  show_location: number;
-  created_at: string;
-  updated_at: string;
-  store: ProductStore;
-}
+import {
+  UserInfo,
+  UserData,
+  StoreData,
+  ProductData,
+  ServiceData,
+} from "@/types/admin";
 
 export default function AdminDashboard() {
   const [user, setUser] = useState<UserInfo | null>(null);
@@ -407,7 +321,7 @@ export default function AdminDashboard() {
     (servicesData?.aids?.length || 0) +
     (servicesData?.gas_station?.length || 0) +
     (servicesData?.market?.length || 0) +
-    (servicesData?.car_services?.length || 0) + 
+    (servicesData?.car_services?.length || 0) +
     (servicesData?.stores?.length || 0) +
     (servicesData?.restaurants?.length || 0) +
     (servicesData?.petrol_station?.length || 0) +
