@@ -5,7 +5,6 @@ import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -14,9 +13,6 @@ import {
   Filter,
   Search,
   ShoppingBag,
-  ChevronDown,
-  ChevronUp,
-  MapPinOff,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -29,32 +25,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import Header from "@/components/main_layout/header";
-import dynamic from "next/dynamic";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import Image from "next/image";
-import Link from "next/link";
 import PageTitle from "@/components/main_layout/PageTitle";
 import PageBanner from "@/components/main_layout/PageBanner";
-
-const MapWithNoSSR = dynamic(() => import("@/components/mapWithNoSSR"), {
-  ssr: false,
-  loading: () => null,
-});
-
-interface Store {
-  id: number;
-  user_id: number;
-  store_name: string;
-  id_card_photo: string;
-  phone: string;
-  location_address: string;
-  status: number;
-  created_at: string;
-  updated_at: string;
-  latitude: string;
-  longitude: string;
-  store_image: string;
-}
+// Import the new component
+import StoreCard_Map from "@/components/stores/storeCardAndMap";
+import { Store } from "@/types/store";
 
 interface ApiResponse {
   status: boolean;
@@ -66,9 +41,10 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL;
 export default function StoresPage() {
   const [stores, setStores] = useState<Store[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>("");
-  const [sortBy, setSortBy] = useState<string>("newest"); // 'newest', 'name-asc', 'name-desc'
+  const [sortBy, setSortBy] = useState<string>("newest");
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  // State for controlling the expanded map, moved here
   const [expandedStoreId, setExpandedStoreId] = useState<number | null>(null);
 
   useEffect(() => {
@@ -81,7 +57,12 @@ export default function StoresPage() {
         }
         const json: ApiResponse = await response.json();
         if (json.status && Array.isArray(json.data)) {
-          setStores(json.data);
+          // Convert status to number if it's not already
+          const formattedStores = json.data.map(store => ({
+            ...store,
+            status: typeof store.status === 'string' ? (store.status === 'active' ? 1 : 0) : store.status
+          }));
+          setStores(formattedStores);
         } else {
           setError(
             "API returned an unexpected data structure or status false."
@@ -104,7 +85,6 @@ export default function StoresPage() {
         store.location_address.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
-    // Sort stores
     currentStores.sort((a, b) => {
       if (sortBy === "newest") {
         return (
@@ -121,6 +101,7 @@ export default function StoresPage() {
     return currentStores;
   }, [stores, searchQuery, sortBy]);
 
+  // Function to toggle map, passed down to child component
   const toggleMap = (storeId: number) => {
     setExpandedStoreId(expandedStoreId === storeId ? null : storeId);
   };
@@ -133,10 +114,9 @@ export default function StoresPage() {
         <div className="flex flex-col gap-6">
           <PageTitle
             MainTitle="المتاجر"
-            Subtitle="تصفح قائمة المتاجر المحلية المتاجة"
+            Subtitle="تصفح قائمة المتاجر المحلية المتاحة"
           />
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-            {/* Filter/Sidebar Section */}
             <div className="md:col-span-1 space-y-6">
               <Card>
                 <CardHeader>
@@ -158,7 +138,6 @@ export default function StoresPage() {
                       />
                     </div>
                   </div>
-
                   <div className="space-y-2">
                     <Label htmlFor="sort-stores">ترتيب بواسطة</Label>
                     <Select value={sortBy} onValueChange={setSortBy}>
@@ -176,7 +155,6 @@ export default function StoresPage() {
                       </SelectContent>
                     </Select>
                   </div>
-
                   <div className="pt-2">
                     <Button
                       variant="outline"
@@ -194,8 +172,6 @@ export default function StoresPage() {
                 </CardContent>
               </Card>
             </div>
-
-            {/* Main Content: Store Cards */}
             <div className="md:col-span-3">
               <div className="flex justify-between items-center mb-4">
                 <div className="flex items-center gap-2 md:hidden">
@@ -221,7 +197,6 @@ export default function StoresPage() {
                   </Select>
                 </div>
               </div>
-
               {loading ? (
                 <div className="flex flex-col items-center justify-center py-12 text-center">
                   <p className="text-lg font-medium">جارٍ تحميل المتاجر...</p>
@@ -241,96 +216,20 @@ export default function StoresPage() {
               ) : (
                 <div className="grid grid-cols-1 gap-6">
                   {filteredAndSortedStores.map((store) => (
-                    <Card
+                    // Use the new component here
+                    <StoreCard_Map
                       key={store.id}
-                      className="overflow-hidden h-full flex flex-col"
-                    >
-                      <Link href={`/stores/${store.id}`} className="w-full">
-                        <CardHeader className="flex-grow">
-                          <CardTitle className="text-lg">
-                            <div className="flex gap-2 items-center">
-                              <Avatar>
-                                <AvatarImage
-                                  src={store.store_image}
-                                  alt={store.store_name}
-                                />
-                                <AvatarFallback>
-                                  <Image
-                                    src={"/placeholder-store.png"}
-                                    alt={store.store_name}
-                                    height={50}
-                                    width={50}
-                                    className="rounded-full"
-                                  />
-                                </AvatarFallback>
-                              </Avatar>
-                              {store.store_name}
-                            </div>
-                          </CardTitle>
-                          <CardDescription>
-                            {store.location_address}
-                          </CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                          <p className="text-sm text-gray-600">
-                            <strong>الهاتف:</strong> {store.phone}
-                          </p>
-                          <Badge
-                            className="mt-2"
-                            variant={
-                              store.status === 1 ? "default" : "secondary"
-                            }
-                          >
-                            {store.status === 1 ? "مفتوح" : "مغلق"}
-                          </Badge>
-                        </CardContent>
-                      </Link>
-                      <CardFooter className="flex flex-col items-start pt-4 border-t">
-                        {store.latitude !== null ? (
-                          <Button
-                            variant="outline"
-                            className="w-full flex justify-center items-center gap-2"
-                            onClick={() => toggleMap(store.id)}
-                          >
-                            {expandedStoreId === store.id ? (
-                              <>
-                                إخفاء الخريطة <ChevronUp className="h-4 w-4" />
-                              </>
-                            ) : (
-                              <>
-                                عرض على الخريطة
-                                <ChevronDown className="h-4 w-4" />
-                              </>
-                            )}
-                          </Button>
-                        ) : (
-                          <MapPinOff className="h-4 w-4 text-muted-foreground" />
-                        )}
-                        {expandedStoreId === store.id &&
-                          store.latitude &&
-                          store.longitude && (
-                            <div className="w-full h-64 mt-4 rounded-md overflow-hidden z-0">
-                              <MapWithNoSSR
-                                center={[
-                                  parseFloat(store.latitude),
-                                  parseFloat(store.longitude),
-                                ]}
-                                zoom={15}
-                                markers={[
-                                  {
-                                    position: [
-                                      parseFloat(store.latitude),
-                                      parseFloat(store.longitude),
-                                    ],
-                                    title: store.store_name,
-                                    type: "store",
-                                  },
-                                ]}
-                              />
-                            </div>
-                          )}
-                      </CardFooter>
-                    </Card>
+                      id={store.id}
+                      store_name={store.store_name}
+                      store_image={store.store_image}
+                      location_address={store.location_address}
+                      phone={store.phone}
+                      status={store.status === 1 ? "active" : "inactive"}
+                      latitude={store.latitude}
+                      longitude={store.longitude}
+                      expandedStoreId={expandedStoreId}
+                      toggleMap={toggleMap}
+                    />
                   ))}
                 </div>
               )}

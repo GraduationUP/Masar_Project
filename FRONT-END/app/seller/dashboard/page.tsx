@@ -39,43 +39,7 @@ import {
 } from "@/components/ui/dialog";
 import { CustomAlert } from "@/components/customAlert";
 import Header from "@/components/main_layout/header";
-
-interface Store {
-  id: number;
-  name: string;
-  owner_phone: string;
-  status: string;
-  created_at: string;
-  average_rating: number;
-  latitude: string;
-  longitude: string;
-  id_card_photo_url: string;
-}
-
-interface Product {
-  id: number;
-  name: string;
-  photo: string;
-  price: string;
-  category: string;
-  created_at: string;
-}
-
-interface Data {
-  store: Store;
-  recent_products: Product[];
-  recent_ratings: {
-    user: string;
-    score: number;
-    created_at: string;
-  }[];
-  recent_comments: {
-    id: number;
-    user: string;
-    comment: string;
-    created_at: string;
-  }[];
-}
+import { Store, Product, Data } from "@/types/seller";
 
 export default function SellerDashboard() {
   const BASE_API_URL = process.env.NEXT_PUBLIC_API_URL;

@@ -18,35 +18,13 @@ import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Loader } from "lucide-react";
 import { CustomAlert } from "@/components/customAlert";
+import { OriginalStroe, store_form as store } from "@/types/seller";
 
 const LeafletMap = lazy(() =>
   import("@/components/LeafLetMap").then((module) => ({
     default: module.default,
   }))
 );
-
-interface OriginalStroe {
-  id: number;
-  name: string;
-  owner_phone: string;
-  status: "active" | "inactive" | "pending" | "banned";
-  location_address: string;
-  created_at: string;
-  average_rating: number;
-  latitude: string;
-  longitude: string;
-  id_card_photo_url: string;
-}
-
-interface store {
-  store_name: string;
-  id_card_photo: File | string; // Changed the type to accept both File and string
-  phone: string;
-  location_address: string;
-  status: "active" | "inactive" | "pending" | "banned";
-  latitude: number;
-  longitude: number;
-}
 
 export default function EditStore() {
   const BASE_API_URL = process.env.NEXT_PUBLIC_API_URL;
@@ -195,9 +173,7 @@ export default function EditStore() {
           >
             <CardHeader>
               <CardTitle>
-                <Label htmlFor="name">
-                  اسم المتجر
-                </Label>
+                <Label htmlFor="name">اسم المتجر</Label>
                 <Input
                   id="name"
                   name="store_name"

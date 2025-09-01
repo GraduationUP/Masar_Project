@@ -29,6 +29,7 @@ import {
   Star,
   Store,
   User,
+  UserRound,
 } from "lucide-react";
 import React from "react";
 import { useParams } from "next/navigation";
@@ -49,8 +50,8 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import Header from "@/components/main_layout/header";
 import PageBanner from "@/components/main_layout/PageBanner";
-import { Skeleton } from "@/components/ui/skeleton";
-
+import { OwnerData, Data } from "@/types/user";
+import StoreCard_Map from "@/components/stores/storeCardAndMap";
 export default function ProfilePage() {
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
   const params = useParams();
@@ -63,53 +64,7 @@ export default function ProfilePage() {
   const [isUser, setISUser] = useState(false);
   const [message, setMessage] = useState("");
   const [open, setOpen] = useState(false);
-  interface Store {
-    id: any;
-    user_id: any;
-    store_name: string;
-    id_card_photo: string;
-    phone: string;
-    location_address: string;
-    status: any;
-    latitude: number | null;
-    longitude: number | null;
-  }
-
-  interface comment {
-    id: number;
-    store_id: number;
-    store_name: string;
-    comment: string;
-    created_at: string;
-  }
-
-  interface rating {
-    id: number;
-    store_id: number;
-    store_name: string;
-    rating: number;
-    created_at: string;
-  }
-
-  interface Data {
-    id: number;
-    first_name: string;
-    last_name: string;
-    username: string;
-    store: Store | null;
-  }
-
-  interface OwnerData {
-    id: number;
-    first_name: string;
-    last_name: string;
-    username: string;
-    email: string;
-    role: string;
-    store: Store | null;
-    comments: [comment] | [];
-    ratings: [rating] | [];
-  }
+  const [expandedStoreId, setExpandedStoreId] = useState<number | null>(null);
 
   const [ownerData, setOwnerData] = useState<OwnerData>({
     id: 0,
@@ -122,7 +77,7 @@ export default function ProfilePage() {
       id: null,
       user_id: null,
       store_name: "",
-      id_card_photo: "",
+      store_image: "",
       phone: "",
       location_address: "",
       status: null,
@@ -131,6 +86,7 @@ export default function ProfilePage() {
     },
     comments: [],
     ratings: [],
+    favourites: [],
   });
 
   const [data, setData] = useState<Data>({
@@ -142,7 +98,7 @@ export default function ProfilePage() {
       id: null,
       user_id: null,
       store_name: "",
-      id_card_photo: "",
+      store_image: "",
       phone: "",
       location_address: "",
       status: null,
@@ -343,6 +299,10 @@ export default function ProfilePage() {
     }
   };
 
+  const toggleMap = (storeId: number) => {
+    setExpandedStoreId(expandedStoreId === storeId ? null : storeId);
+  };
+
   if (loading) {
     return <Loading />;
   }
@@ -356,30 +316,6 @@ export default function ProfilePage() {
       </PageBanner>
       <div className="container px-4 md:px-6 py-8">
         <div className="flex flex-col w-full gap-8">
-          <div className="flex flex-col md:flex-row gap-4 md:items-center md:justify-between">
-            <div>
-              <h1 className="text-3xl font-bold tracking-tight">
-                الملف الشخصي
-              </h1>
-              <p className="text-muted-foreground">
-                قم بادارة اعدادت ملفك الشخصي
-              </p>
-            </div>
-            {ownerData.username === data.username && (
-              <div className="flex gap-2">
-                <form onSubmit={HandelLogout}>
-                  <Button
-                    type="submit"
-                    variant="outline"
-                    className="rounded-full"
-                  >
-                    <LogOut className="mr-2 h-4 w-4" />
-                    تسجيل الخروج
-                  </Button>
-                </form>
-              </div>
-            )}
-          </div>
           <div className={"flex flex-col md:flex-row gap-8"}>
             <CustomAlert
               message="تم تحديث البيانات بنجاح"
@@ -399,7 +335,13 @@ export default function ProfilePage() {
             <div className={`flex-grow space-y-6 w-full md:w-2/3`}>
               <Card className="w-full h-fit">
                 <CardContent className="p-6">
-                  <div className="flex" title="ابلاغ">
+                  <div className="flex justify-between mb-2 items-center">
+                    <div className="flex gap-2 items-center">
+                      <UserRound color="#245698" />
+                      <h1 className="text-3xl font-bold tracking-tight">
+                        الملف الشخصي
+                      </h1>
+                    </div>
                     {ownerData.role === "seller" && (
                       <Badge className="mb-2">صاحب متجر</Badge>
                     )}
@@ -839,9 +781,9 @@ export default function ProfilePage() {
                   >
                     <Card>
                       <CardHeader>
-                        <CardTitle>تقييماتك</CardTitle>
+                        <CardTitle>النشاط</CardTitle>
                         <CardDescription>
-                          التقييمات التي قمت بنشرها
+                          تقييماتك والمفضلة
                         </CardDescription>
                       </CardHeader>
                       <Tabs defaultValue="user_comments" className="w-full p-4">
@@ -959,7 +901,23 @@ export default function ProfilePage() {
                         </TabsContent>
                         {/* Favorites Tab */}
                         <TabsContent value="user_favorites">
-                          
+                          {ownerData.favourites.map((favorite) => (
+                            <StoreCard_Map
+                              key={favorite.id}
+                              id={favorite.id}
+                              store_name={favorite.store_name}
+                              store_image={favorite.store_image}
+                              location_address={favorite.location_address}
+                              phone={favorite.phone}
+                              status={
+                                favorite.status === "active" ? "active" : "inactive"
+                              }
+                              latitude={favorite.latitude.toString()} 
+                              longitude={favorite.longitude.toString()}
+                              expandedStoreId={expandedStoreId}
+                              toggleMap={toggleMap}
+                            />
+                          ))}
                         </TabsContent>
                       </Tabs>
                     </Card>
@@ -972,19 +930,17 @@ export default function ProfilePage() {
                     <div className="relative h-32 w-full">
                       <img
                         src={"/Banner.svg"}
-                        alt={data.store?.id_card_photo}
+                        alt={data.store?.store_image}
                         className="h-full w-full object-cover"
                       />
                       <div className="absolute bottom-4 left-4 bg-background/80 backdrop-blur-sm rounded-full p-1">
-                        <img
-                          src={
-                            data.store.id_card_photo
-                              ? data.store.id_card_photo
-                              : "/placeholder-store.png"
-                          }
-                          alt={`${data.store?.store_name} logo`}
-                          className="h-12 w-12 rounded-full border-2 border-background"
-                        />
+                        {data.store?.store_image !== "" && (
+                          <img
+                            src={data.store?.store_image}
+                            alt={`${data.store?.store_name} logo`}
+                            className="h-12 w-12 rounded-full border-2 border-background"
+                          />
+                        )}
                       </div>
                     </div>
                     <CardContent className="p-4">
