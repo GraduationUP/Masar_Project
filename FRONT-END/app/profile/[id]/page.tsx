@@ -50,6 +50,8 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import Header from "@/components/main_layout/header";
 import PageBanner from "@/components/main_layout/PageBanner";
+import { OwnerData, Data } from "@/types/user";
+import StoreCard_Map from "@/components/stores/storeCardAndMap";
 export default function ProfilePage() {
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
   const params = useParams();
@@ -62,66 +64,7 @@ export default function ProfilePage() {
   const [isUser, setISUser] = useState(false);
   const [message, setMessage] = useState("");
   const [open, setOpen] = useState(false);
-  interface Store {
-    id: any;
-    user_id: any;
-    store_name: string;
-    store_image: string;
-    phone: string;
-    location_address: string;
-    status: any;
-    latitude: number | null;
-    longitude: number | null;
-  }
-
-  interface favourites {
-    id: number;
-    store_name: string;
-    phone: string;
-    location_address: string;
-    status: string;
-    latitude: number;
-    longitude: number;
-    store_image: string;
-    created_at: string;
-  }
-
-  interface comment {
-    id: number;
-    store_id: number;
-    store_name: string;
-    comment: string;
-    created_at: string;
-  }
-
-  interface rating {
-    id: number;
-    store_id: number;
-    store_name: string;
-    rating: number;
-    created_at: string;
-  }
-
-  interface Data {
-    id: number;
-    first_name: string;
-    last_name: string;
-    username: string;
-    store: Store | null;
-  }
-
-  interface OwnerData {
-    id: number;
-    first_name: string;
-    last_name: string;
-    username: string;
-    email: string;
-    role: string;
-    store: Store | null;
-    comments: [comment] | [];
-    ratings: [rating] | [];
-    favourites: [favourites] | [];
-  }
+  const [expandedStoreId, setExpandedStoreId] = useState<number | null>(null);
 
   const [ownerData, setOwnerData] = useState<OwnerData>({
     id: 0,
@@ -354,6 +297,10 @@ export default function ProfilePage() {
       setFailure(true);
       console.error("Error sending report:", error);
     }
+  };
+
+  const toggleMap = (storeId: number) => {
+    setExpandedStoreId(expandedStoreId === storeId ? null : storeId);
   };
 
   if (loading) {
@@ -834,9 +781,9 @@ export default function ProfilePage() {
                   >
                     <Card>
                       <CardHeader>
-                        <CardTitle>تقييماتك</CardTitle>
+                        <CardTitle>النشاط</CardTitle>
                         <CardDescription>
-                          التقييمات التي قمت بنشرها
+                          تقييماتك والمفضلة
                         </CardDescription>
                       </CardHeader>
                       <Tabs defaultValue="user_comments" className="w-full p-4">
@@ -953,7 +900,25 @@ export default function ProfilePage() {
                           ))}
                         </TabsContent>
                         {/* Favorites Tab */}
-                        <TabsContent value="user_favorites"></TabsContent>
+                        <TabsContent value="user_favorites">
+                          {ownerData.favourites.map((favorite) => (
+                            <StoreCard_Map
+                              key={favorite.id}
+                              id={favorite.id}
+                              store_name={favorite.store_name}
+                              store_image={favorite.store_image}
+                              location_address={favorite.location_address}
+                              phone={favorite.phone}
+                              status={
+                                favorite.status === "active" ? "active" : "inactive"
+                              }
+                              latitude={favorite.latitude.toString()} 
+                              longitude={favorite.longitude.toString()}
+                              expandedStoreId={expandedStoreId}
+                              toggleMap={toggleMap}
+                            />
+                          ))}
+                        </TabsContent>
                       </Tabs>
                     </Card>
                   </TabsContent>

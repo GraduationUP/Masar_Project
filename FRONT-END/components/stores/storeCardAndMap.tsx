@@ -54,7 +54,7 @@ export default function StoreCard_Map({
           <CardTitle className="text-lg">
             <div className="flex gap-2 items-center">
               <Avatar>
-                <AvatarImage src={store_image} alt={store_name} />
+                <AvatarImage src={store_image} alt={store_name} className="h-12 w-12" />
                 <AvatarFallback>
                   <Image
                     src={"/placeholder-store.png"}
