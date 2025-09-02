@@ -37,7 +37,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { CustomAlert } from "@/components/customAlert";
+import { CustomAlert } from "@/components/ui/customAlert";
 import Header from "@/components/main_layout/header";
 import { Store, Product, Data } from "@/types/seller";
 

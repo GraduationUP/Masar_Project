@@ -35,7 +35,7 @@ import React from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { CustomAlert } from "@/components/customAlert";
+import { CustomAlert } from "@/components/ui/customAlert";
 import Loading from "./loading";
 import {
   Dialog,

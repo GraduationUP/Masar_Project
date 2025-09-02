@@ -21,13 +21,13 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { CustomAlert } from "@/components/customAlert";
+import { CustomAlert } from "@/components/ui/customAlert";
 import Header from "@/components/main_layout/header";
 import { useParams } from "next/navigation";
 import { Product_form as Product } from "@/types/seller";
 
 const LeafletMap = lazy(() =>
-  import("@/components/LeafLetMap").then((module) => ({
+  import("@/components/maps/LeafLetMap").then((module) => ({
     default: module.default,
   }))
 );

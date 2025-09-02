@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AlertTriangle, MapPin, Settings } from "lucide-react";
 import Loading from "./loading";
-import { CustomAlert } from "@/components/customAlert";
+import { CustomAlert } from "@/components/ui/customAlert";
 import AdminOverviewCards from "@/components/admin/AdminOverViewCards";
 import UserManagementTab from "@/components/admin/UserMangmentTab";
 import StoreManagementTab from "@/components/admin/StoreManagmentTab";

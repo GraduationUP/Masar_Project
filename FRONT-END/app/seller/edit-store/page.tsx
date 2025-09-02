@@ -17,11 +17,11 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Loader } from "lucide-react";
-import { CustomAlert } from "@/components/customAlert";
+import { CustomAlert } from "@/components/ui/customAlert";
 import { OriginalStroe, store_form as store } from "@/types/seller";
 
 const LeafletMap = lazy(() =>
-  import("@/components/LeafLetMap").then((module) => ({
+  import("@/components/maps/LeafLetMap").then((module) => ({
     default: module.default,
   }))
 );

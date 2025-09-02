@@ -17,7 +17,7 @@ import { ChevronDown, ChevronUp, MapPinOff } from "lucide-react";
 import dynamic from "next/dynamic";
 // Remove useState import, as the state is now in the parent.
 
-const MapWithNoSSR = dynamic(() => import("@/components/mapWithNoSSR"), {
+const MapWithNoSSR = dynamic(() => import("@/components/maps/mapWithNoSSR"), {
   ssr: false,
   loading: () => null,
 });
