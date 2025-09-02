@@ -17,10 +17,10 @@ import {
   CardTitle,
   CardDescription,
   CardContent,
-} from "./ui/card";
-import { Input } from "./ui/input";
+} from "../ui/card";
+import { Input } from "../ui/input";
 import { Package, Search } from "lucide-react";
-import { Label } from "./ui/label";
+import { Label } from "../ui/label";
 import classes from "./map.module.css";
 import Link from "next/link";
 
