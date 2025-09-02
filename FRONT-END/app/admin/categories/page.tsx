@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { CustomAlert } from "@/components/customAlert";
+import { CustomAlert } from "@/components/ui/customAlert";
 
 interface Category {
   id: number;

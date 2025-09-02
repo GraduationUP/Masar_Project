@@ -7,18 +7,18 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import StarRating from "@/components/starRating";
+import StarRating from "@/components/stores/starRating";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { MapPin, MessageSquare, Phone, ShoppingBag, Star } from "lucide-react";
 import dynamic from "next/dynamic";
 import Loading from "./loading";
 import Image from "next/image";
 import { Textarea } from "@/components/ui/textarea";
-import { CustomAlert } from "@/components/customAlert";
+import { CustomAlert } from "@/components/ui/customAlert";
 import Header from "@/components/main_layout/header";
 import { userFeedback, StoreData, Feedback } from "@/types/store";
 
-const MapWithNoSSR = dynamic(() => import("@/components/mapWithNoSSR"), {
+const MapWithNoSSR = dynamic(() => import("@/components/maps/mapWithNoSSR"), {
   ssr: false,
   loading: () => (
     <div className="h-full w-full bg-muted/30 animate-pulse flex items-center justify-center">

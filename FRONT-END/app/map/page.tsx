@@ -7,7 +7,7 @@ import Loading from "./loading";
 import Header from "@/components/main_layout/header";
 
 // Dynamically import the map component to avoid SSR issues
-const GazaMap = dynamic(() => import("@/components/map"), {
+const GazaMap = dynamic(() => import("@/components/maps/map"), {
   ssr: false,
   loading: () => (
     <div className="h-full w-full bg-muted/30 animate-pulse flex items-center justify-center">

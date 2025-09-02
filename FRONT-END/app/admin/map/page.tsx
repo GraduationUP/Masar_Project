@@ -29,7 +29,7 @@ import Header from "@/components/main_layout/header";
 import { MapData_Market, Mapdata, Coordinates } from "@/types/admin";
 
 const LeafletMap = dynamic(() =>
-  import("@/components/LeafLetMap").then((module) => ({
+  import("@/components/maps/LeafLetMap").then((module) => ({
     default: module.default,
   }))
 );
@@ -37,7 +37,7 @@ const LeafletMap = dynamic(() =>
 type Coordinate = [number, number];
 
 const LeafletMapWithNoSSR = dynamic(
-  () => import("@/components/MultipointMap"),
+  () => import("@/components/maps/MultipointMap"),
   {
     ssr: false,
   }

@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { CustomAlert } from "../customAlert";
+import { CustomAlert } from "../ui/customAlert";
 
 interface SendAllUsersNotificationDialogProps {
   open: boolean;

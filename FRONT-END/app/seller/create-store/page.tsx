@@ -8,12 +8,12 @@ import { Button } from "@/components/ui/button";
 import { Loader } from "lucide-react";
 import Header from "@/components/main_layout/header";
 import { Label } from "@/components/ui/label";
-import { CustomAlert } from "@/components/customAlert";
+import { CustomAlert } from "@/components/ui/customAlert";
 import { useRouter } from "next/navigation";
 import { StoreData } from "@/types/seller";
 
 const LeafletMap = lazy(() =>
-  import("@/components/LeafLetMap").then((module) => ({
+  import("@/components/maps/LeafLetMap").then((module) => ({
     default: module.default,
   }))
 );
