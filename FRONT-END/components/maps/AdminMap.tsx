@@ -340,7 +340,6 @@ const GazaMap: React.FC<GazaMapProps> = ({ data }) => {
               <Marker
                 key={`aid-${index}`}
                 position={aid.coordinates[0] as [number, number]}
-                icon={Package}
               >
                 <Popup>
                   <div style={{ textAlign: "right" }}>
