@@ -81,13 +81,10 @@ export default function StorePage() {
   // Fetch store data
   const fetchStoreData = async () => {
     try {
-      const Auth_Token = localStorage.getItem("authToken");
-      if (!Auth_Token) return;
       const response = await fetch(`${BASE_API_URL}/api/guest/stores/${id}`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${Auth_Token}`,
         },
       });
 
