@@ -15,7 +15,6 @@ import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import { ChevronDown, ChevronUp, MapPinOff } from "lucide-react";
 import dynamic from "next/dynamic";
-// Remove useState import, as the state is now in the parent.
 
 const MapWithNoSSR = dynamic(() => import("@/components/maps/mapWithNoSSR"), {
   ssr: false,
@@ -54,7 +53,11 @@ export default function StoreCard_Map({
           <CardTitle className="text-lg">
             <div className="flex gap-2 items-center">
               <Avatar>
-                <AvatarImage src={store_image} alt={store_name} className="h-12 w-12" />
+                <AvatarImage
+                  src={store_image}
+                  alt={store_name}
+                  className="h-12 w-12"
+                />
                 <AvatarFallback>
                   <Image
                     src={"/placeholder-store.png"}
