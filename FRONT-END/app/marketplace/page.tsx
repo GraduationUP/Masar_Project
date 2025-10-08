@@ -336,7 +336,7 @@ export default function MarketplacePage() {
                           <div className="flex items-center justify-between mt-3">
                             <span className="font-bold">
                               {/* Ensure price is formatted as a number for toFixed */}
-                              ${Number(product.price).toFixed(2)}
+                              ₪{Number(product.price).toFixed(2)}
                             </span>
                           </div>
                         </CardContent>
