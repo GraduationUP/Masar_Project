@@ -9,13 +9,16 @@ use Illuminate\Validation\Rules;
 use Illuminate\Http\JsonResponse;
 use Spatie\Permission\Models\Role;
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Support\Facades\Validator;
 
+
 class RegisteredUserController extends Controller
 {
+    /**
+     *  طلب تسجيل مستخدم جديد.
+     */
     public function store(Request $request): JsonResponse
     {
         $validator = Validator::make($request->all(), [
@@ -31,26 +34,43 @@ class RegisteredUserController extends Controller
             return response()->json(['errors' => $validator->errors()], 422);
         }
 
+        // إنشاء المستخدم
         $user = User::create([
             'first_name' => $request->first_name,
             'last_name' => $request->last_name,
             'username' => $request->username,
             'email' => $request->email,
             'password' => Hash::make($request->password),
-            // لا نحتاج لحقل role هنا لأننا نستخدم spatie/permission
         ]);
 
         // تعيين الدور للمستخدم الجديد
         $this->assignUserRole($user, $request->account_type);
 
         event(new Registered($user));
-        Auth::login($user);
+
+        $token = $user->createToken('auth_token')->plainTextToken;
+
+        //  تحديد مدة الصلاحية
+        $minutes = 60 * 24 * 7;
+
 
         return response()->json([
-            'message' => 'User registered successfully',
-            'user' => $user,
-            'role' => $request->account_type
-        ]);
+            'message' => 'User registered and logged in successfully',
+            'role' => $request->account_type,
+            'user_id' => $user->id,
+            'username' => $user->username,
+        ])
+        ->cookie(
+            'auth_token',                             // اسم الكوكي
+            $token,                                   // قيمة التوكن
+            $minutes,                                 // مدة الصلاحية بالدقائق
+            '/',                                      // المسار (متاح لكل التطبيق)
+            null,                                     // الدومين (null للدومين الحالي)
+            config('app.env') === 'production',       
+            true,                                     // $httpOnly: الأهم! يمنع وصول JavaScript
+            false,                                    // $raw: لا
+            'Strict'                                  // $sameSite: لمنع CSRF
+        );
     }
 
     /**
@@ -70,11 +90,11 @@ class RegisteredUserController extends Controller
      * تحويل account_type إلى اسم دور مناسب
      */
     protected function mapAccountTypeToRole(string $accountType): string
-{
-    return match ($accountType) {
-        'seller' => 'seller',
-        'admin'  => 'admin',
-        default  => 'user',
-    };
-}
+    {
+        return match ($accountType) {
+            'seller' => 'seller',
+            'admin'  => 'admin',
+            default  => 'user',
+        };
+    }
 }
