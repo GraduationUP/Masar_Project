@@ -16,7 +16,7 @@ import Loading from "./loading";
 import Header from "@/components/main_layout/header";
 import PageBanner from "@/components/main_layout/PageBanner";
 
-const MapWithNoSSR = dynamic(() => import("@/components/mapWithNoSSR"), {
+const MapWithNoSSR = dynamic(() => import("@/components/maps/mapWithNoSSR"), {
   ssr: false,
   loading: () => (
     <div className="h-full w-full bg-muted/30 animate-pulse flex items-center justify-center">

@@ -17,10 +17,10 @@ import {
   CardTitle,
   CardDescription,
   CardContent,
-} from "./ui/card";
-import { Input } from "./ui/input";
+} from "../ui/card";
+import { Input } from "../ui/input";
 import { Search } from "lucide-react";
-import { Label } from "./ui/label";
+import { Label } from "../ui/label";
 import classes from "./map.module.css";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -161,9 +161,8 @@ const GazaMap: React.FC<GazaMapProps> = ({ data }) => {
       ? []
       : data.aids.filter(
           (aid: { name: string }) =>
-            viewOption === "all" ||
-            (viewOption === "aids" &&
-              aid.name.toLowerCase().includes(searchTerm.toLowerCase()))
+            (viewOption === "all" || viewOption === "aids") &&
+            aid.name.toLowerCase().includes(searchTerm.toLowerCase())
         );
 
   const filteredMarkets =
@@ -171,9 +170,8 @@ const GazaMap: React.FC<GazaMapProps> = ({ data }) => {
       ? []
       : data.market.filter(
           (market: { name: string }) =>
-            viewOption === "all" ||
-            (viewOption === "market" &&
-              market.name.toLowerCase().includes(searchTerm.toLowerCase()))
+            (viewOption === "all" || viewOption === "market") &&
+            market.name.toLowerCase().includes(searchTerm.toLowerCase())
         );
 
   const filteredGasStations =
@@ -181,9 +179,8 @@ const GazaMap: React.FC<GazaMapProps> = ({ data }) => {
       ? []
       : data.gas_station.filter(
           (station: { name: string }) =>
-            viewOption === "all" ||
-            (viewOption === "gas_station" &&
-              station.name.toLowerCase().includes(searchTerm.toLowerCase()))
+            (viewOption === "all" || viewOption === "gas_station") &&
+            station.name.toLowerCase().includes(searchTerm.toLowerCase())
         );
 
   const filteredStores =
@@ -191,9 +188,8 @@ const GazaMap: React.FC<GazaMapProps> = ({ data }) => {
       ? []
       : data.stores.filter(
           (store: { name: string }) =>
-            viewOption === "all" ||
-            (viewOption === "stores" &&
-              store.name.toLowerCase().includes(searchTerm.toLowerCase()))
+            (viewOption === "all" || viewOption === "stores") &&
+            store.name.toLowerCase().includes(searchTerm.toLowerCase())
         );
 
   const filteredRestaurants =
@@ -201,9 +197,8 @@ const GazaMap: React.FC<GazaMapProps> = ({ data }) => {
       ? []
       : data.restaurants.filter(
           (store: { name: string }) =>
-            viewOption === "all" ||
-            (viewOption === "restaurants" &&
-              store.name.toLowerCase().includes(searchTerm.toLowerCase()))
+            (viewOption === "all" || viewOption === "restaurants") &&
+            store.name.toLowerCase().includes(searchTerm.toLowerCase())
         );
 
   const filteredCarServices =
@@ -211,9 +206,8 @@ const GazaMap: React.FC<GazaMapProps> = ({ data }) => {
       ? []
       : data.car_services.filter(
           (store: { name: string }) =>
-            viewOption === "all" ||
-            (viewOption === "car_services" &&
-              store.name.toLowerCase().includes(searchTerm.toLowerCase()))
+            (viewOption === "all" || viewOption === "car_services") &&
+            store.name.toLowerCase().includes(searchTerm.toLowerCase())
         );
 
   const filteredPetrolStations =
@@ -221,9 +215,8 @@ const GazaMap: React.FC<GazaMapProps> = ({ data }) => {
       ? []
       : data.petrol_station.filter(
           (store: { name: string }) =>
-            viewOption === "all" ||
-            (viewOption === "petrol_station" &&
-              store.name.toLowerCase().includes(searchTerm.toLowerCase()))
+            (viewOption === "all" || viewOption === "petrol_station") &&
+            store.name.toLowerCase().includes(searchTerm.toLowerCase())
         );
 
   const filteredInternet =
@@ -231,9 +224,8 @@ const GazaMap: React.FC<GazaMapProps> = ({ data }) => {
       ? []
       : data.internet.filter(
           (store: { name: string }) =>
-            viewOption === "all" ||
-            (viewOption === "internet" &&
-              store.name.toLowerCase().includes(searchTerm.toLowerCase()))
+            (viewOption === "all" || viewOption === "internet") &&
+            store.name.toLowerCase().includes(searchTerm.toLowerCase())
         );
 
   const filteredDelivery =
@@ -241,9 +233,8 @@ const GazaMap: React.FC<GazaMapProps> = ({ data }) => {
       ? []
       : data.delivery.filter(
           (store: { name: string }) =>
-            viewOption === "all" ||
-            (viewOption === "delivery" &&
-              store.name.toLowerCase().includes(searchTerm.toLowerCase()))
+            (viewOption === "all" || viewOption === "delivery") &&
+            store.name.toLowerCase().includes(searchTerm.toLowerCase())
         );
 
   return (

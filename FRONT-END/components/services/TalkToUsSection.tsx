@@ -7,7 +7,7 @@ import { Textarea } from "../ui/textarea";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { sendEmail } from "@/lib/resend";
-import { CustomAlert } from "../customAlert";
+import { CustomAlert } from "../ui/customAlert";
 import { useState } from "react";
 
 export default function TalkToUsSection() {

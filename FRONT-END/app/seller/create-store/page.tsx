@@ -1,5 +1,6 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { Suspense, useState, lazy } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -7,25 +8,17 @@ import { Button } from "@/components/ui/button";
 import { Loader } from "lucide-react";
 import Header from "@/components/main_layout/header";
 import { Label } from "@/components/ui/label";
-import { CustomAlert } from "@/components/customAlert";
-import { redirect } from "next/navigation";
+import { CustomAlert } from "@/components/ui/customAlert";
+import { useRouter } from "next/navigation";
+import { StoreData } from "@/types/seller";
 
 const LeafletMap = lazy(() =>
-  import("@/components/LeafLetMap").then((module) => ({
+  import("@/components/maps/LeafLetMap").then((module) => ({
     default: module.default,
   }))
 );
 
-interface StoreData {
-  store_name: string;
-  phone: string;
-  location_address: string;
-  id_card_photo: File | null;
-  latitude: string;
-  longitude: string;
-}
-
-export default function CreateStorePage() {
+function CreateStorePage() {
   const [success, setSuccess] = useState(false);
   const [failure, setFailure] = useState(false);
   const [storeData, setStoreData] = useState<StoreData>({
@@ -33,19 +26,29 @@ export default function CreateStorePage() {
     phone: "",
     location_address: "",
     id_card_photo: null,
-    latitude: "31.518", // Adjusted initial latitude for Gaza
-    longitude: "34.466", // Adjusted initial longitude for Gaza
+    latitude: "31.518",
+    longitude: "34.466",
   });
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const BASE_API_URL = process.env.NEXT_PUBLIC_API_URL;
+  const router = useRouter();
 
   async function handleCreateStore(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setIsSubmitting(true);
-    setErrorMessage(null);
-    const authToken = localStorage.getItem("authToken");
+
+    let authToken: string | null = null;
+    if (typeof window !== "undefined") {
+      authToken = localStorage.getItem("authToken");
+    }
+
+    if (!authToken) {
+      setFailure(true);
+      setIsSubmitting(false);
+      return;
+    }
+
     const formData = new FormData();
     formData.append("store_name", storeData.store_name);
     formData.append("phone", storeData.phone);
@@ -65,15 +68,15 @@ export default function CreateStorePage() {
         body: formData,
       });
 
-      if (!response.ok) {
-        const errorData = await response.json();
+      if (response.ok) {
+        setSuccess(true);
+        setTimeout(() => {
+          router.push("/seller/dashboard");
+        }, 1000);
+      } else {
         setFailure(true);
-        throw new Error(errorData?.message || "Failed to create store");
       }
-      setSuccess(true);
-      redirect("/seller/dashboard");
-    } catch (error: any) {
-      setErrorMessage(error.message);
+    } catch (error) {
       setFailure(true);
     } finally {
       setIsSubmitting(false);
@@ -127,14 +130,6 @@ export default function CreateStorePage() {
         <Card className="container mx-6">
           <CardContent>
             <h3 className="mb-4 text-xl">انشاء متجرك الخاص</h3>
-            {errorMessage && (
-              <div
-                className="p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400"
-                role="alert"
-              >
-                <span className="font-medium">حدث خطأ:</span> {errorMessage}
-              </div>
-            )}
             <form onSubmit={handleCreateStore} className="space-y-4">
               <div>
                 <Label htmlFor="store_name">اسم المتجر:</Label>
@@ -224,3 +219,5 @@ export default function CreateStorePage() {
     </>
   );
 }
+
+export default dynamic(() => Promise.resolve(CreateStorePage), { ssr: false });

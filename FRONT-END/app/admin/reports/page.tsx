@@ -10,27 +10,7 @@ import { useEffect, useState } from "react";
 import { Check, Hourglass, Clock, Trash } from "lucide-react";
 import { Alert, AlertTitle } from "@/components/ui/alert";
 import PageTitle from "@/components/main_layout/PageTitle";
-type User = {
-  id: number;
-  first_name: string;
-  last_name: string;
-  username: string;
-  email: string;
-  created_at: string;
-  updated_at: string;
-};
-
-type Report = {
-  id: number;
-  user_id: number;
-  reported_user_id: number;
-  message: string;
-  status: "pending" | "resolved" | "in_progress";
-  created_at: string;
-  updated_at: string;
-  user: User;
-  reported_user: User;
-};
+import { Report } from "@/types/admin";
 
 export default function reportsPage() {
   const [reports, setReports] = useState<Array<Report>>([]);
