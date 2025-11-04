@@ -143,30 +143,20 @@ class ProductController extends Controller
         }
     }
 
-    public function destroy(Product $product)
-    {
-        $store = Auth::user()->store;
+   public function destroy(Product $product)
+{
+    $store = Auth::user()->store;
 
-        if (!$store || $product->store_id !== $store->id) {
-            return response()->json(['message' => 'Unauthorized or product not found.'], 403);
-        }
-
-        try {
-            if ($product->photo) {
-                Storage::disk('public')->delete($product->photo);
-            }
-
-            $product->delete();
-
-            Log::info('Product deleted', ['product_id' => $product->id]);
-
-            return response()->json(['message' => 'Product deleted successfully.']);
-        } catch (\Exception $e) {
-            Log::error('Product deletion failed', [
-                'product_id' => $product->id,
-                'error'      => $e->getMessage()
-            ]);
-            return response()->json(['message' => 'Failed to delete product.'], 500);
-        }
+    if (!$store || $product->store_id !== $store->id) {
+        return response()->json(['message' => 'Unauthorized or product not found.'], 403);
     }
+
+    if ($product->photo) {
+        Storage::disk('public')->delete($product->photo);
+    }
+
+    $product->delete();
+
+    return response()->json(['message' => 'Product deleted successfully.']);
+}
 }

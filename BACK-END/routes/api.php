@@ -57,14 +57,11 @@ Route::middleware(['auth:sanctum'])->prefix('seller')->group(function () {
     Route::delete('/store', [StoreController::class, 'destroy']);
     Route::post('/store/toggle-status', [StoreController::class, 'toggleStatus']);
 
-
-
     Route::post('/products', [ProductController::class, 'store']);
     Route::get('/products', [ProductController::class, 'index']);
     Route::put('/products/{product}', [ProductController::class, 'update']);
     Route::delete('/products/{product}', [ProductController::class, 'destroy']);
     Route::get('/dashboard', [DashboardController::class, 'index']);
-
 
 });
 
