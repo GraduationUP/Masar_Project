@@ -68,7 +68,6 @@ export default function AdminMapPage() {
   }, []);
 
   if (!mapData) return <Loading />;
-  console.log("Map data received:", JSON.stringify(mapData, null, 2));
 
   return (
     <>

@@ -1,13 +1,10 @@
 "use client";
 
-// TODO : Add a whatsapp button
-
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { MapPin, ChevronRight, Loader2, ShoppingBag } from "lucide-react";
 import dynamic from "next/dynamic";
