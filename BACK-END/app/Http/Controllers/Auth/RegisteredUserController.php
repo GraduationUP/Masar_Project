@@ -59,6 +59,8 @@ class RegisteredUserController extends Controller
             'role' => $request->account_type,
             'user_id' => $user->id,
             'username' => $user->username,
+            'full_name' => $user->first_name . ' ' . $user->last_name,
+
         ])
         ->cookie(
             'auth_token',                             // اسم الكوكي
@@ -66,7 +68,7 @@ class RegisteredUserController extends Controller
             $minutes,                                 // مدة الصلاحية بالدقائق
             '/',                                      // المسار (متاح لكل التطبيق)
             null,                                     // الدومين (null للدومين الحالي)
-            config('app.env') === 'production',       
+            config('app.env') === 'production',
             true,                                     // $httpOnly: الأهم! يمنع وصول JavaScript
             false,                                    // $raw: لا
             'Strict'                                  // $sameSite: لمنع CSRF
