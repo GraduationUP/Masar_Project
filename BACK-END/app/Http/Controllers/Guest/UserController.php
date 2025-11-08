@@ -21,6 +21,7 @@ class UserController extends Controller
             'first_name' => $user->first_name,
             'last_name' => $user->last_name,
             'username' => $user->username,
+            'full_name' => $user->first_name . ' ' . $user->last_name,
             'store' => $user->store ? [
                 'id' => $user->store->id,
                 'name' => $user->store->store_name,
